@@ -1,0 +1,241 @@
+name: CI - 持续集成
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # ============================================
+  # Job 1: 基础检查
+  # ============================================
+  basic-checks:
+    name: 基础检查
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      
+      - name: 设置 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: 安装依赖
+        run: |
+          pip install -r requirements.txt
+      
+      - name: 生成文档索引
+        run: make docgen
+      
+      - name: DAG 校验
+        run: make dag_check
+      
+      - name: 契约兼容性检查
+        run: make contract_compat_check
+        continue-on-error: true  # 首次运行可能没有基线
+      
+      - name: 运行时配置校验
+        run: make runtime_config_check
+      
+      - name: 迁移脚本检查
+        run: make migrate_check
+      
+      - name: 一致性检查
+        run: make consistency_check
+
+  # ============================================
+  # Job 2: Python 测试
+  # ============================================
+  python-tests:
+    name: Python 测试
+    runs-on: ubuntu-latest
+    if: hashFiles('**/*.py') != ''  # 仅当有 Python 文件时运行
+    
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      
+      - name: 设置 Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      
+      - name: 安装依赖
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pylint mypy bandit
+      
+      - name: Linter 检查
+        run: |
+          pylint modules/ || true  # 暂时不阻断
+      
+      - name: 类型检查
+        run: |
+          mypy modules/ || true  # 暂时不阻断
+      
+      - name: 安全扫描
+        run: |
+          bandit -r modules/ || true  # 暂时不阻断
+      
+      - name: 运行测试
+        run: |
+          pytest tests/ -v --cov=modules --cov-report=xml --cov-report=term
+      
+      - name: 上传覆盖率报告
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-${{ matrix.python-version }}
+
+  # ============================================
+  # Job 3: Node.js/Vue 测试（可选）
+  # ============================================
+  node-tests:
+    name: Node.js/Vue 测试
+    runs-on: ubuntu-latest
+    if: hashFiles('package.json') != ''  # 仅当有 package.json 时运行
+    
+    strategy:
+      matrix:
+        node-version: ['18.x', '20.x']
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      
+      - name: 设置 Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: 安装依赖
+        run: npm ci
+      
+      - name: Linter 检查
+        run: npm run lint || true
+      
+      - name: 类型检查
+        run: npm run type-check || true
+      
+      - name: 运行单元测试
+        run: npm run test:unit
+      
+      - name: 覆盖率报告
+        run: npm run test:coverage
+
+  # ============================================
+  # Job 4: Go 测试（可选）
+  # ============================================
+  go-tests:
+    name: Go 测试
+    runs-on: ubuntu-latest
+    if: hashFiles('go.mod') != ''  # 仅当有 go.mod 时运行
+    
+    strategy:
+      matrix:
+        go-version: ['1.20', '1.21']
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      
+      - name: 设置 Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+      
+      - name: 下载依赖
+        run: go mod download
+      
+      - name: Linter 检查
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+      
+      - name: 运行测试
+        run: go test -v -race -coverprofile=coverage.out ./...
+      
+      - name: 覆盖率检查
+        run: |
+          go tool cover -func=coverage.out
+          go tool cover -html=coverage.out -o coverage.html
+      
+      - name: 上传覆盖率
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.out
+          flags: go-tests
+
+  # ============================================
+  # Job 5: 完整验证
+  # ============================================
+  full-check:
+    name: 完整验证
+    needs: [basic-checks]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      
+      - name: 设置 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+      
+      - name: 运行完整检查
+        run: make dev_check
+      
+      - name: 检查依赖
+        run: make deps_check || true  # 交互式，不阻断
+
+  # ============================================
+  # Job 6: 安全扫描（可选）
+  # ============================================
+  security-scan:
+    name: 安全扫描
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      
+      - name: Python 安全扫描
+        run: |
+          pip install bandit
+          bandit -r modules/ -f json -o bandit-report.json || true
+      
+      - name: 依赖安全扫描
+        run: |
+          pip install safety
+          safety check --json || true
+      
+      - name: Secret 扫描
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+
+# ============================================
+# 通知配置（可选）
+# ============================================
+# 可以在这里添加 Slack/钉钉通知
+

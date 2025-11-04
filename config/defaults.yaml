@@ -1,0 +1,3 @@
+app: { name: app, env: dev }
+limits: { max_tokens: 2048 }
+

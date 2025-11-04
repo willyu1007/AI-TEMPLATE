@@ -1,0 +1,192 @@
+name: Code Review - 代码审查
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  # ============================================
+  # Repo 粒度审查（架构级）
+  # ============================================
+  repo-level-review:
+    name: Repo 级审查（架构）
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # 需要完整历史用于对比
+      
+      - name: 设置 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+      
+      - name: 架构一致性 - DAG 校验
+        run: make dag_check
+      
+      - name: 系统边界 - 契约兼容性
+        run: make contract_compat_check
+        continue-on-error: true
+      
+      - name: 数据库 - 迁移脚本检查
+        run: make migrate_check
+      
+      - name: 配置 - Schema 校验
+        run: make runtime_config_check
+      
+      - name: 文档完整性
+        run: make consistency_check
+
+  # ============================================
+  # 模块粒度审查（模块级）
+  # ============================================
+  module-level-review:
+    name: 模块级审查
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      
+      - name: 设置 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: 安装依赖
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+      
+      - name: 模块文档齐全性
+        run: make consistency_check
+      
+      - name: 测试覆盖率检查
+        run: |
+          if [ -d "tests" ] && [ "$(ls -A tests)" ]; then
+            pytest tests/ --cov=modules --cov-fail-under=70 --cov-report=term-missing
+          else
+            echo "⚠️ 未找到测试文件"
+          fi
+      
+      - name: 依赖检查
+        run: |
+          python scripts/deps_manager.py || true
+
+  # ============================================
+  # 功能粒度审查（代码级）
+  # ============================================
+  code-level-review:
+    name: 代码级审查（功能）
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      
+      - name: 设置 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: 安装代码质量工具
+        run: |
+          pip install pylint mypy bandit radon
+      
+      - name: 代码风格检查（Pylint）
+        run: |
+          pylint modules/ --exit-zero --output-format=text | tee pylint-report.txt
+      
+      - name: 类型检查（Mypy）
+        run: |
+          mypy modules/ --ignore-missing-imports || true
+      
+      - name: 安全扫描（Bandit）
+        run: |
+          bandit -r modules/ -f json -o bandit-report.json
+          bandit -r modules/ || true
+      
+      - name: 代码复杂度分析（Radon）
+        run: |
+          echo "=== 圈复杂度 ==="
+          radon cc modules/ -a -nb
+          echo ""
+          echo "=== 可维护性指数 ==="
+          radon mi modules/ -nb
+      
+      - name: 上传分析报告
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: code-quality-reports
+          path: |
+            pylint-report.txt
+            bandit-report.json
+
+  # ============================================
+  # PR 评论摘要
+  # ============================================
+  pr-summary:
+    name: PR 评论摘要
+    needs: [repo-level-review, module-level-review, code-level-review]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      
+      - name: 生成 PR 摘要
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const comment = `
+            ## 🤖 自动化代码审查摘要
+            
+            ### ✅ 检查状态
+            - Repo 级审查：${{ needs.repo-level-review.result }}
+            - 模块级审查：${{ needs.module-level-review.result }}
+            - 代码级审查：${{ needs.code-level-review.result }}
+            
+            ### 📊 审查粒度
+            根据 \`agent.md\` §11 代码审查流程：
+            - 🏗️ **Repo 级**：架构一致性、契约兼容、数据库迁移
+            - 📦 **模块级**：文档齐全、测试覆盖、依赖管理
+            - ⚙️ **代码级**：接口设计、代码质量、安全性能
+            
+            ### 💡 下一步
+            1. 查看详细报告：[Actions 页面](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            2. 修复任何失败的检查
+            3. 确保所有测试通过
+            4. 请求人工审查
+            
+            ---
+            _自动生成 by Agent Repo CI_
+            `;
+            
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: comment
+            });
+
+# ============================================
+# 环境变量配置
+# ============================================
+env:
+  # Python
+  PYTHONUNBUFFERED: 1
+  
+  # 测试环境
+  APP_ENV: test
+  
+  # 覆盖率要求
+  MIN_COVERAGE: 70
+

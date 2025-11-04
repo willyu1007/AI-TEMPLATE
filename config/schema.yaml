@@ -1,0 +1,2 @@
+app: { name: str, env: [dev, staging, prod] }
+

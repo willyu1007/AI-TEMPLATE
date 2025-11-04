@@ -1,0 +1,13 @@
+# Python 依赖
+
+# YAML 解析（用于 DAG 和配置校验）
+pyyaml>=6.0
+
+# 测试框架（可选，用于运行测试）
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# 代码质量（可选）
+# pylint>=2.0.0
+# black>=22.0.0
+

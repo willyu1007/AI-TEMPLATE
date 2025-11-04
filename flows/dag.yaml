@@ -1,0 +1,17 @@
+version: 1.0
+graph:
+  nodes:
+    - id: web.frontend
+      kind: app
+      inputs: [route]
+      outputs: [payload]
+    - id: api.codegen
+      kind: service
+      contracts: { file: "tools/codegen/contract.json" }
+      sla: { p95_latency_ms: 2000 }
+  edges:
+    - from: web.frontend
+      to: api.codegen
+      when: route == "/generate"
+policies: { no_cycles: true, versioning: semver }
+

@@ -1,0 +1,170 @@
+name: Release - 发布流程
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # 匹配 v1.0.0, v1.2.3 等
+
+jobs:
+  # ============================================
+  # 发布前验证
+  # ============================================
+  pre-release-check:
+    name: 发布前验证
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      
+      - name: 设置 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+      
+      - name: 完整检查
+        run: make dev_check
+      
+      - name: 回滚验证（检查上一个 tag）
+        run: |
+          PREV_TAG=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1) || echo "")
+          if [ -n "$PREV_TAG" ]; then
+            echo "验证可回滚到: $PREV_TAG"
+            make rollback_check PREV_REF=$PREV_TAG || true
+          else
+            echo "⚠️ 未找到上一个 tag，跳过回滚验证"
+          fi
+      
+      - name: 检查 CHANGELOG
+        run: |
+          if ! grep -q "${{ github.ref_name }}" modules/*/CHANGELOG.md 2>/dev/null; then
+            echo "⚠️ 警告：CHANGELOG 中未找到版本号 ${{ github.ref_name }}"
+          fi
+
+  # ============================================
+  # 构建
+  # ============================================
+  build:
+    name: 构建
+    needs: pre-release-check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      
+      - name: 提取版本号
+        id: version
+        run: |
+          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      
+      - name: 构建 Docker 镜像（如适用）
+        run: |
+          # docker build -t your-app:${{ steps.version.outputs.VERSION }} .
+          echo "Docker 构建占位"
+      
+      - name: 构建制品
+        run: |
+          # 根据项目类型构建
+          # Python: python -m build
+          # Node: npm run build
+          # Go: go build
+          echo "构建占位"
+      
+      - name: 上传制品
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: |
+            dist/
+            build/
+
+  # ============================================
+  # 创建 Release
+  # ============================================
+  create-release:
+    name: 创建 GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      
+      - name: 提取 CHANGELOG
+        id: changelog
+        run: |
+          # 提取当前版本的 CHANGELOG（占位）
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "## 主要变更" >> $GITHUB_OUTPUT
+          echo "- 功能1" >> $GITHUB_OUTPUT
+          echo "- 功能2" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: 创建 Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: ${{ steps.changelog.outputs.CHANGELOG }}
+          draft: false
+          prerelease: false
+
+  # ============================================
+  # 部署到 Staging（可选）
+  # ============================================
+  deploy-staging:
+    name: 部署到 Staging
+    needs: create-release
+    runs-on: ubuntu-latest
+    environment: staging
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      
+      - name: 部署到 Staging
+        run: |
+          # 根据实际部署方式调整
+          # 示例：
+          # - kubectl apply -f k8s/staging/
+          # - docker-compose -f docker-compose.staging.yml up -d
+          # - ssh deploy@staging "cd /app && git pull && restart"
+          echo "部署到 Staging 环境（占位）"
+      
+      - name: 冒烟测试
+        run: |
+          # 等待服务启动
+          sleep 30
+          
+          # 健康检查
+          # curl -f https://staging.example.com/health || exit 1
+          echo "冒烟测试（占位）"
+
+  # ============================================
+  # 通知（可选）
+  # ============================================
+  notify:
+    name: 发送通知
+    needs: [create-release, deploy-staging]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Slack 通知
+        uses: 8398a7/action-slack@v3
+        if: always()
+        with:
+          status: ${{ job.status }}
+          text: |
+            发布 ${{ github.ref }} 
+            状态: ${{ job.status }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
