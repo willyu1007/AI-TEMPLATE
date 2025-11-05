@@ -3,7 +3,7 @@
 
 .PHONY: help dev_check docgen ai_begin dag_check contract_compat_check \
         update_baselines runtime_config_check migrate_check consistency_check \
-        rollback_check tests_scaffold deps_check
+        rollback_check tests_scaffold deps_check doc_style_check ai_maintenance
 
 help:
 	@echo "可用命令："
@@ -19,9 +19,11 @@ help:
 	@echo "  make rollback_check         - 回滚验证 (需要 PREV_REF)"
 	@echo "  make tests_scaffold         - 生成测试脚手架 (需要 MODULE)"
 	@echo "  make deps_check             - 检查并自动补全依赖文件"
+	@echo "  make doc_style_check        - 文档风格预检"
+	@echo "  make ai_maintenance         - AI 自动维护（检查并修复常见问题）"
 
 # 完整开发检查（CI 门禁）
-dev_check: docgen dag_check contract_compat_check runtime_config_check migrate_check consistency_check
+dev_check: docgen doc_style_check dag_check contract_compat_check runtime_config_check migrate_check consistency_check
 	@echo ""
 	@echo "================================"
 	@echo "✅ 全部检查通过"
@@ -99,3 +101,8 @@ quick_check: dag_check consistency_check
 deps_check:
 	@echo "🔍 检查项目依赖..."
 	@python scripts/deps_manager.py
+
+# 文档风格预检
+doc_style_check:
+	@echo "🔍 文档风格预检..."
+	@python scripts/doc_style_check.py

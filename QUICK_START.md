@@ -1,6 +1,6 @@
 # 快速开始指南
 
-## 🚀 5 分钟快速启动
+## 5 分钟快速启动
 
 ### 1. 安装依赖
 ```bash
@@ -51,7 +51,7 @@ make dev_check
 make rollback_check PREV_REF=main
 ```
 
-## 📋 常用命令速查
+## 常用命令速查
 
 ### 开发检查
 ```bash
@@ -90,7 +90,7 @@ make deps_check             # 检查并自动补全依赖
 make rollback_check PREV_REF=v1.0.0  # 验证可回滚到指定版本
 ```
 
-## 🎯 AI Agent 使用流程
+## AI Agent 使用流程
 
 ### 作为 AI Agent，每次任务遵循：
 
@@ -185,7 +185,7 @@ make rollback_check PREV_REF=<previous-tag>
 # 创建 PR（附上 plan 和 AI-SR）
 ```
 
-## 📁 目录结构速查
+## 目录结构速查
 
 ```
 .
@@ -249,7 +249,7 @@ make rollback_check PREV_REF=<previous-tag>
 └── README.md                # 项目说明
 ```
 
-## ⚡ 最佳实践
+## 最佳实践
 
 ### 1. 始终保持索引最新
 ```bash
@@ -278,7 +278,7 @@ make rollback_check PREV_REF=v1.0.0
 - `plan.md` = 未来计划
 - `PROGRESS.md` = 历史记录
 
-## 🔧 故障排查
+## 故障排查
 
 ### 问题：`make dev_check` 失败
 
@@ -325,14 +325,14 @@ python --version
 chmod +x scripts/*.sh
 ```
 
-## 📚 更多信息
+## 更多信息
 
 - **详细指南**：`agent.md`
 - **改进方案**：`Agent-Repo-QA-Mapping.md`
 - **实施摘要**：`docs/project/IMPLEMENTATION_SUMMARY.md`
 - **示例模块**：`modules/example/`
 
-## 💡 提示
+## 提示
 
 1. 使用 `make help` 查看所有可用命令
 2. 参考 `modules/example/` 了解文档最佳实践
@@ -340,7 +340,7 @@ chmod +x scripts/*.sh
 4. 生产部署前务必运行 `make rollback_check`
 5. 使用 `make deps_check` 自动检测并补全项目依赖
 
-## 📦 依赖管理说明
+## 依赖管理说明
 
 ### Python 项目
 ```bash

@@ -1,8 +1,19 @@
 # Agent Repo 改进实施摘要
 
+## 目标
+记录 Agent Repo 模板的所有改进工作，提供完整的实施清单和验证状态。
+
+## 适用场景
+- 了解模板的完整功能
+- 验证模板完整性
+- 参考实施方法
+
+## 背景
 根据 `Agent-Repo-QA-Mapping.md` 中提出的改进方案，已完成所有实施工作。
 
-## 📋 实施清单
+---
+
+## 实施清单
 
 ### ✅ 1. 索引哈希与版本管理
 - **升级** `scripts/docgen.py`
@@ -129,7 +140,7 @@ Makefile              # 更新命令
 modules/example/*     # 完善所有文档
 ```
 
-## 🎯 关键改进点
+## 关键改进点
 
 ### 1. 分层上下文加载（S0）
 - **Tier-0（必须）**：snapshot.json, module_index.json
@@ -169,7 +180,7 @@ make update_baselines       # 更新基线
 - 破坏性变更自动阻断
 - 基线版本控制
 
-## 🚀 快速使用指南
+## 快速使用指南
 
 ### 首次初始化
 ```bash
@@ -223,7 +234,7 @@ make contract_compat_check
 make update_baselines
 ```
 
-## 📦 依赖要求
+## 依赖要求
 
 ### Python 依赖
 ```bash
@@ -235,7 +246,7 @@ pip install -r requirements.txt
 - Bash 4.0+
 - Git（用于回滚验证）
 
-## 🔧 配置说明
+## 配置说明
 
 ### 环境变量
 ```bash
@@ -257,7 +268,7 @@ OPENAI_API_KEY=...        # API 密钥（生产必需）
 └── modules/              # 业务模块
 ```
 
-## ✅ 验证状态
+## 验证状态
 
 所有改进已实施并验证：
 - [x] 13 个改进点全部完成
@@ -266,14 +277,14 @@ OPENAI_API_KEY=...        # API 密钥（生产必需）
 - [x] Makefile 命令正常
 - [x] 示例模块更新完成
 
-## 📝 注意事项
+## 注意事项
 
 1. **首次运行**：需要先执行 `make docgen` 生成索引
 2. **契约基线**：首次使用需要 `make update_baselines`
 3. **Python 依赖**：需要安装 `pip install -r requirements.txt`
 4. **权限问题**：脚本需要执行权限（`chmod +x scripts/*.sh`）
 
-## 🎉 改进效果
+## 改进效果
 
 1. **上下文管理**：分层加载，减少不必要的读取
 2. **质量门禁**：7 个自动化检查，减少人工审查
@@ -282,7 +293,7 @@ OPENAI_API_KEY=...        # API 密钥（生产必需）
 5. **回滚安全**：自动化回滚验证，降低风险
 6. **契约管理**：破坏性变更自动阻断，保护 API 兼容性
 
-## 📚 相关文档
+## 相关文档
 
 - `Agent-Repo-QA-Mapping.md` - 改进方案详细说明
 - `agent.md` - AI Agent 工作指南

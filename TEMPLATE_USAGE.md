@@ -4,7 +4,7 @@
 
 ---
 
-## 📋 目录
+## 目录
 
 1. [快速开始](#快速开始)
 2. [必须修改的文件](#必须修改的文件)
@@ -14,7 +14,7 @@
 
 ---
 
-## 🚀 快速开始
+## 快速开始
 
 ### 方式 1: 使用模板创建新项目（GitHub）
 
@@ -58,9 +58,9 @@ git commit -m "chore: init project from template"
 
 ---
 
-## 📝 必须修改的文件
+## 必须修改的文件
 
-### 🔴 第一优先级（立即修改）
+### 第一优先级（立即修改）
 
 #### 1. `README.md`
 ```markdown
@@ -199,7 +199,7 @@ rm CHANGES_SUMMARY.md  # 模板变更记录（如果还在根目录）
 
 ---
 
-## ⚙️ 可选配置
+## 可选配置
 
 ### 技术栈定制
 
@@ -343,7 +343,7 @@ make style_check
 
 ---
 
-## ✅ 检查清单
+## 检查清单
 
 ### 项目初始化清单
 
@@ -390,7 +390,7 @@ make style_check
 
 ---
 
-## 🔧 常见问题
+## 常见问题
 
 ### Q1: 我只用 Python，需要保留 Go/Vue 的配置吗？
 **A**: 不需要。删除 `config/loader/go_loader.go` 和 `ts_loader.ts`，只保留 `python_loader.py`。同时更新 `ENV_SPEC.yaml`。
@@ -431,7 +431,7 @@ git diff template/main -- agent.md
 
 ---
 
-## 📚 下一步
+## 下一步
 
 1. ✅ 完成检查清单
 2. 📖 阅读 [agent.md](agent.md) 了解完整工作流程
@@ -441,7 +441,7 @@ git diff template/main -- agent.md
 
 ---
 
-## 💡 获取帮助
+## 获取帮助
 
 - **文档**：查看 `agent.md` 和 `QUICK_START.md`
 - **示例**：参考 `modules/example/`
