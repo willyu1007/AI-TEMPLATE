@@ -17,7 +17,7 @@
 
 ## 目录结构
 
-```
+```text
 observability/
 ├── README.md           # 本文件
 ├── logging/            # 日志配置
@@ -43,7 +43,7 @@ observability/
 ### 1. 日志收集（ELK Stack）
 
 #### 使用 Logstash
-```yaml
+```
 # observability/logging/logstash.conf
 input {
   beats {
@@ -79,8 +79,8 @@ output {
 }
 ```
 
-#### 使用 Fluentd
-```yaml
+## 使用 Fluentd
+```
 # observability/logging/fluentd.yaml
 <source>
   @type forward
@@ -106,8 +106,8 @@ output {
 </match>
 ```
 
-#### Python logging 配置
-```yaml
+## Python logging 配置
+```
 # observability/logging/python_logging.yaml
 version: 1
 formatters:
@@ -143,10 +143,10 @@ root:
 
 ---
 
-### 2. 指标收集（Prometheus）
+## 2. 指标收集（Prometheus）
 
 #### Prometheus 配置
-```yaml
+```
 # observability/metrics/prometheus.yml
 global:
   scrape_interval: 15s
@@ -184,8 +184,8 @@ alerting:
         - targets: ['alertmanager:9093']
 ```
 
-#### 应用指标暴露（Python 示例）
-```python
+## 应用指标暴露（Python 示例）
+```
 # modules/user/metrics.py
 from prometheus_client import Counter, Histogram, Gauge, start_http_server
 
@@ -213,10 +213,10 @@ start_http_server(8001)
 
 ---
 
-### 3. 链路追踪（Jaeger）
+## 3. 链路追踪（Jaeger）
 
 #### Jaeger 配置
-```yaml
+```
 # observability/tracing/jaeger.yaml
 apiVersion: v1
 kind: ConfigMap
@@ -237,8 +237,8 @@ data:
         password: changeme
 ```
 
-#### OpenTelemetry 配置
-```yaml
+## OpenTelemetry 配置
+```
 # observability/tracing/opentelemetry.yaml
 exporter:
   jaeger:
@@ -258,8 +258,8 @@ instrumentation:
       - sqlalchemy
 ```
 
-#### Python 集成示例
-```python
+## Python 集成示例
+```
 # modules/user/tracing.py
 from opentelemetry import trace
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
@@ -290,10 +290,10 @@ def create_user(email: str):
 
 ---
 
-### 4. 告警配置
+## 4. 告警配置
 
 #### Prometheus 告警规则
-```yaml
+```
 # observability/alerts/prometheus_alerts.yml
 groups:
   - name: app_alerts
@@ -327,8 +327,8 @@ groups:
           description: "服务 {{ $labels.instance }} 已下线超过 1 分钟"
 ```
 
-#### Alertmanager 配置
-```yaml
+## Alertmanager 配置
+```
 # observability/alerts/alertmanager.yml
 global:
   resolve_timeout: 5m
@@ -374,7 +374,7 @@ receivers:
 ## 验证步骤
 
 ### 1. 日志验证
-```bash
+```
 # 检查日志是否正常收集
 curl http://elasticsearch:9200/app-logs-*/_search?q=level:ERROR
 
@@ -382,8 +382,8 @@ curl http://elasticsearch:9200/app-logs-*/_search?q=level:ERROR
 curl http://fluentd:24220/api/plugins.json
 ```
 
-### 2. 指标验证
-```bash
+## 2. 指标验证
+```
 # 检查 Prometheus 目标
 curl http://prometheus:9090/api/v1/targets
 
@@ -391,8 +391,8 @@ curl http://prometheus:9090/api/v1/targets
 curl 'http://prometheus:9090/api/v1/query?query=up'
 ```
 
-### 3. 追踪验证
-```bash
+## 3. 追踪验证
+```
 # 检查 Jaeger 服务
 curl http://jaeger:16686/api/services
 

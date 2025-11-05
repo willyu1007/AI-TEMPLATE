@@ -19,7 +19,7 @@
 ### 1. 输入参数
 
 #### 请求格式
-```json
+```
 {
   "task": "string - 任务描述",
   "language": "string - 目标语言（可选）",
@@ -45,7 +45,7 @@
 ### 2. 输出格式
 
 #### 成功响应
-```json
+```
 {
   "result": "string - 处理结果",
   "status": "success",
@@ -57,7 +57,7 @@
 ```
 
 #### 失败响应
-```json
+```
 {
   "result": "string - 错误信息",
   "status": "error",
@@ -87,7 +87,7 @@
 ### 向后兼容原则
 1. **不删除现有字段**：废弃字段标记为 `@deprecated`
 2. **不改变字段类型**：如需改变，创建新字段
-3. **不改变字段语义**：如需改变，升级 major 版本
+3. **不改变字段语义**：如需改变，升级 major 版本。
 4. **新增可选字段**：必须提供默认值
 
 ### 版本管理
@@ -108,7 +108,7 @@
 ## 调用示例
 
 ### 示例 1：基础调用
-```bash
+```
 curl -X POST http://localhost:8000/api/example \
   -H "Content-Type: application/json" \
   -d '{
@@ -118,7 +118,7 @@ curl -X POST http://localhost:8000/api/example \
 ```
 
 **预期响应**：
-```json
+```
 {
   "result": "登录功能实现完成",
   "status": "success",
@@ -130,7 +130,7 @@ curl -X POST http://localhost:8000/api/example \
 ```
 
 ### 示例 2：演练模式
-```bash
+```
 curl -X POST http://localhost:8000/api/example \
   -H "Content-Type: application/json" \
   -d '{
@@ -141,7 +141,7 @@ curl -X POST http://localhost:8000/api/example \
 ```
 
 **预期响应**：
-```json
+```
 {
   "result": "预览：将生成 User 模型（未执行）",
   "status": "success",
@@ -153,14 +153,14 @@ curl -X POST http://localhost:8000/api/example \
 ```
 
 ### 示例 3：错误处理
-```bash
+```
 curl -X POST http://localhost:8000/api/example \
   -H "Content-Type: application/json" \
   -d '{}'
 ```
 
 **预期响应**：
-```json
+```
 {
   "result": "参数 task 不能为空",
   "status": "error",
@@ -177,7 +177,7 @@ curl -X POST http://localhost:8000/api/example \
 ## 验证步骤
 
 ### 1. 契约测试
-```bash
+```
 # 运行契约测试
 pytest tests/example/test_contract.py -v
 
@@ -185,16 +185,16 @@ pytest tests/example/test_contract.py -v
 pytest tests/example/test_contract.py::test_response_schema
 ```
 
-### 2. 兼容性检查
-```bash
+## 2. 兼容性检查
+```
 # 检查与基线的兼容性
 make contract_compat_check
 
 # 预期输出：无破坏性变更
 ```
 
-### 3. 集成测试
-```bash
+## 3. 集成测试
+```
 # 测试真实调用
 pytest tests/example/test_integration.py -v
 ```
@@ -206,7 +206,7 @@ pytest tests/example/test_integration.py -v
 如果接口变更导致问题：
 
 ### 1. 识别影响范围
-```bash
+```
 # 查看哪些模块依赖此接口
 grep -r "example" flows/dag.yaml
 
@@ -214,8 +214,8 @@ grep -r "example" flows/dag.yaml
 grep -r "api/example" modules/
 ```
 
-### 2. 回滚契约
-```bash
+## 2. 回滚契约
+```
 # 恢复到上一版本
 git checkout <previous-tag> -- modules/example/CONTRACT.md
 git checkout <previous-tag> -- tools/example/contract.json
@@ -224,14 +224,14 @@ git checkout <previous-tag> -- tools/example/contract.json
 make update_baselines
 ```
 
-### 3. 通知下游
+## 3. 通知下游
 如果有其他模块依赖：
 1. 通知相关团队
 2. 提供迁移指导
 3. 协助集成测试
 
 ### 4. 验证回滚
-```bash
+```
 # 检查兼容性
 make contract_compat_check
 

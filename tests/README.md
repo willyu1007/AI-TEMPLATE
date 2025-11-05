@@ -17,7 +17,7 @@
 
 ## 目录结构
 
-```
+```text
 tests/
 ├── README.md           # 本文件
 ├── conftest.py         # Pytest 全局配置（Python 项目）
@@ -36,7 +36,7 @@ tests/
 - **目的**：测试单个函数/类/组件
 - **特点**：快速、独立、无外部依赖
 - **文件**：`test_unit.py` 或 `*_test.go`
-- **运行**：应该在 1 秒内完成
+- **运行**：必须在 1 秒内完成
 
 ### 集成测试（Integration Tests）
 - **目的**：测试模块间交互
@@ -59,7 +59,7 @@ tests/
 ## 测试命令
 
 ### Python (pytest)
-```bash
+```
 # 运行所有测试
 pytest tests/
 
@@ -85,8 +85,8 @@ pytest -vv tests/
 pytest --lf tests/
 ```
 
-### TypeScript/Vue (Vitest)
-```bash
+## TypeScript/Vue (Vitest)
+```
 # 运行所有测试
 npm run test
 
@@ -103,8 +103,8 @@ npm run test:coverage
 npm run test -- --watch
 ```
 
-### Go (testing)
-```bash
+## Go (testing)
+```
 # 运行所有测试
 go test ./...
 
@@ -150,7 +150,7 @@ go test -bench=. ./tests/example/
 ## 测试最佳实践
 
 ### 1. 测试独立性
-```python
+```
 # ❌ 错误：测试依赖顺序
 def test_step1():
     global user
@@ -171,8 +171,8 @@ def test_update_user():
     assert updated
 ```
 
-### 2. 使用 Fixtures
-```python
+## 2. 使用 Fixtures
+```
 # ✅ 推荐：使用 fixtures 管理测试数据
 @pytest.fixture
 def user():
@@ -183,8 +183,8 @@ def test_update_user(user):
     assert updated.version == user.version + 1
 ```
 
-### 3. Mock 外部依赖
-```python
+## 3. Mock 外部依赖
+```
 # ✅ 推荐：Mock 外部 API
 from unittest.mock import patch
 
@@ -195,8 +195,8 @@ def test_fetch_data():
         assert result["data"] == "test"
 ```
 
-### 4. 参数化测试
-```python
+## 4. 参数化测试
+```
 # ✅ 推荐：使用参数化避免重复
 @pytest.mark.parametrize("input,expected", [
     ("test@example.com", True),
@@ -207,8 +207,8 @@ def test_validate_email(input, expected):
     assert validate_email(input) == expected
 ```
 
-### 5. 测试命名清晰
-```python
+## 5. 测试命名清晰
+```
 # ❌ 不清晰
 def test_1():
     pass
@@ -289,42 +289,42 @@ $$
 按照以下顺序排查：
 
 1. **首先**，查看错误信息和堆栈跟踪
-   ```bash
-   pytest -vv --tb=long
    ```
+   pytest -vv --tb=long
+```
 
 2. **然后**，使用详细输出模式
-   ```bash
-   pytest -vv tests/example/test_specific.py
    ```
+   pytest -vv tests/example/test_specific.py
+```
 
 3. **接着**，单独运行失败的测试
-   ```bash
-   pytest --lf  # Last Failed
    ```
+   pytest --lf  # Last Failed
+```
 
 4. **随后**，检查测试数据和Mock配置
    - 验证 fixtures 是否正确
    - 检查 Mock 返回值
 
 5. **最后**，使用调试器定位问题
-   ```bash
+   ```
    # Python
    pytest --pdb
    
    # 或
    python -m pdb -m pytest tests/example/test_specific.py
-   ```
+```
 
-### 覆盖率不达标？
+## 覆盖率不达标？
 
 系统化提升覆盖率：
 
 1. **生成覆盖率报告**
-   ```bash
+   ```
    pytest --cov=modules --cov-report=html tests/
    # 打开 htmlcov/index.html
-   ```
+```
 
 2. **识别未覆盖代码**
    - 查看红色标记的代码行

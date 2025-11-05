@@ -70,7 +70,7 @@
 ## 验证步骤
 
 ### 检查 DoR
-```bash
+```
 # 1. 确认 plan.md 已更新
 cat modules/<name>/plan.md
 
@@ -81,8 +81,8 @@ cat modules/<name>/CONTRACT.md
 # 执行 plan.md 中列出的验证命令
 ```
 
-### 检查 DoD
-```bash
+## 检查 DoD
+```
 # 1. 运行完整检查
 make dev_check
 

@@ -3,7 +3,9 @@
 
 .PHONY: help dev_check docgen ai_begin dag_check contract_compat_check \
         update_baselines runtime_config_check migrate_check consistency_check \
-        rollback_check tests_scaffold deps_check doc_style_check ai_maintenance
+        rollback_check tests_scaffold deps_check doc_style_check ai_maintenance \
+        test_status_check dataflow_check app_structure_check cleanup_tmp \
+        generate_openapi generate_frontend_types frontend_types_check
 
 help:
 	@echo "可用命令："
@@ -20,10 +22,17 @@ help:
 	@echo "  make tests_scaffold         - 生成测试脚手架 (需要 MODULE)"
 	@echo "  make deps_check             - 检查并自动补全依赖文件"
 	@echo "  make doc_style_check        - 文档风格预检"
+	@echo "  make test_status_check      - 检查人工测试跟踪状态"
+	@echo "  make dataflow_check         - 检查UX数据流转文档一致性"
+	@echo "  make app_structure_check    - 检查应用层结构（app/apps）"
 	@echo "  make ai_maintenance         - AI 自动维护（检查并修复常见问题）"
+	@echo "  make cleanup_tmp            - 清理所有临时文件（*_tmp.*）"
+	@echo "  make generate_openapi       - 从 contract.json 生成 OpenAPI 3.0"
+	@echo "  make generate_frontend_types - 从 OpenAPI 生成前端 TypeScript 类型"
+	@echo "  make frontend_types_check    - 检查前端类型与契约一致性"
 
 # 完整开发检查（CI 门禁）
-dev_check: docgen doc_style_check dag_check contract_compat_check runtime_config_check migrate_check consistency_check
+dev_check: docgen doc_style_check dag_check contract_compat_check deps_check runtime_config_check migrate_check consistency_check frontend_types_check
 	@echo ""
 	@echo "================================"
 	@echo "✅ 全部检查通过"
@@ -106,3 +115,48 @@ deps_check:
 doc_style_check:
 	@echo "🔍 文档风格预检..."
 	@python scripts/doc_style_check.py
+
+# 人工测试状态检查
+test_status_check:
+	@echo "🔍 检查人工测试跟踪状态..."
+	@python scripts/test_status_check.py
+
+# UX 数据流转检查
+dataflow_check:
+	@echo "🔍 检查UX数据流转文档一致性..."
+	@python scripts/dataflow_trace.py
+
+# 应用层结构检查
+app_structure_check:
+	@echo "🔍 检查应用层结构..."
+	@python scripts/app_structure_check.py
+
+# AI 自动维护（检查并修复常见问题）
+ai_maintenance:
+	@echo "🤖 AI 自动维护..."
+	@python scripts/ai_maintenance.py
+
+# 清理临时文件
+cleanup_tmp:
+	@echo "🧹 清理临时文件..."
+	@find . -type f -name "*_tmp.*" -not -path "./.git/*" -not -path "./node_modules/*" -not -path "./.venv/*" -not -path "./venv/*" -delete 2>/dev/null || true
+	@find . -type d -name "*_tmp" -not -path "./.git/*" -not -path "./node_modules/*" -not -path "./.venv/*" -not -path "./venv/*" -exec rm -rf {} + 2>/dev/null || true
+	@if [ -d "tmp" ]; then \
+		find tmp -type f -name "*_tmp.*" -delete 2>/dev/null || true; \
+	fi
+	@echo "✅ 临时文件清理完成"
+
+# 生成 OpenAPI 3.0 规范（从 contract.json）
+generate_openapi:
+	@echo "📝 生成 OpenAPI 3.0 规范..."
+	@python scripts/generate_openapi.py
+
+# 生成前端 TypeScript 类型（从 OpenAPI）
+generate_frontend_types: generate_openapi
+	@echo "📝 生成前端 TypeScript 类型..."
+	@python scripts/generate_frontend_types.py
+
+# 检查前端类型与契约一致性
+frontend_types_check:
+	@echo "🔍 检查前端类型一致性..."
+	@python scripts/frontend_types_check.py

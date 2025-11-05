@@ -21,7 +21,7 @@
 ### 1. 启动服务
 
 #### 开发环境
-```bash
+```
 # 方法 1：直接运行
 export APP_ENV=dev
 export LOG_LEVEL=DEBUG
@@ -34,8 +34,8 @@ docker-compose up example
 docker-compose up -d example
 ```
 
-#### 生产环境
-```bash
+## 生产环境
+```
 # 1. 切换到生产配置
 export APP_ENV=prod
 
@@ -55,7 +55,7 @@ curl http://localhost:8000/health
 
 ---
 
-### 2. 停止服务
+## 2. 停止服务
 
 ```bash
 # 优雅停止（等待处理完当前请求）
@@ -75,7 +75,7 @@ systemctl stop app-example
 
 ---
 
-### 3. 重启服务
+## 3. 重启服务
 
 ```bash
 # 开发环境
@@ -166,7 +166,7 @@ systemctl restart app-example
 - 健康检查返回 503
 
 #### 排查步骤
-```bash
+```
 # 1. 检查配置
 cat config/prod.yaml
 env | grep APP_
@@ -182,7 +182,7 @@ curl http://database:5432
 redis-cli ping
 ```
 
-#### 解决方案
+## 解决方案
 1. 修复配置错误
 2. 释放被占用的端口
 3. 启动依赖服务
@@ -197,7 +197,7 @@ redis-cli ping
 - API 返回 500 错误
 
 #### 排查步骤
-```bash
+```
 # 1. 检查数据库配置
 echo $DATABASE_URL
 
@@ -212,7 +212,7 @@ psql -h db-host -U user -d dbname -c "SELECT 1"
 docker logs postgres-container
 ```
 
-#### 解决方案
+## 解决方案
 1. 修复数据库连接字符串
 2. 检查网络和防火墙
 3. 重启数据库服务
@@ -227,7 +227,7 @@ docker logs postgres-container
 - P95 > 2000ms
 
 #### 排查步骤
-```bash
+```
 # 1. 检查慢查询
 psql -d app -c "SELECT * FROM pg_stat_statements ORDER BY total_time DESC LIMIT 10"
 
@@ -244,7 +244,7 @@ redis-cli INFO stats | grep hit_rate
 py-spy record -o profile.svg -- python -m example.main
 ```
 
-#### 解决方案
+## 解决方案
 1. 优化慢查询（添加索引）
 2. 扩容系统资源
 3. 优化缓存策略
@@ -259,7 +259,7 @@ py-spy record -o profile.svg -- python -m example.main
 - 大量 5xx 错误
 
 #### 排查步骤
-```bash
+```
 # 1. 查看错误日志
 grep "ERROR" /var/log/app/example.log | tail -100
 
@@ -273,7 +273,7 @@ curl http://dependency-service/health
 git log --oneline -10
 ```
 
-#### 解决方案
+## 解决方案
 1. 修复已知 Bug
 2. 重启依赖服务
 3. 考虑回滚到上一版本
@@ -292,7 +292,7 @@ git log --oneline -10
 ### 回滚步骤
 
 #### 1. 决策评估（< 15分钟）
-```bash
+```
 # 评估影响范围
 git diff <current-tag> <previous-tag> --stat
 
@@ -302,8 +302,8 @@ make rollback_check PREV_REF=<previous-tag>
 # 决策：回滚 or 修复
 ```
 
-#### 2. 代码回滚（< 15分钟）
-```bash
+## 2. 代码回滚（< 15分钟）
+```
 # 方法 1：Git revert（推荐）
 git revert <bad-commit-hash>
 git push
@@ -318,8 +318,8 @@ git reset --hard <previous-tag>
 git push -f origin main  # 仅紧急情况
 ```
 
-#### 3. 数据库回滚（< 10分钟）
-```bash
+## 3. 数据库回滚（< 10分钟）
+```
 # 1. 备份当前数据
 pg_dump app > backup_before_rollback_$(date +%Y%m%d_%H%M%S).sql
 
@@ -330,8 +330,8 @@ psql -d app -f migrations/<version>_down.sql
 psql -d app -c "\d+ table_name"
 ```
 
-#### 4. 配置回滚（< 5分钟）
-```bash
+## 4. 配置回滚（< 5分钟）
+```
 # 恢复配置文件
 git checkout <previous-tag> -- config/
 
@@ -339,8 +339,8 @@ git checkout <previous-tag> -- config/
 systemctl reload app-example
 ```
 
-#### 5. 重新部署（< 20分钟）
-```bash
+## 5. 重新部署（< 20分钟）
+```
 # 停止当前版本
 systemctl stop app-example
 
@@ -351,8 +351,8 @@ systemctl stop app-example
 systemctl start app-example
 ```
 
-#### 6. 验证回滚（< 10分钟）
-```bash
+## 6. 验证回滚（< 10分钟）
+```
 # 1. 健康检查
 curl http://localhost:8000/health
 # 预期: 200 OK
@@ -368,7 +368,7 @@ pytest tests/example/test_smoke.py -v
 # 确认核心功能可用
 ```
 
-### 回滚时间目标
+## 回滚时间目标
 - **决策时间**: < 15 分钟
 - **执行时间**: < 30 分钟
 - **验证时间**: < 15 分钟
@@ -381,7 +381,7 @@ pytest tests/example/test_smoke.py -v
 ### 数据备份策略
 
 #### 自动备份
-```bash
+```
 # 每日全量备份（cron）
 0 2 * * * pg_dump app > /backup/app_$(date +\%Y\%m\%d).sql
 
@@ -392,8 +392,8 @@ pytest tests/example/test_smoke.py -v
 # archive_command = 'cp %p /backup/wal/%f'
 ```
 
-#### 手动备份
-```bash
+## 手动备份
+```
 # 完整备份
 make backup
 
@@ -401,10 +401,10 @@ make backup
 pg_dump -h localhost -U user -d app -F c -f backup_$(date +%Y%m%d).dump
 ```
 
-### 恢复操作
+## 恢复操作
 
 #### 从全量备份恢复
-```bash
+```
 # 1. 停止服务
 systemctl stop app-example
 
@@ -421,8 +421,8 @@ systemctl start app-example
 pytest tests/example/test_smoke.py
 ```
 
-#### 点对时恢复（PITR）
-```bash
+## 点对时恢复（PITR）
+```
 # 恢复到特定时间点
 pg_restore -d app -T <timestamp> backup.dump
 ```
@@ -434,7 +434,7 @@ pg_restore -d app -T <timestamp> backup.dump
 ### 水平扩容
 
 #### 步骤
-```bash
+```
 # 1. 增加实例数
 docker-compose up --scale example=3
 
@@ -456,10 +456,10 @@ curl http://lb/stats
 
 ---
 
-### 垂直扩容
+## 垂直扩容
 
 #### 步骤
-```bash
+```
 # 1. 调整资源配置
 vim docker-compose.yml
 # 修改 resources.limits.cpus 和 memory
@@ -482,7 +482,7 @@ docker stats example
 ### 密钥轮换
 
 #### API 密钥轮换（每90天）
-```bash
+```
 # 1. 生成新密钥
 python -c "import secrets; print(secrets.token_urlsafe(32))"
 
@@ -496,14 +496,14 @@ systemctl reload app-example
 curl -H "Authorization: Bearer <new-key>" http://localhost:8000/api/test
 ```
 
-### 日志管理
+## 日志管理
 
 #### 日志位置
 - **开发环境**: stdout
 - **生产环境**: `/var/log/app/example.log`
 
 #### 日志轮换
-```bash
+```
 # logrotate 配置
 /var/log/app/example.log {
     daily
@@ -518,7 +518,7 @@ curl -H "Authorization: Bearer <new-key>" http://localhost:8000/api/test
 }
 ```
 
-### 审计日志
+## 审计日志
 - **保留期**: 180 天
 - **内容**: 用户操作、配置变更、权限变更
 - **位置**: `/var/log/audit/example.log`
@@ -530,7 +530,7 @@ curl -H "Authorization: Bearer <new-key>" http://localhost:8000/api/test
 ### 日志调试
 
 #### 临时提高日志级别
-```bash
+```
 # 方法 1：环境变量
 export LOG_LEVEL=DEBUG
 systemctl restart app-example
@@ -541,8 +541,8 @@ vim config/prod.yaml
 systemctl reload app-example
 ```
 
-#### 查看实时日志
-```bash
+## 查看实时日志
+```
 # 跟踪日志
 tail -f /var/log/app/example.log
 
@@ -553,10 +553,10 @@ tail -f /var/log/app/example.log | grep ERROR
 tail -100 /var/log/app/example.log
 ```
 
-### 性能调试
+## 性能调试
 
 #### 性能分析
-```bash
+```
 # Python 性能分析
 py-spy record -o profile.svg --pid <pid>
 
@@ -572,8 +572,8 @@ psql -d app -c "
 strace -p <pid> -c
 ```
 
-### 网络调试
-```bash
+## 网络调试
+```
 # 检查端口监听
 netstat -tulpn | grep example
 
@@ -589,7 +589,7 @@ tcpdump -i any port 8000 -w capture.pcap
 ## 验证清单
 
 ### 部署后验证
-```markdown
+```
 - [ ] 服务启动正常（systemctl status）
 - [ ] 健康检查通过（/health 返回 200）
 - [ ] 数据库连接正常
@@ -601,7 +601,7 @@ tcpdump -i any port 8000 -w capture.pcap
 ```
 
 ### 定期巡检（每周）
-```markdown
+```
 - [ ] 检查日志无异常
 - [ ] 监控指标在正常范围
 - [ ] 磁盘空间充足（> 20%）

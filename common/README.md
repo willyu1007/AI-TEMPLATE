@@ -17,7 +17,7 @@
 
 ## 目录结构
 
-```
+```text
 common/
 ├── utils/          # 通用工具函数
 │   ├── __init__.py
@@ -56,7 +56,7 @@ common/
 - 功能单一，职责明确
 
 **示例**：
-```python
+```
 # ❌ 错误：仅一个模块使用
 # common/utils/user_validator.py  # 只有 user 模块需要
 
@@ -66,7 +66,7 @@ common/
 
 ---
 
-### 2. 无业务逻辑原则
+## 2. 无业务逻辑原则
 **规则**：`common/` 中不应包含业务逻辑，只包含通用技术能力。
 
 **禁止事项**：
@@ -80,7 +80,7 @@ common/
 - ✅ 基础数据结构（分页、响应格式等）
 
 **示例**：
-```python
+```
 # ❌ 错误：包含业务逻辑
 def calculate_order_total(order):
     """计算订单总价（业务逻辑）"""
@@ -94,7 +94,7 @@ def format_currency(amount, currency='CNY'):
 
 ---
 
-### 3. 版本兼容原则
+## 3. 版本兼容原则
 **规则**：`common/` 的变更必须向后兼容，或提供明确的迁移路径。
 
 **要求**：
@@ -108,7 +108,7 @@ def format_currency(amount, currency='CNY'):
 **规则**：`common/` 中的所有代码必须有完整的单元测试，覆盖率 ≥90%。
 
 **验证命令**：
-```bash
+```
 # 运行 common 的测试
 pytest tests/common/ -v --cov=common --cov-report=html
 
@@ -133,7 +133,7 @@ pytest tests/common/ -v --cov=common --cov-report=html
 | `normalize_string` | 规范化字符串 | `normalize_string("  Hello  ", trim=True)` → `"Hello"` |
 
 **导入方式**：
-```python
+```
 from common.utils import camel_to_snake, snake_to_camel, truncate_string, normalize_string
 # 或
 from common.utils.string_utils import camel_to_snake
@@ -141,7 +141,7 @@ from common.utils.string_utils import camel_to_snake
 
 ---
 
-#### 2. 日期时间工具 (`common.utils`)
+## 2. 日期时间工具 (`common.utils`)
 | 函数名 | 功能 | 使用示例 |
 |--------|------|----------|
 | `now_utc` | 获取当前 UTC 时间 | `now_utc()` → `datetime(2025, 11, 5, ...)` |
@@ -150,7 +150,7 @@ from common.utils.string_utils import camel_to_snake
 | `time_ago` | 计算相对时间 | `time_ago(past_time)` → `"5分钟前"` |
 
 **导入方式**：
-```python
+```
 from common.utils import now_utc, format_datetime, parse_datetime, time_ago
 # 或
 from common.utils.date_utils import now_utc
@@ -158,7 +158,7 @@ from common.utils.date_utils import now_utc
 
 ---
 
-#### 3. 数据验证工具 (`common.utils`)
+## 3. 数据验证工具 (`common.utils`)
 | 函数名 | 功能 | 使用示例 |
 |--------|------|----------|
 | `validate_email` | 验证邮箱格式 | `validate_email("user@example.com")` → `True` |
@@ -167,7 +167,7 @@ from common.utils.date_utils import now_utc
 | `validate_uuid` | 验证 UUID | `validate_uuid("123e4567-...")` → `True` |
 
 **导入方式**：
-```python
+```
 from common.utils import validate_email, validate_phone, validate_url, validate_uuid
 # 或
 from common.utils.validation import validate_email
@@ -175,7 +175,7 @@ from common.utils.validation import validate_email
 
 ---
 
-#### 4. 加密解密工具 (`common.utils`)
+## 4. 加密解密工具 (`common.utils`)
 | 函数名 | 功能 | 使用示例 |
 |--------|------|----------|
 | `hash_password` | 哈希密码 | `hash_password("password123")` → `"hashed_string"` |
@@ -184,7 +184,7 @@ from common.utils.validation import validate_email
 | `decrypt_data` | 解密数据 | `decrypt_data(encrypted)` → `"sensitive"` |
 
 **导入方式**：
-```python
+```
 from common.utils import hash_password, verify_password, encrypt_data, decrypt_data
 # 或
 from common.utils.encryption import hash_password
@@ -194,7 +194,7 @@ from common.utils.encryption import hash_password
 
 ---
 
-#### 5. 数据模型 (`common.models`)
+## 5. 数据模型 (`common.models`)
 | 类名 | 功能 | 使用示例 |
 |------|------|----------|
 | `BaseModel` | 基础模型类 | 继承用于序列化/反序列化 |
@@ -204,7 +204,7 @@ from common.utils.encryption import hash_password
 | `ApiResponse` | API 响应 | `ApiResponse.success_response(data={...})` |
 
 **导入方式**：
-```python
+```
 from common.models import BaseModel, TimestampMixin, PaginationParams, PaginationResult, ApiResponse
 # 或
 from common.models.base import BaseModel
@@ -212,7 +212,7 @@ from common.models.common import PaginationParams
 ```
 
 **使用示例**：
-```python
+```
 from common.models import BaseModel, TimestampMixin, PaginationParams
 
 @dataclass
@@ -228,7 +228,7 @@ limit = params.get_limit()    # 20
 
 ---
 
-#### 6. 中间件 (`common.middleware`)
+## 6. 中间件 (`common.middleware`)
 | 函数/类名 | 功能 | 使用示例 |
 |-----------|------|----------|
 | `require_auth` | 认证装饰器 | `@require_auth` 装饰需要认证的函数 |
@@ -240,7 +240,7 @@ limit = params.get_limit()    # 20
 | `RateLimiter` | 限流器类 | `RateLimiter(max_requests=100, window_seconds=60)` |
 
 **导入方式**：
-```python
+```
 from common.middleware import require_auth, rate_limit, setup_logging
 from common.middleware import RateLimiter
 # 或
@@ -249,7 +249,7 @@ from common.middleware.rate_limit import rate_limit
 ```
 
 **使用示例**：
-```python
+```
 from common.middleware import require_auth, rate_limit
 
 @require_auth
@@ -260,7 +260,7 @@ def api_endpoint():
 
 ---
 
-#### 7. 常量定义 (`common.constants`)
+## 7. 常量定义 (`common.constants`)
 | 类名 | 功能 | 使用示例 |
 |------|------|----------|
 | `ErrorCode` | 错误码枚举 | `ErrorCode.INVALID_EMAIL` |
@@ -269,7 +269,7 @@ def api_endpoint():
 | `OrderStatus` | 订单状态 | `OrderStatus.PENDING` |
 
 **导入方式**：
-```python
+```
 from common.constants import ErrorCode, Status, UserStatus, OrderStatus
 # 或
 from common.constants.error_codes import ErrorCode
@@ -277,7 +277,7 @@ from common.constants.status import UserStatus
 ```
 
 **使用示例**：
-```python
+```
 from common.constants import ErrorCode, UserStatus
 
 # 错误码
@@ -292,21 +292,21 @@ user.status = UserStatus.ACTIVE.value  # "active"
 
 ---
 
-#### 8. 接口定义 (`common.interfaces`)
+## 8. 接口定义 (`common.interfaces`)
 | 类名 | 功能 | 使用示例 |
 |------|------|----------|
 | `Repository` | 基础仓储接口 | 定义 `find_by_id`, `save`, `delete` |
 | `CRUDRepository` | CRUD 仓储接口 | 扩展分页、查询等功能 |
 
 **导入方式**：
-```python
+```
 from common.interfaces import Repository, CRUDRepository
 # 或
 from common.interfaces.repository import Repository
 ```
 
 **使用示例**：
-```python
+```
 from common.interfaces import CRUDRepository
 from common.models import User
 
@@ -328,7 +328,7 @@ class UserRepository(CRUDRepository[User, str]):
 ### 在模块中引用 common 代码
 
 **Python 示例**：
-```python
+```
 # modules/user/service.py
 from common.utils.validation import validate_email
 from common.middleware.auth import require_auth
@@ -341,7 +341,7 @@ def create_user(email: str):
 ```
 
 **Go 示例**：
-```go
+```
 // modules/user/service.go
 import (
     "github.com/your-org/project/common/utils"
@@ -357,7 +357,7 @@ func CreateUser(email string) error {
 ```
 
 **TypeScript 示例**：
-```typescript
+```
 // modules/user/service.ts
 import { validateEmail } from '@/common/utils/validation'
 import { requireAuth } from '@/common/middleware/auth'
@@ -387,7 +387,7 @@ export function createUser(email: string) {
    - 需要错误码？→ 查看 `common.constants.error_codes`
 
 2. **快速导入模板**：
-```python
+```
 # 验证数据
 from common.utils import validate_email, validate_phone, validate_url
 
@@ -413,7 +413,7 @@ from common.constants import ErrorCode, UserStatus
 3. **常见使用场景**：
 
 **场景 1：用户注册验证**
-```python
+```
 from common.utils import validate_email, validate_phone
 from common.constants import ErrorCode
 
@@ -426,7 +426,7 @@ def register_user(email: str, phone: str):
 ```
 
 **场景 2：分页查询**
-```python
+```
 from common.models import PaginationParams, PaginationResult
 
 def get_users(page: int = 1, page_size: int = 20):
@@ -442,7 +442,7 @@ def get_users(page: int = 1, page_size: int = 20):
 ```
 
 **场景 3：API 响应**
-```python
+```
 from common.models import ApiResponse
 
 def get_user_api(user_id: str):
@@ -454,7 +454,7 @@ def get_user_api(user_id: str):
 ```
 
 **场景 4：认证和限流**
-```python
+```
 from common.middleware import require_auth, rate_limit
 
 @require_auth
@@ -469,8 +469,8 @@ def sensitive_api():
 
 在添加新代码到 `common/` 后，必须：
 
-1. **更新本 README**：在"快速参考"章节添加新函数说明
-2. **更新 `__init__.py`**：确保新函数可从包级别导入
+1. **更新本 README**：在"快速参考"章节添加新函数说明。
+2. **更新 `__init__.py`**：确保新函数可从包级别导入。
 3. **编写测试**：覆盖率达到 ≥90%
 4. **更新文档**：确保函数有完整的文档字符串
 
@@ -498,49 +498,49 @@ def sensitive_api():
 ### 流程
 
 1. **评估需求**
-   ```bash
+   ```
    # 检查是否有多个模块需要此功能
    grep -r "similar_function" modules/
-   ```
+```
 
 2. **创建功能分支**
-   ```bash
-   git checkout -b feat/common-add-email-validator
    ```
+   git checkout -b feat/common-add-email-validator
+```
 
 3. **实现代码**
-   ```bash
+   ```
    # 创建文件
    touch common/utils/email_validator.py
    
    # 编写代码和测试
    touch tests/common/test_email_validator.py
-   ```
+```
 
 4. **编写测试**
-   ```bash
+   ```
    # 确保覆盖率 ≥90%
    pytest tests/common/test_email_validator.py --cov=common/utils/email_validator --cov-report=term
-   ```
+```
 
 5. **更新文档**
-   ```bash
+   ```
    # 更新 common/README.md 说明新功能
    # 更新相关模块的文档引用
-   ```
+```
 
 6. **提交 PR**
-   ```bash
+   ```
    # PR 标题：feat(common): 添加邮箱验证工具函数
    # PR 描述：说明为什么需要此功能，哪些模块将使用
-   ```
+```
 
 ---
 
 ## 验证步骤
 
 ### 开发环境验证
-```bash
+```
 # 1. 运行 common 测试
 pytest tests/common/ -v
 
@@ -561,7 +561,7 @@ make dev_check
 如果 `common/` 的变更导致问题：
 
 ### 代码回滚
-```bash
+```
 # 1. 回滚到上一个版本
 git revert <commit-hash>
 
@@ -572,7 +572,7 @@ pytest tests/modules/ -v
 make deploy
 ```
 
-### 依赖回滚
+## 依赖回滚
 如果某个模块依赖了有问题的 `common/` 函数：
 
 ```bash
@@ -589,13 +589,13 @@ make deploy
 **问题**：`common/` 不应依赖任何 `modules/` 中的代码。
 
 **检查**：
-```bash
+```
 # 检查 common/ 中的导入
 grep -r "from modules" common/
 grep -r "import modules" common/
 ```
 
-### 2. 性能考虑
+## 2. 性能考虑
 - `common/` 中的函数会被频繁调用，需要关注性能
 - 避免在 `common/` 中进行重 IO 操作
 - 考虑使用缓存机制
@@ -630,9 +630,9 @@ grep -r "import modules" common/
    - [ ] 如需修改签名，标记 `@deprecated` 并保留旧版本
 
 5. **运行维护脚本**
-   ```bash
-   make ai_maintenance
    ```
+   make ai_maintenance
+```
 
 ---
 

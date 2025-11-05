@@ -29,7 +29,7 @@ maintenance_YYYYMMDD_HHMMSS.json
 ## 查看报告
 
 ### 查看最新报告
-```bash
+```
 # 按时间排序
 ls -lt ai/maintenance_reports/*.json | head -1
 
@@ -37,8 +37,8 @@ ls -lt ai/maintenance_reports/*.json | head -1
 cat ai/maintenance_reports/maintenance_*.json | jq '.' | tail -50
 ```
 
-### 统计维护历史
-```bash
+## 统计维护历史
+```
 # 统计通过率
 python -c "
 import json
@@ -60,7 +60,7 @@ for r in sorted(reports)[-10:]:
 - 包含失败项的报告（用于问题追踪）
 
 清理命令：
-```bash
+```
 # 删除 30 天前的报告（保留失败报告）
 find ai/maintenance_reports/ -name "*.json" -mtime +30 -exec sh -c '
   if ! grep -q "\"status\": \"failed\"" "$1"; then

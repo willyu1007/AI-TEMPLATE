@@ -44,7 +44,7 @@
 - **AI/ML**: openai, anthropic
 
 #### 使用方法
-```bash
+```
 # 方法1：使用 make 命令
 make deps_check
 
@@ -52,7 +52,7 @@ make deps_check
 python scripts/deps_manager.py
 ```
 
-#### 工作流程
+## 工作流程
 1. 检测项目技术栈（自动识别 Python/Node/Go/C++/C# 等）
 2. 扫描 Python 文件中的 import 语句
 3. 匹配常用依赖库
@@ -98,7 +98,7 @@ python scripts/deps_manager.py
 ## 使用建议
 
 ### 初始化新项目时
-```bash
+```
 # 1. 克隆/创建项目
 git clone <repo>
 
@@ -115,7 +115,7 @@ pip install -r requirements.txt
 make dev_check
 ```
 
-### AI Agent 工作流程增强
+## AI Agent 工作流程增强
 当 Agent 检测到：
 1. **新增 Python 文件使用了新的库**
    - 运行 `make deps_check` 检查并补全

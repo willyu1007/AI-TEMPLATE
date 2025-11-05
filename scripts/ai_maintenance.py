@@ -192,6 +192,58 @@ def check_contract_compat(report: MaintenanceReport):
         report.add_task('contract_compat_check', 'warning', '发现契约兼容性问题', stdout[:500])
 
 
+def check_test_status(report: MaintenanceReport):
+    """检查人工测试状态"""
+    print("检查人工测试状态...")
+    try:
+        result = subprocess.run(
+            [sys.executable, 'scripts/test_status_check.py'],
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+            timeout=60
+        )
+        if result.returncode == 0:
+            report.add_task('test_status_check', 'passed', '人工测试跟踪检查通过')
+        else:
+            # 提取待测试功能数量
+            pending = result.stdout.count('待测试') + result.stdout.count('pending')
+            report.add_task(
+                'test_status_check',
+                'warning',
+                f'发现 {pending} 个待测试功能，建议定期审查',
+                result.stdout[:500]
+            )
+    except Exception as e:
+        report.add_task('test_status_check', 'warning', f'测试状态检查失败: {str(e)}')
+
+
+def check_app_structure(report: MaintenanceReport):
+    """检查应用层结构"""
+    print("检查应用层结构...")
+    try:
+        result = subprocess.run(
+            [sys.executable, 'scripts/app_structure_check.py'],
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+            timeout=60
+        )
+        if result.returncode == 0:
+            report.add_task('app_structure_check', 'passed', '应用层结构检查通过')
+        else:
+            # 提取问题数量
+            issues = result.stdout.count('❌') + result.stdout.count('⚠️')
+            report.add_task(
+                'app_structure_check',
+                'warning' if issues < 5 else 'failed',
+                f'发现 {issues} 个应用层结构问题',
+                result.stdout[:500]
+            )
+    except Exception as e:
+        report.add_task('app_structure_check', 'warning', f'应用层结构检查失败: {str(e)}')
+
+
 def main():
     """主函数"""
     print("=" * 70)
@@ -209,6 +261,8 @@ def main():
     check_deps(report)
     check_dag(report)
     check_contract_compat(report)
+    check_test_status(report)
+    check_app_structure(report)
     
     # 生成报告
     print()

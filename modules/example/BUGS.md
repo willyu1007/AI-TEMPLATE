@@ -162,7 +162,7 @@
 ## 缺陷处理流程
 
 ### 1. 发现缺陷
-```bash
+```
 # 记录到 BUGS.md
 vim modules/example/BUGS.md
 
@@ -170,7 +170,7 @@ vim modules/example/BUGS.md
 gh issue create --title "BUG: ..." --label bug
 ```
 
-### 2. 分类和优先级
+## 2. 分类和优先级
 | 严重程度 | 响应时间 | 修复时间 |
 |---------|---------|---------|
 | P0 (Critical) | 立即 | < 4 小时 |
@@ -179,7 +179,7 @@ gh issue create --title "BUG: ..." --label bug
 | P3 (Low) | < 1 周 | 下个版本 |
 
 ### 3. 修复和验证
-```bash
+```
 # 1. 创建修复分支
 git checkout -b fix/bug-xxx
 
@@ -197,8 +197,8 @@ make dev_check
 git commit -m "fix(example): 修复 BUG-XXX"
 ```
 
-### 4. 复盘和改进
-```bash
+## 4. 复盘和改进
+```
 # 修复完成后进行复盘
 # 更新 BUGS.md 的复盘章节
 ```

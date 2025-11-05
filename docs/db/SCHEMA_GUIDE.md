@@ -19,7 +19,7 @@
 - 分布式友好
 
 **示例**：
-```sql
+```
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v7(),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -35,7 +35,7 @@ CREATE TABLE users (
 - `updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`
 
 **触发器**：
-```sql
+```
 CREATE TRIGGER update_users_updated_at
     BEFORE UPDATE ON users
     FOR EACH ROW
@@ -46,7 +46,7 @@ CREATE TRIGGER update_users_updated_at
 **格式**：`idx_<表名>_<字段1>_<字段2>`
 
 **示例**：
-```sql
+```
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_created_at ON users(created_at);
 CREATE INDEX idx_orders_user_id_status ON orders(user_id, status);
@@ -56,7 +56,7 @@ CREATE INDEX idx_orders_user_id_status ON orders(user_id, status);
 **要求**：明确设置级联规则
 
 **示例**：
-```sql
+```
 ALTER TABLE orders
     ADD CONSTRAINT fk_orders_user_id
     FOREIGN KEY (user_id)
@@ -75,12 +75,12 @@ ALTER TABLE orders
 
 ### 步骤
 1. **更新 DB_SPEC.yaml**
-   ```bash
+   ```
    vim docs/db/DB_SPEC.yaml
    ```
 
 2. **创建迁移脚本**
-   ```bash
+   ```
    # 创建成对的 up/down 脚本
    touch migrations/002_add_user_roles_up.sql
    touch migrations/002_add_user_roles_down.sql
@@ -91,7 +91,7 @@ ALTER TABLE orders
    - down.sql：回滚变更
 
 4. **验证迁移**
-   ```bash
+   ```
    # 检查成对性
    make migrate_check
    
@@ -131,7 +131,7 @@ psql -d test_db -f migrations/<version>_down.sql
    - 确认应用层是否已使用新字段
 
 2. **执行回滚**
-   ```bash
+   ```
    # 数据库回滚
    psql -d prod_db -f migrations/<version>_down.sql
    
@@ -140,7 +140,7 @@ psql -d test_db -f migrations/<version>_down.sql
    ```
 
 3. **验证回滚**
-   ```bash
+   ```
    # 检查表结构
    \d+ table_name
    
@@ -161,7 +161,7 @@ psql -d test_db -f migrations/<version>_down.sql
 - 分批迁移数据
 
 **示例**：
-```sql
+```
 -- 在线创建索引（不锁表）
 CREATE INDEX CONCURRENTLY idx_users_email ON users(email);
 ```

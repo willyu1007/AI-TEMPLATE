@@ -1,6 +1,17 @@
 # 模板使用指南
 
-本文档说明如何使用 Agent Repo 模板创建新项目。
+## 目标
+提供详细的使用说明，帮助用户基于 Agent Repo 模板快速创建新项目，并完成必要的定制配置。
+
+## 适用场景
+- 基于模板创建新项目
+- 需要了解哪些文件必须修改
+- 需要定制技术栈或数据库
+- 需要了解模板的定制选项
+
+## 前置条件
+- 已克隆或下载 Agent Repo 模板
+- 了解项目基本需求（技术栈、数据库等）
 
 ---
 
@@ -63,7 +74,7 @@ git commit -m "chore: init project from template"
 ### 第一优先级（立即修改）
 
 #### 1. `README.md`
-```markdown
+```
 当前：通用模板说明
 需要：替换为你的项目说明
 
@@ -75,7 +86,7 @@ git commit -m "chore: init project from template"
 ```
 
 #### 2. `.aicontext/project_onepager.md`
-```markdown
+```
 当前：目标：以最小成本，用大模型提升开发效率...
 需要：你的项目一页综述
 
@@ -86,7 +97,7 @@ git commit -m "chore: init project from template"
 ```
 
 #### 3. `docs/project/PRD_ONEPAGER.md`
-```markdown
+```
 当前：空模板
 需要：填写你的项目 PRD
 
@@ -99,7 +110,7 @@ git commit -m "chore: init project from template"
 ```
 
 #### 4. `docs/project/SYSTEM_BOUNDARY.md`
-```markdown
+```
 当前：空模板
 需要：定义系统边界
 
@@ -110,7 +121,7 @@ git commit -m "chore: init project from template"
 ```
 
 #### 5. `docs/process/ENV_SPEC.yaml`
-```yaml
+```
 当前：vue3, fastapi, postgres...
 需要：你的实际技术栈
 
@@ -121,7 +132,7 @@ infra: { db: ?, cache: ?, search: ? }
 ```
 
 #### 6. `config/*.yaml`
-```yaml
+```
 修改所有配置文件以匹配你的项目：
 - config/schema.yaml    # 配置结构定义
 - config/defaults.yaml  # 默认值
@@ -133,7 +144,7 @@ infra: { db: ?, cache: ?, search: ? }
 ### 🟡 第二优先级（开发前修改）
 
 #### 7. `docs/db/DB_SPEC.yaml`
-```yaml
+```
 当前：示例 runs 表
 需要：你的数据库结构
 
@@ -144,7 +155,7 @@ infra: { db: ?, cache: ?, search: ? }
 ```
 
 #### 8. `flows/dag.yaml`
-```yaml
+```
 当前：示例 web.frontend -> api.codegen
 需要：你的实际 DAG 拓扑
 
@@ -155,7 +166,7 @@ infra: { db: ?, cache: ?, search: ? }
 ```
 
 #### 9. `tools/codegen/contract.json`
-```json
+```
 当前：示例 codegen 工具契约
 需要：你的工具/API 契约
 
@@ -170,7 +181,7 @@ C. 添加更多工具契约
 ### 🟢 第三优先级（按需修改）
 
 #### 10. `modules/example/`
-```bash
+```
 当前：示例模块（保留作为参考）
 需要：你的实际模块
 
@@ -182,7 +193,7 @@ B. 删除并创建新模块：
 ```
 
 #### 11. `docker-compose.yml`
-```yaml
+```
 当前：postgres + redis
 需要：你需要的服务
 
@@ -190,7 +201,7 @@ B. 删除并创建新模块：
 ```
 
 #### 12. 删除模板相关文件
-```bash
+```
 # 可选：删除这些文件（如果不需要）
 rm TEMPLATE_USAGE.md  # 本文件
 rm docs/project/IMPLEMENTATION_SUMMARY.md  # 模板实施记录
@@ -204,7 +215,7 @@ rm CHANGES_SUMMARY.md  # 模板变更记录（如果还在根目录）
 ### 技术栈定制
 
 #### Python 项目
-```bash
+```
 # 1. 修改 requirements.txt
 vim requirements.txt
 
@@ -216,7 +227,7 @@ backend: { language: python3.11, web: fastapi, ... }
 ```
 
 #### Go 项目
-```bash
+```
 # 1. 初始化 go.mod
 go mod init github.com/your-org/your-project
 
@@ -228,7 +239,7 @@ backend: { language: go1.21, ... }
 ```
 
 #### Vue/TypeScript 项目
-```bash
+```
 # 1. 创建 package.json
 npm init -y
 
@@ -242,7 +253,7 @@ frontend: { framework: vue3, bundler: vite, language: ts }
 ### 数据库定制
 
 #### PostgreSQL（默认）
-```yaml
+```
 # docs/db/DB_SPEC.yaml
 defaults:
   primary: postgresql
@@ -251,7 +262,7 @@ defaults:
 ```
 
 #### MySQL
-```yaml
+```
 # docs/db/DB_SPEC.yaml
 defaults:
   primary: mysql
@@ -266,7 +277,7 @@ db:
 ```
 
 #### MongoDB
-```yaml
+```
 # docs/db/DB_SPEC.yaml
 defaults:
   primary: mongodb
@@ -285,7 +296,7 @@ db:
 ### 调整文档结构
 
 #### 添加新的文档类型
-```bash
+```
 # 示例：添加 API 文档目录
 mkdir -p docs/api
 echo "# API 文档" > docs/api/README.md
@@ -294,7 +305,7 @@ echo "# API 文档" > docs/api/README.md
 ```
 
 #### 调整模块文档要求
-```bash
+```
 # 如果 8 个文档太多，可以简化
 # 修改 scripts/consistency_check.py
 
@@ -309,7 +320,7 @@ echo "# API 文档" > docs/api/README.md
 ### 调整自动化门禁
 
 #### 放宽覆盖率要求
-```python
+```
 # agent.md §6 测试准则
 当前：核心模块 ≥80%
 
@@ -319,7 +330,7 @@ pytest --cov --cov-fail-under=70
 ```
 
 #### 禁用某些检查
-```makefile
+```
 # Makefile - 修改 dev_check 目标
 dev_check: docgen dag_check consistency_check
     # 移除了 contract_compat_check (如果不需要)
@@ -328,7 +339,7 @@ dev_check: docgen dag_check consistency_check
 ### 添加新的检查
 
 #### 示例：添加代码风格检查
-```bash
+```
 # 1. 添加脚本
 cat > scripts/style_check.py <<'EOF'
 #!/usr/bin/env python3
@@ -409,13 +420,13 @@ make style_check
 
 ### Q4: 如何添加多语言支持？
 **A**: 
-1. 在 `docs/process/ENV_SPEC.yaml` 中添加语言配置
-2. 在 `agent.md` §6 测试准则中参考示例添加测试指导
-3. 更新 `scripts/deps_manager.py` 支持新语言依赖检测
+1. 在 `docs/process/ENV_SPEC.yaml` 中添加语言配置。
+2. 在 `agent.md` §6 测试准则中参考示例添加测试指导。
+3. 更新 `scripts/deps_manager.py` 支持新语言依赖检测。
 
 ### Q5: 模板更新了，如何合并到已有项目？
 **A**:
-```bash
+```
 # 1. 添加模板作为远程仓库
 git remote add template https://github.com/your-org/agent-repo-template.git
 

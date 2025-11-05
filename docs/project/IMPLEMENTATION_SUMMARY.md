@@ -154,7 +154,7 @@ modules/example/*     # 完善所有文档
 - CI 自动验证二者不混用
 
 ### 3. 完整的 CI 门禁
-```bash
+```
 make dev_check  # 聚合检查
 ├── docgen                 # 生成索引
 ├── dag_check              # DAG 校验
@@ -165,7 +165,7 @@ make dev_check  # 聚合检查
 ```
 
 ### 4. 回滚验证
-```bash
+```
 make rollback_check PREV_REF=v0.1.0
 ```
 - 检查迁移脚本成对
@@ -173,7 +173,7 @@ make rollback_check PREV_REF=v0.1.0
 - 检查 Feature Flag
 
 ### 5. 契约变更管理
-```bash
+```
 make contract_compat_check  # 检查兼容性
 make update_baselines       # 更新基线
 ```
@@ -183,7 +183,7 @@ make update_baselines       # 更新基线
 ## 快速使用指南
 
 ### 首次初始化
-```bash
+```
 # 生成索引
 make docgen
 
@@ -194,8 +194,8 @@ make dev_check
 make update_baselines
 ```
 
-### 创建新模块
-```bash
+## 创建新模块
+```
 make ai_begin MODULE=my_module
 # 自动生成：
 # - modules/my_module/*.md (8个文档)
@@ -203,8 +203,8 @@ make ai_begin MODULE=my_module
 # - 更新索引
 ```
 
-### 开发流程
-```bash
+## 开发流程
+```
 # 1. 更新计划
 vim modules/my_module/plan.md
 
@@ -222,8 +222,8 @@ make dev_check
 make rollback_check PREV_REF=main
 ```
 
-### 契约变更
-```bash
+## 契约变更
+```
 # 1. 修改契约
 vim tools/codegen/contract.json
 
@@ -237,7 +237,7 @@ make update_baselines
 ## 依赖要求
 
 ### Python 依赖
-```bash
+```
 pip install -r requirements.txt
 ```
 
@@ -249,7 +249,7 @@ pip install -r requirements.txt
 ## 配置说明
 
 ### 环境变量
-```bash
+```
 APP_ENV=dev|staging|prod  # 运行环境
 DATABASE_URL=...          # 数据库连接（生产必需）
 OPENAI_API_KEY=...        # API 密钥（生产必需）
@@ -279,7 +279,7 @@ OPENAI_API_KEY=...        # API 密钥（生产必需）
 
 ## 注意事项
 
-1. **首次运行**：需要先执行 `make docgen` 生成索引
+1. **首次运行**：需要先执行 `make docgen` 生成索引。
 2. **契约基线**：首次使用需要 `make update_baselines`
 3. **Python 依赖**：需要安装 `pip install -r requirements.txt`
 4. **权限问题**：脚本需要执行权限（`chmod +x scripts/*.sh`）
@@ -291,7 +291,7 @@ OPENAI_API_KEY=...        # API 密钥（生产必需）
 3. **开发效率**：一键初始化模块，自动生成文档和测试
 4. **文档质量**：完整的模板和引导，降低维护成本
 5. **回滚安全**：自动化回滚验证，降低风险
-6. **契约管理**：破坏性变更自动阻断，保护 API 兼容性
+6. **契约管理**：破坏性变更自动阻断，保护 API 兼容性。
 
 ## 相关文档
 

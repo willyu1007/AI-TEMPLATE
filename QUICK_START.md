@@ -1,9 +1,24 @@
 # 快速开始指南
 
+## 目标
+帮助新用户快速上手 Agent Repo 模板，在5分钟内完成项目初始化和第一个模块的创建。
+
+## 适用场景
+- 首次使用 Agent Repo 模板
+- 需要快速了解核心功能
+- 准备开始第一个开发任务
+
+## 前置条件
+- 已安装 Python 3.7+ 或 Node.js 16+
+- 已克隆或下载 Agent Repo 模板
+- 已阅读 README.md 了解项目概述
+
+---
+
 ## 5 分钟快速启动
 
-### 1. 安装依赖
-```bash
+### 安装依赖
+```
 # Python 依赖（推荐）
 pip install -r requirements.txt
 
@@ -14,8 +29,8 @@ pip install pyyaml
 make deps_check
 ```
 
-### 2. 初始化项目
-```bash
+### 初始化项目
+```
 # 生成文档索引
 make docgen
 
@@ -26,8 +41,8 @@ make dev_check
 make update_baselines
 ```
 
-### 3. 创建第一个模块
-```bash
+### 创建第一个模块
+```
 # 初始化模块（自动生成所有文档和测试）
 make ai_begin MODULE=my_feature
 
@@ -36,8 +51,8 @@ ls -la modules/my_feature/
 ls -la tests/my_feature/
 ```
 
-### 4. 开发流程
-```bash
+### 开发流程
+```
 # 1. 编辑计划
 vim modules/my_feature/plan.md
 
@@ -54,7 +69,7 @@ make rollback_check PREV_REF=main
 ## 常用命令速查
 
 ### 开发检查
-```bash
+```
 make dev_check              # 完整检查（CI 门禁）
 make quick_check            # 快速检查（跳过慢速检查）
 make dag_check              # 仅检查 DAG
@@ -62,31 +77,31 @@ make consistency_check      # 仅检查一致性
 ```
 
 ### 模块管理
-```bash
+```
 make ai_begin MODULE=<name>     # 初始化新模块
 make tests_scaffold MODULE=<name>  # 生成测试脚手架
 ```
 
 ### 契约管理
-```bash
+```
 make contract_compat_check  # 检查契约兼容性
 make update_baselines       # 更新契约基线
 ```
 
 ### 配置与迁移
-```bash
+```
 make runtime_config_check   # 检查配置
 make migrate_check          # 检查迁移脚本
 ```
 
 ### 文档与索引
-```bash
+```
 make docgen                 # 生成/更新文档索引
 make deps_check             # 检查并自动补全依赖
 ```
 
 ### 回滚验证
-```bash
+```
 make rollback_check PREV_REF=v1.0.0  # 验证可回滚到指定版本
 ```
 
@@ -95,7 +110,7 @@ make rollback_check PREV_REF=v1.0.0  # 验证可回滚到指定版本
 ### 作为 AI Agent，每次任务遵循：
 
 #### S0 - 刷新上下文（分层加载）
-```bash
+```
 # Tier-0（必须）
 cat .aicontext/snapshot.json
 cat .aicontext/module_index.json
@@ -114,7 +129,7 @@ cat modules/<target>/TEST_PLAN.md
 ```
 
 #### S1 - 任务建模
-```bash
+```
 # 更新计划
 vim modules/<target>/plan.md
 
@@ -127,7 +142,7 @@ vim modules/<target>/plan.md
 ```
 
 #### S2 - 方案预审
-```bash
+```
 # 生成自审文档
 mkdir -p ai/sessions/$(date +%Y%m%d)_<name>
 vim ai/sessions/$(date +%Y%m%d)_<name>/AI-SR-plan.md
@@ -141,7 +156,7 @@ vim ai/sessions/$(date +%Y%m%d)_<name>/AI-SR-plan.md
 ```
 
 #### S3 - 实现与验证
-```bash
+```
 # 实现功能
 # ... 编写代码 ...
 
@@ -153,7 +168,7 @@ make dev_check
 ```
 
 #### S4 - 文档与索引更新
-```bash
+```
 # 同步更新文档
 vim modules/<target>/CONTRACT.md
 vim modules/<target>/TEST_PLAN.md
@@ -172,7 +187,7 @@ make docgen
 ```
 
 #### S5 - 自审与 PR
-```bash
+```
 # 生成实施自审
 vim ai/sessions/$(date +%Y%m%d)_<name>/AI-SR-impl.md
 
@@ -187,7 +202,7 @@ make rollback_check PREV_REF=<previous-tag>
 
 ## 目录结构速查
 
-```
+```text
 .
 ├── .aicontext/              # AI 上下文索引
 │   ├── index.json           # 文档索引（含 summary/keywords/deps/hash）
@@ -252,25 +267,25 @@ make rollback_check PREV_REF=<previous-tag>
 ## 最佳实践
 
 ### 1. 始终保持索引最新
-```bash
+```
 # 每次修改文档后
 make docgen
 ```
 
 ### 2. 提交前运行完整检查
-```bash
+```
 make dev_check
 ```
 
 ### 3. 契约变更需验证兼容性
-```bash
+```
 make contract_compat_check
 # 通过后更新基线
 make update_baselines
 ```
 
 ### 4. 高风险变更需回滚验证
-```bash
+```
 make rollback_check PREV_REF=v1.0.0
 ```
 
@@ -283,26 +298,26 @@ make rollback_check PREV_REF=v1.0.0
 ### 问题：`make dev_check` 失败
 
 #### 1. snapshot_hash 不一致
-```bash
+```
 # 解决：重新生成索引
 make docgen
 ```
 
 #### 2. 模块文档缺失
-```bash
+```
 # 解决：补齐文档或使用模板初始化
 make ai_begin MODULE=<module>
 ```
 
 #### 3. DAG 有环
-```bash
+```
 # 解决：检查 flows/dag.yaml，移除循环依赖
 vim flows/dag.yaml
 make dag_check
 ```
 
 #### 4. 契约不兼容
-```bash
+```
 # 解决：修复契约或创建新版本
 vim tools/*/contract.json
 make contract_compat_check
@@ -334,16 +349,16 @@ chmod +x scripts/*.sh
 
 ## 提示
 
-1. 使用 `make help` 查看所有可用命令
-2. 参考 `modules/example/` 了解文档最佳实践
-3. 使用 `make quick_check` 进行快速验证
-4. 生产部署前务必运行 `make rollback_check`
-5. 使用 `make deps_check` 自动检测并补全项目依赖
+1. 使用 `make help` 查看所有可用命令。
+2. 参考 `modules/example/` 了解文档最佳实践。
+3. 使用 `make quick_check` 进行快速验证。
+4. 生产部署前务必运行 `make rollback_check`。
+5. 使用 `make deps_check` 自动检测并补全项目依赖。
 
 ## 依赖管理说明
 
 ### Python 项目
-```bash
+```
 # 自动检测 imports 并补全 requirements.txt
 make deps_check
 

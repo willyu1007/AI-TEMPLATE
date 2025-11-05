@@ -337,7 +337,7 @@ CHANGES_SUMMARY.md → docs/project/CHANGES_SUMMARY.md
 
 ## 最终目录结构
 
-```
+```text
 Agent Repo Template/
 │
 ├── README.md ⭐ 通用项目说明
@@ -476,7 +476,7 @@ Agent Repo Template/
 ## 使用流程
 
 ### 基于模板创建新项目
-```bash
+```
 # 1. 使用模板（GitHub）或克隆
 git clone <template-repo> my-project
 cd my-project
@@ -503,8 +503,8 @@ make ai_begin MODULE=my_feature
 # 按照 agent.md 流程开发
 ```
 
-### AI Agent 使用流程
-```bash
+## AI Agent 使用流程
+```
 # S0 - 刷新上下文（分层）
 cat .aicontext/snapshot.json        # Tier-0
 cat .aicontext/module_index.json

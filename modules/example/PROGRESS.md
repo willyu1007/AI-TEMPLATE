@@ -118,9 +118,9 @@
 - **风险等级**：中等
 
 **缓解措施**：
-1. 使用 `make consistency_check` 自动验证文档齐全性
-2. 使用 `make doc_style_check` 检查文档质量
-3. 在 `make ai_begin` 中自动生成文档模板
+1. 使用 `make consistency_check` 自动验证文档齐全性。
+2. 使用 `make doc_style_check` 检查文档质量。
+3. 在 `make ai_begin` 中自动生成文档模板。
 
 **监控指标**：
 - 文档完整性检查通过率

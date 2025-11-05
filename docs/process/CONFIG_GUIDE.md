@@ -12,7 +12,7 @@
 
 配置通过以下优先级层叠加载：
 
-```
+```text
 1. config/defaults.yaml     （默认配置，最低优先级）
 2. config/<env>.yaml         （环境特定配置）
 3. 环境变量                  （运行时覆盖）
@@ -25,7 +25,7 @@
 **目的**：定义所有配置项的类型和约束
 
 **示例**：
-```yaml
+```
 database:
   type: object
   required: true
@@ -59,13 +59,13 @@ database:
 - `ts_loader.ts` - TypeScript 加载示例
 
 ### 2. 环境变量覆盖
-```bash
+```
 # 示例：覆盖数据库配置
 export DATABASE_HOST=custom-host
 export DATABASE_PORT=5433
 ```
 
-### 3. 密钥管理
+## 3. 密钥管理
 **禁止**：将密钥直接写入配置文件
 
 **推荐**：

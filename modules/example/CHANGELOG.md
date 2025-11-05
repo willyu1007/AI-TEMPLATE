@@ -9,7 +9,7 @@
 - 生成 Release Notes
 
 ## 使用说明
-1. 遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/) 规范
+1. 遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/) 规范。
 2. 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)（Semver）
 3. 按时间倒序排列（最新在前）
 4. 每次发布前更新
@@ -108,11 +108,11 @@ MAJOR.MINOR.PATCH
 
 ### 更新时机
 1. **发布前**：整理本版本所有变更
-2. **重要变更后**：立即更新 Unreleased 章节
+2. **重要变更后**：立即更新 Unreleased 章节。
 3. **定期**：每周回顾并整理
 
 ### 更新步骤
-```bash
+```
 # 1. 编辑 CHANGELOG
 vim modules/example/CHANGELOG.md
 

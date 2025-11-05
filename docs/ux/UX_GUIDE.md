@@ -41,7 +41,7 @@
 - **失败**：`error`
 
 **实现示例**：
-```typescript
+```
 interface PageState {
   status: 'idle' | 'loading' | 'success' | 'error'
   data: any | null
@@ -56,7 +56,7 @@ interface PageState {
 3. 建议的操作（重试/联系支持）
 
 **示例**：
-```typescript
+```
 if (error.code === 'NETWORK_ERROR') {
   showMessage('网络连接失败，请检查网络后重试')
 } else if (error.code === 'UNAUTHORIZED') {
@@ -68,7 +68,7 @@ if (error.code === 'NETWORK_ERROR') {
 ### 3. API 调用序列
 
 #### 重试策略
-```typescript
+```
 // 指数退避重试
 const retryConfig = {
   maxRetries: 3,
@@ -79,7 +79,7 @@ const retryConfig = {
 ```
 
 #### 降级策略
-```typescript
+```
 // 示例：API 不可用时使用缓存数据
 async function fetchUserData(userId: string) {
   try {
@@ -99,7 +99,7 @@ async function fetchUserData(userId: string) {
 使用 Mermaid 绘制关键流程：
 
 **登录流程示例**：
-```mermaid
+```
 flowchart TD
     A[用户访问登录页] --> B{是否已登录}
     B -->|是| C[重定向到首页]
@@ -121,7 +121,7 @@ flowchart TD
 - **复杂操作**：提供进度提示
 
 #### 加载指示
-```markdown
+```
 操作时长 < 1s：无需加载指示
 操作时长 1-3s：显示 Loading 动画
 操作时长 > 3s：显示进度百分比
@@ -130,23 +130,23 @@ flowchart TD
 ## 验证步骤
 
 ### 1. 流程验证
-```bash
+```
 # 手动测试关键用户流程
 1. 登录流程
 2. 核心业务流程
 3. 错误处理流程
 ```
 
-### 2. 性能验证
-```bash
+## 2. 性能验证
+```
 # 使用开发者工具测试
 1. 页面加载时间（Lighthouse）
 2. API 响应时间
 3. 交互响应性
 ```
 
-### 3. 兼容性验证
-```markdown
+## 3. 兼容性验证
+```
 测试浏览器：
 - [ ] Chrome 最新版
 - [ ] Firefox 最新版
@@ -158,8 +158,71 @@ flowchart TD
 - [ ] 768x1024（平板）
 ```
 
+---
+
+## 数据流追踪与验证
+
+### 数据流追踪要求
+
+在 AI 自动化开发过程中，确保 UX 文档与实际代码实现保持一致：
+
+1. **API 端点一致性**
+   - UX 文档中提到的 API 端点必须在代码中存在
+   - API 端点变更时，必须同步更新 UX 文档
+
+2. **流程图一致性**
+   - 用户流程图应反映实际的数据流转
+   - 接口调用序列应与代码实现匹配
+
+3. **DAG 关联性**
+   - UX 文档中的流程应与 `flows/dag.yaml` 中的节点和边对应
+   - 数据流向应保持一致
+
+### 验证步骤
+
+```bash
+# 检查 UX 数据流转文档一致性
+make dataflow_check
+
+# 预期输出：
+# ✓ 文档结构完整
+# ✓ 未发现明显的不一致
+```
+
+## 维护流程
+
+1. **开发阶段**
+   - 修改用户流程时，同步更新 `docs/ux/*.md`
+   - 新增 API 端点时，在 UX 文档中记录
+
+2. **验证阶段**
+   - 运行 `make dataflow_check` 检查一致性
+   - 修复发现的不一致问题
+
+3. **审查阶段**
+   - 在 PR 审查时，检查 UX 文档是否更新
+   - 验证流程图是否反映实际实现
+
+### 数据流追踪最佳实践
+
+1. **使用 Mermaid 绘制流程图**
+   - 使用 `flowchart` 绘制用户流程
+   - 使用 `sequenceDiagram` 绘制 API 调用序列
+
+2. **保持文档更新**
+   - 每次流程变更后立即更新文档
+   - 定期审查文档与代码的一致性
+
+3. **关联 DAG**
+   - 在 UX 文档中引用 DAG 节点
+   - 确保数据流向与 DAG 一致
+
+---
+
 ## 相关文档
 - 产品需求：`docs/project/PRD_ONEPAGER.md`
 - 系统边界：`docs/project/SYSTEM_BOUNDARY.md`
 - API 契约：`tools/*/contract.json`
+- DAG 定义：`flows/dag.yaml`
+- AI 自动化审计：`docs/project/AI_AUTOMATION_AUDIT.md`
 

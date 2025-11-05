@@ -87,7 +87,7 @@
 ## 验证命令
 
 ### 开发环境验证
-```bash
+```
 # 1. 完整检查
 make dev_check
 
@@ -101,7 +101,7 @@ pytest tests/example/ -v
 make dag_check
 ```
 
-### 预期结果
+## 预期结果
 - 所有检查通过
 - 测试覆盖率 ≥ 80%
 - 无 linter 错误
@@ -118,7 +118,7 @@ make dag_check
 ### 回滚步骤
 
 #### 1. 代码回滚
-```bash
+```
 # 方法 1：Git revert
 git revert <commit-hash>
 git push
@@ -128,8 +128,8 @@ git checkout <previous-tag>
 git push -f origin main  # 谨慎使用
 ```
 
-#### 2. 数据库回滚
-```bash
+## 2. 数据库回滚
+```
 # 如有数据库迁移
 psql -d app -f migrations/<version>_down.sql
 
@@ -137,8 +137,8 @@ psql -d app -f migrations/<version>_down.sql
 \d+ table_name
 ```
 
-#### 3. 配置回滚
-```bash
+## 3. 配置回滚
+```
 # 恢复配置文件
 git checkout <previous-tag> -- config/
 
@@ -146,8 +146,8 @@ git checkout <previous-tag> -- config/
 docker-compose restart
 ```
 
-#### 4. 验证回滚
-```bash
+## 4. 验证回滚
+```
 # 运行冒烟测试
 pytest tests/example/test_smoke.py
 
@@ -158,7 +158,7 @@ curl http://localhost:8000/health
 make dev_check
 ```
 
-### 回滚时间目标
+## 回滚时间目标
 - **决策时间**：< 15 分钟
 - **执行时间**：< 30 分钟
 - **验证时间**：< 15 分钟

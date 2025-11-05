@@ -22,8 +22,8 @@
 
 ## 快速开始
 
-### 1. 安装依赖
-```bash
+### 安装依赖
+```
 # Python 依赖
 pip install -r requirements.txt
 
@@ -31,8 +31,8 @@ pip install -r requirements.txt
 make deps_check
 ```
 
-### 2. 初始化项目
-```bash
+## 初始化项目
+```
 # 生成文档索引
 make docgen
 
@@ -43,8 +43,8 @@ make update_baselines
 make dev_check
 ```
 
-### 3. 创建第一个模块
-```bash
+## 创建第一个模块
+```
 # 初始化模块（自动生成所有文档和测试）
 make ai_begin MODULE=my_feature
 
@@ -53,13 +53,13 @@ ls -la modules/my_feature/
 ls -la tests/my_feature/
 ```
 
-详细指南请查看 [QUICK_START.md](QUICK_START.md)
+详细指南请查看 [QUICK_START.md](QUICK_START.md)。
 
 ---
 
 ## 项目结构
 
-```
+```text
 .
 ├── agent.md                 # AI Agent 工作指南（核心文档）
 ├── QUICK_START.md           # 快速开始指南
@@ -121,7 +121,7 @@ ls -la tests/my_feature/
 ## 核心功能
 
 ### 自动化工具链
-```bash
+```
 make help                   # 查看所有命令
 make dev_check              # 完整检查（CI 门禁）
 make dag_check              # DAG 拓扑校验
@@ -244,8 +244,8 @@ make rollback_check         # 回滚验证
 
 按照以下顺序开始使用模板：
 
-1. **首先**，阅读 [TEMPLATE_USAGE.md](TEMPLATE_USAGE.md) 了解如何使用模板
-2. **然后**，阅读 [QUICK_START.md](QUICK_START.md) 快速上手
-3. **接着**，阅读 [agent.md](agent.md) 了解完整开发流程
-4. **随后**，创建第一个模块：`make ai_begin MODULE=my_feature`
-5. **最后**，根据项目需求定制配置和文档
+1. **首先**，阅读 [TEMPLATE_USAGE.md](TEMPLATE_USAGE.md) 了解如何使用模板。
+2. **然后**，阅读 [QUICK_START.md](QUICK_START.md) 快速上手。
+3. **接着**，阅读 [agent.md](agent.md) 了解完整开发流程。
+4. **随后**，创建第一个模块：`make ai_begin MODULE=my_feature`。
+5. **最后**，根据项目需求定制配置和文档。

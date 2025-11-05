@@ -1,6 +1,7 @@
 # 契约基线目录
 
-此目录存储契约文件的基线版本，用于兼容性检查。
+## 目标
+存储契约文件的基线版本，用于自动检测破坏性变更，确保 API 向后兼容。
 
 ## 用途
 - 对比当前契约与基线，检测破坏性变更
@@ -15,7 +16,7 @@
 make update_baselines
 ```
 
-### 日常开发
+## 日常开发
 ```bash
 # 1. 修改契约文件（如 tools/codegen/contract.json）
 vim tools/codegen/contract.json
@@ -32,7 +33,7 @@ make update_baselines
 
 ## 目录结构
 基线目录与 `tools/` 目录结构对应：
-```
+```text
 .contracts_baseline/
 └── tools/
     └── <tool>/

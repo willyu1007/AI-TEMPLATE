@@ -43,14 +43,14 @@
 **描述**: 基础任务处理 - 成功场景  
 **前置条件**: 服务正常运行  
 **输入**:
-```json
+```
 {
   "task": "示例任务",
   "language": "python"
 }
 ```
 **预期输出**:
-```json
+```
 {
   "status": "success",
   "result": "...",
@@ -69,11 +69,11 @@
 **用例ID**: TC002  
 **描述**: 缺少必填字段  
 **输入**:
-```json
+```
 {}
 ```
 **预期输出**:
-```json
+```
 {
   "status": "error",
   "error_code": "E001",
@@ -91,14 +91,14 @@
 **用例ID**: TC003  
 **描述**: dry_run 模式验证  
 **输入**:
-```json
+```
 {
   "task": "示例任务",
   "dry_run": true
 }
 ```
 **预期输出**:
-```json
+```
 {
   "status": "success",
   "result": "预览：...(未执行)",
@@ -136,7 +136,7 @@
 **目标**: P95 < 2000ms（见 `flows/dag.yaml`）
 
 **测试方法**:
-```bash
+```
 # 使用 Apache Bench
 ab -n 1000 -c 10 -T 'application/json' \
    -p request.json \
@@ -148,11 +148,11 @@ ab -n 1000 -c 10 -T 'application/json' \
 - [ ] P95 < 2000ms
 - [ ] P99 < 3000ms
 
-#### 3.2 并发测试
+## 3.2 并发测试
 **目标**: 支持 10+ 并发请求
 
 **测试方法**:
-```bash
+```
 # 并发测试
 pytest tests/example/test_performance.py::test_concurrent_requests
 ```
@@ -164,7 +164,7 @@ pytest tests/example/test_performance.py::test_concurrent_requests
 
 ---
 
-### 4. 集成测试
+## 4. 集成测试
 
 #### 4.1 契约测试
 - [ ] 输入验证：必填字段检查
@@ -185,12 +185,12 @@ pytest tests/example/test_performance.py::test_concurrent_requests
 每次代码变更必须运行：
 
 **快速回归**（< 5 分钟）:
-```bash
+```
 pytest tests/example/test_smoke.py -v
 ```
 
 **完整回归**（< 30 分钟）:
-```bash
+```
 pytest tests/example/ -v --cov=example
 ```
 
@@ -205,7 +205,7 @@ pytest tests/example/ -v --cov=example
 ## 测试执行
 
 ### 本地执行
-```bash
+```
 # 1. 运行所有测试
 pytest tests/example/ -v
 
@@ -222,8 +222,8 @@ pytest --cov=example --cov-report=html tests/example/
 pytest tests/example/test_performance.py -v
 ```
 
-### CI 执行
-```yaml
+## CI 执行
+```
 # .github/workflows/ci.yml
 - name: Test example module
   run: |
@@ -238,7 +238,7 @@ pytest tests/example/test_performance.py -v
 ## 验证步骤
 
 ### 测试前验证
-```bash
+```
 # 1. 环境准备
 export APP_ENV=test
 pip install -r requirements.txt
@@ -250,8 +250,8 @@ python scripts/setup_test_data.py
 docker-compose up -d
 ```
 
-### 测试中验证
-```bash
+## 测试中验证
+```
 # 1. 运行测试并监控
 pytest tests/example/ -v --tb=short
 
@@ -264,8 +264,8 @@ pytest tests/example/test_performance.py -v
 # 确保 P95 < 2000ms
 ```
 
-### 测试后验证
-```bash
+## 测试后验证
+```
 # 1. 清理测试数据
 python scripts/cleanup_test_data.py
 
@@ -283,7 +283,7 @@ docker-compose down
 如果测试发现严重问题：
 
 ### 1. 停止发布
-```bash
+```
 # 标记为阻塞
 git tag -a v1.0.0-blocked -m "Tests failed, blocking release"
 
@@ -291,8 +291,8 @@ git tag -a v1.0.0-blocked -m "Tests failed, blocking release"
 # 发送通知邮件或消息
 ```
 
-### 2. 分析问题
-```bash
+## 2. 分析问题
+```
 # 查看失败的测试
 pytest tests/example/ -v --lf  # 只运行失败的测试
 
@@ -300,12 +300,12 @@ pytest tests/example/ -v --lf  # 只运行失败的测试
 pytest tests/example/ -vv --tb=long
 ```
 
-### 3. 决策
+## 3. 决策
 - **问题可快速修复**：修复后重新测试
 - **问题复杂**：回滚代码到上一版本
 
 ### 4. 回滚测试
-```bash
+```
 # 回滚到上一版本
 git checkout <previous-tag>
 
@@ -325,7 +325,7 @@ pytest tests/example/ -v
 3. **清理**：测试后清理数据
 
 ### 测试夹具（Fixtures）
-```python
+```
 # tests/example/conftest.py
 import pytest
 
@@ -346,9 +346,65 @@ def mock_database(monkeypatch):
 
 ---
 
+---
+
+## 人工测试跟踪
+
+### 目标
+跟踪需要人工验证的功能状态，确保部分完成的功能得到及时测试和验证。
+
+### 待测试功能清单
+
+| 功能 | 状态 | 测试人员 | 测试日期 | 测试结果 | 备注 |
+|------|------|---------|---------|---------|------|
+| 用户登录 | 待测试 | - | - | - | 需要验证 OAuth 流程 |
+| 数据导出 | 待测试 | - | - | - | 需要验证 CSV 和 Excel 格式 |
+| API 性能 | 待测试 | - | - | - | 需要验证 P95 延迟是否达标 |
+
+### 测试状态说明
+
+- **待测试**: 功能已完成，等待人工测试
+- **测试中**: 正在进行人工测试
+- **已通过**: 测试通过，可以发布
+- **已失败**: 测试失败，需要修复
+- **已跳过**: 暂不测试（需说明原因）
+
+### 测试结果记录
+
+#### 测试记录模板
+```
+#### YYYY-MM-DD - [功能名称]测试
+- **测试人员**: [姓名]
+- **测试环境**: [开发/测试/生产]
+- **测试结果**: ✅ 通过 / ❌ 失败 / ⚠️ 部分通过
+- **发现问题**: [问题描述，无则填写"无"]
+- **备注**: [其他说明]
+```
+
+### 维护要求
+
+1. **AI 开发完成后**: 必须更新此表格，标记需要人工测试的功能。
+2. **测试完成后**: 更新测试状态、测试人员和测试日期。
+3. **定期审查**: 每周审查一次，确保待测试功能得到及时处理。
+4. **状态更新**: 使用 `make test_status_check` 检查跟踪状态。
+
+### 验证步骤
+
+```bash
+# 检查人工测试跟踪状态
+make test_status_check
+
+# 预期输出：
+# ✓ 所有模块都包含人工测试跟踪章节
+# ⚠️  共有 X 个功能等待人工测试
+```
+
+---
+
 ## 相关文档
 - **接口契约**：`CONTRACT.md`
 - **模块架构**：`README.md`
 - **运维手册**：`RUNBOOK.md`
 - **测试规范**：`agent.md` §6
+- **AI 自动化审计**：`docs/project/AI_AUTOMATION_AUDIT.md`
 

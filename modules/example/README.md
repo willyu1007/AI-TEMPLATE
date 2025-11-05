@@ -44,7 +44,7 @@
 
 ## 目录结构
 
-```
+```text
 modules/example/
 ├── README.md        # 本文档：模块概述和架构
 ├── plan.md          # 开发计划：当前迭代任务
@@ -76,25 +76,25 @@ modules/example/
 | `DATABASE_URL` | 否 | - | 数据库连接（如需持久化）|
 
 ### 配置项
-参见 `config/defaults.yaml` 中的 `example` 章节
+参见 `config/defaults.yaml` 中的 `example` 章节。
 
 ---
 
 ## 快速开始
 
 ### 1. 安装依赖
-```bash
+```
 pip install -r requirements.txt
 ```
 
 ### 2. 配置环境
-```bash
+```
 export APP_ENV=dev
 export LOG_LEVEL=DEBUG
 ```
 
 ### 3. 运行模块
-```bash
+```
 # 方法 1：直接运行
 python -m example.main
 
@@ -102,8 +102,8 @@ python -m example.main
 docker-compose up example
 ```
 
-### 4. 验证功能
-```bash
+## 4. 验证功能
+```
 # 运行冒烟测试
 pytest tests/example/test_smoke.py
 
@@ -116,7 +116,7 @@ curl http://localhost:8000/api/example/health
 ## 验证步骤
 
 ### 功能验证
-```bash
+```
 # 1. 模块可导入
 python -c "import example; print('OK')"
 
@@ -127,8 +127,8 @@ pytest tests/example/ -v
 curl http://localhost:8000/api/example/status
 ```
 
-### 集成验证
-```bash
+## 集成验证
+```
 # 1. 与其他模块集成测试
 pytest tests/integration/ -k example
 
@@ -146,7 +146,7 @@ make contract_compat_check
 如果模块变更导致问题：
 
 ### 1. 快速回滚
-```bash
+```
 # 代码回滚
 git checkout <previous-tag>
 
@@ -157,8 +157,8 @@ docker-compose restart example
 pytest tests/example/test_smoke.py
 ```
 
-### 2. 数据库回滚（如有迁移）
-```bash
+## 2. 数据库回滚（如有迁移）
+```
 # 执行 down 脚本
 psql -d app -f migrations/<version>_down.sql
 
@@ -166,8 +166,8 @@ psql -d app -f migrations/<version>_down.sql
 \d+ example_table
 ```
 
-### 3. 配置回滚
-```bash
+## 3. 配置回滚
+```
 # 恢复配置文件
 git checkout <previous-tag> -- config/
 

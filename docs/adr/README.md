@@ -38,7 +38,7 @@ docs/adr/
 ## ADR 模板
 
 ### 标准模板
-```markdown
+```
 # ADR-001: [决策标题]
 
 ## 状态
@@ -186,22 +186,22 @@ docs/adr/
 ### 创建新 ADR
 
 1. **确定需要记录**
-   ```bash
+   ```
    # 判断标准：
    # - 影响多个模块
    # - 影响系统架构
    # - 引入新的技术栈
    # - 修改核心接口
-   ```
+```
 
 2. **创建 ADR 文件**
-   ```bash
+   ```
    # 获取下一个编号
    ls docs/adr/*.md | wc -l
    
    # 创建文件
    cp docs/adr/template.md docs/adr/XXX-decision-title.md
-   ```
+```
 
 3. **填写内容**
    - 使用模板格式
@@ -209,17 +209,17 @@ docs/adr/
    - 说明决策理由
 
 4. **提交 PR**
-   ```bash
+   ```
    # PR 标题：docs(adr): 添加 ADR-XXX 决策记录
    # 包含在相关功能 PR 中，或单独提交
-   ```
+```
 
 ---
 
 ## 验证步骤
 
 ### 文档完整性检查
-```bash
+```
 # 1. 检查所有 ADR 格式正确
 python scripts/check_adr_format.py
 
@@ -236,16 +236,16 @@ ls docs/adr/*.md | sort -V
 当决策发生变化时：
 
 1. **更新状态**
-   ```markdown
+   ```
    ## 状态
    已替代（被 ADR-XXX 替代）
-   ```
+```
 
 2. **添加替代说明**
-   ```markdown
+   ```
    ## 替代说明
    本决策已被 ADR-XXX 替代，原因：[说明]
-   ```
+```
 
 3. **保留历史**
    - 不要删除旧 ADR

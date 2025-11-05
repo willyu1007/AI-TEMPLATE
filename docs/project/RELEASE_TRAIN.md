@@ -69,7 +69,7 @@ QA测试   QA测试   预发布   发布     监控
 **时间**：每周四 18:00
 
 **动作**：
-```bash
+```
 # 1. 创建 release 分支
 git checkout -b release/v1.2.0
 
@@ -92,11 +92,11 @@ make rollback_check PREV_REF=v1.1.0
 
 ---
 
-### 2. QA 测试（周四-周五）
+## 2. QA 测试（周四-周五）
 **测试环境**：Staging
 
 **测试清单**：
-```markdown
+```
 - [ ] 冒烟测试（核心功能）
 - [ ] 回归测试（已有功能）
 - [ ] 性能测试（关键路径）
@@ -114,7 +114,7 @@ make rollback_check PREV_REF=v1.1.0
 
 ### 3. 预发布（周三）
 **部署到 Staging**：
-```bash
+```
 # 1. 部署
 ./deploy.sh staging release/v1.2.0
 
@@ -130,7 +130,7 @@ psql -h staging-db -f migrations/XXX_down.sql
 ```
 
 **Staging 验证清单**：
-```markdown
+```
 - [ ] 应用启动正常
 - [ ] 数据库迁移成功
 - [ ] 核心 API 可访问
@@ -141,11 +141,11 @@ psql -h staging-db -f migrations/XXX_down.sql
 
 ---
 
-### 4. 生产发布（周四）
+## 4. 生产发布（周四）
 **时间窗口**：周四 10:00-12:00（低流量时段）
 
 **发布步骤**：
-```bash
+```
 # 1. 发布公告
 # 发送邮件/公告通知用户
 
@@ -177,11 +177,11 @@ curl https://api.example.com/health
 
 ---
 
-### 5. 发布后监控（周四-周五）
+## 5. 发布后监控（周四-周五）
 **监控时长**：发布后 48 小时
 
 **监控指标**：
-```yaml
+```
 应用指标：
   - 错误率
   - 响应时间（P50/P95/P99）
@@ -215,7 +215,7 @@ curl https://api.example.com/health
 - 数据安全问题
 
 ### 回滚步骤
-```bash
+```
 # 1. 决策（技术负责人批准）
 # 评估：影响范围、回滚风险
 
@@ -268,7 +268,7 @@ hotfix/*             # 紧急修复分支
 ```
 
 ### Tag 管理
-```bash
+```
 # 发布时打 tag
 git tag -a v1.2.0 -m "Release version 1.2.0"
 git push origin v1.2.0
@@ -285,7 +285,7 @@ v1.2.0-alpha.1  # Alpha 版本
 ## 发布清单
 
 ### 发布前检查
-```markdown
+```
 - [ ] 所有测试通过（make dev_check）
 - [ ] 代码审查完成
 - [ ] CHANGELOG 已更新
@@ -299,7 +299,7 @@ v1.2.0-alpha.1  # Alpha 版本
 ```
 
 ### 发布后验证
-```markdown
+```
 - [ ] 应用启动正常
 - [ ] 健康检查通过
 - [ ] 核心功能可用

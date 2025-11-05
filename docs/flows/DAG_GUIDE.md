@@ -29,7 +29,7 @@
 - **contracts**：契约文件引用
 
 **示例**：
-```yaml
+```
 nodes:
   - id: web.frontend
     kind: app
@@ -48,7 +48,7 @@ nodes:
 ## DAG 边声明
 
 **格式**：
-```yaml
+```
 edges:
   - from: web.frontend
     to: api.user_service
@@ -86,7 +86,7 @@ make dag_check
 ## 维护流程
 
 ### 1. 添加新节点
-1. 在 `flows/dag.yaml` 的 `nodes` 中添加节点定义
+1. 在 `flows/dag.yaml` 的 `nodes` 中添加节点定义。
 2. 添加必要的边
 3. 运行 `make dag_check` 验证
 4. 运行 `make docgen` 更新索引
@@ -108,21 +108,21 @@ make dag_check
 如果 DAG 变更导致问题：
 
 1. **识别问题**
-   ```bash
+   ```
    make dag_check
    # 查看错误信息
-   ```
+```
 
 2. **回滚变更**
-   ```bash
+   ```
    git checkout HEAD~1 -- flows/dag.yaml
    make dag_check
-   ```
+```
 
 3. **验证修复**
-   ```bash
-   make dev_check
    ```
+   make dev_check
+```
 
 ## 相关文档
 - DAG 定义：`flows/dag.yaml`

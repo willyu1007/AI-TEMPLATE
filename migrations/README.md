@@ -45,15 +45,15 @@
 每个 `up.sql` 必须有对应的 `down.sql`
 
 **验证**：
-```bash
+```
 make migrate_check
 ```
 
 ### 2. 幂等性
-脚本应该可以安全地重复执行
+脚本必须可以安全地重复执行
 
 **示例**：
-```sql
+```
 -- up.sql（幂等）
 CREATE TABLE IF NOT EXISTS users (...);
 
@@ -68,7 +68,7 @@ CREATE TABLE users (...);  -- 第二次执行会失败
 - 不修改现有字段类型
 
 ### 4. 事务包装
-```sql
+```
 BEGIN;
 
 -- 迁移操作
@@ -83,7 +83,7 @@ COMMIT;
 ## 执行流程
 
 ### 1. 创建迁移脚本
-```bash
+```
 # 步骤 1：创建文件
 touch migrations/003_add_email_index_up.sql
 touch migrations/003_add_email_index_down.sql
@@ -99,8 +99,8 @@ vim migrations/003_add_email_index_down.sql
 make migrate_check
 ```
 
-### 2. 测试迁移（开发环境）
-```bash
+## 2. 测试迁移（开发环境）
+```
 # 步骤 1：备份数据
 pg_dump dev_db > backup_before_migration.sql
 
@@ -120,8 +120,8 @@ psql -d dev_db -c "\d+ users"
 psql -d dev_db -f migrations/003_add_email_index_up.sql
 ```
 
-### 3. 生产环境执行
-```bash
+## 3. 生产环境执行
+```
 # 步骤 1：备份（必须）
 pg_dump prod_db > backup_$(date +%Y%m%d_%H%M%S).sql
 
@@ -143,7 +143,7 @@ psql -d prod_db -c "\d+ users"
 ## 验证步骤
 
 ### 开发环境验证
-```bash
+```
 # 1. 语法检查
 psql -d dev_db -f migrations/XXX_up.sql --dry-run
 
@@ -169,7 +169,7 @@ pytest tests/ -v
 - 数据一致性问题
 
 ### 回滚步骤
-```bash
+```
 # 步骤 1：立即执行 down 脚本
 psql -d prod_db -f migrations/XXX_down.sql
 
@@ -186,7 +186,7 @@ pytest tests/smoke/ -v
 # 查看 Grafana 确认恢复正常
 ```
 
-### 回滚时间目标
+## 回滚时间目标
 - **执行时间**: < 10 分钟
 - **验证时间**: < 5 分钟
 - **总计**: < 15 分钟
@@ -201,7 +201,7 @@ pytest tests/smoke/ -v
 3. ⚠️ 大表变更需要评估锁表时间
 
 ### 性能考虑
-```sql
+```
 -- 大表添加索引使用 CONCURRENTLY（不锁表）
 CREATE INDEX CONCURRENTLY idx_users_email ON users(email);
 

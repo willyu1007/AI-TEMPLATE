@@ -4,6 +4,24 @@
 
 ---
 
+## 重要提醒（在开始任何任务前必读）
+
+在开始任何任务前，模型必须：
+
+1. **阅读文档格式规范**：见 §13.1 文档编写规范，特别是：
+   - 禁止使用颜文字（Emoji）
+   - 语言一致性要求
+   - 结构化输出要求
+
+2. **理解临时文件管理规范**：见 §13.0 临时文件管理规范，特别是：
+   - 任何由AI生成的文件，在创建前必须先判断是否为临时文件
+   - 临时文件必须使用 `_tmp` 后缀标记
+   - 必须在文件头部注释中明确标注"临时文件"和"完成后应删除"
+
+3. **遵循工作流程**：见 §0 快速开始，按照 S0-S6 步骤执行
+
+---
+
 ## 0. 快速开始
 **适用：项目初始化 / 新功能模块 / 日常开发与维护**。模型每次执行任务都遵循下列步骤：
 
@@ -28,7 +46,17 @@
 生成 `/ai/sessions/<date>_<name>/AI-SR-plan.md`（自审：意图、影响面、DAG/契约/DB 变更点、测试点、回滚）。通过后进入实现。
 
 **S3 - 实现与最小验证**  
-仅在**计划范围内**修改代码；保持向后兼容。更新或新增测试，运行 `make dev_check`。
+仅在**计划范围内**修改代码；保持向后兼容。更新或新增测试，运行 `make dev_check`。  
+
+> **临时文件要求（强制）**：
+> - **任何由AI生成的文件，在创建前必须先判断是否为临时文件**
+> - **临时文件判定标准**（满足任意一条即视为临时文件）：
+>   1. 仅在特定任务中使用的临时工具（如修复脚本、检查脚本、一次性工具）
+>   2. 自动生成的报告文件（如维护报告、修复总结等）
+>   3. 任务总结文档（如 `*_SUMMARY.md`、`*_FIX.md` 等）
+> - **必须使用 `_tmp` 后缀标记**（如 `test_script_tmp.py`、`DOC_FIX_SUMMARY_tmp.md`）
+> - **必须在文件头部注释中明确标注"临时文件"和"完成后应删除"**
+> - **任务完成后必须清理**：运行 `make cleanup_tmp`
 
 **S4 - 文档与索引更新**  
 同步更新：`CONTRACT.md/contract.json`、`TEST_PLAN.md`、`RUNBOOK.md`、`PROGRESS.md`、`CHANGELOG.md`、`flows/dag.yaml`、`docs/ux/*.md`（如涉及流程/UI）、`docs/process/CONFIG_GUIDE.md`及其他配置（如涉及新增或调整全局参数）。运行 `make docgen` 刷新 `/.aicontext/`。
@@ -37,12 +65,13 @@
 生成 `/ai/sessions/<date>_<name>/AI-SR-impl.md`；提交 PR，附 plan 与 AI‑SR。CI 门禁通过后合入。
 
 **S6 - 自动维护（必做）**  
-每次任务完成后运行 `make ai_maintenance`，确保仓库状态良好。维护报告保存在 `ai/maintenance_reports/`。
+每次任务完成后运行 `make ai_maintenance`，确保仓库状态良好。维护报告保存在 `ai/maintenance_reports/`。  
+> **临时文件清理**：任务完成后运行 `make cleanup_tmp` 清理所有临时文件。
 
 ---
 
 ## 1. 目录规范（约定优于配置）
-```
+```text
 .
 ├─ .aicontext/              # 给模型的"索引与路标"（docgen 生成）
 │  ├─ project_onepager.md
@@ -53,6 +82,38 @@
 ├─ ai/
 │  ├─ LEDGER.md            # 模型参与的任务清册（连续性）
 │  └─ sessions/<date>_<mod>/AI-SR-*.md
+├─ app/                     # 应用层（单一入口时，可选）
+│  ├─ main.py              # 应用入口点
+│  ├─ routes/              # 路由配置（将请求分发到 modules）
+│  └─ middleware/          # 应用级中间件（如需要）
+├─ apps/                    # 应用层（多入口时，可选）
+│  ├─ client/              # 客户端应用入口
+│  │   ├─ main.py         # 客户端入口点
+│  │   ├─ routes/          # 客户端路由
+│  │   └─ README.md        # 客户端说明
+│  └─ admin/               # 管理端应用入口
+│      ├─ main.py         # 管理端入口点
+│      ├─ routes/          # 管理端路由
+│      └─ README.md        # 管理端说明
+├─ frontend/                # 前端应用层（单一入口时，可选）
+│  ├─ main.ts              # 应用入口点
+│  ├─ routes/              # 路由配置
+│  ├─ components/          # 共享组件
+│  ├─ types/
+│  │   └─ api.d.ts         # 从契约自动生成的类型
+│  ├─ README.md
+│  └─ package.json
+├─ frontends/               # 前端应用层（多入口时，可选）
+│  ├─ web/                 # Web 前端
+│  │   ├─ main.ts          # Web 入口点
+│  │   ├─ routes/          # Web 路由
+│  │   ├─ components/      # Web 组件
+│  │   └─ README.md        # Web 说明
+│  └─ admin/               # 管理后台前端
+│      ├─ main.ts          # 管理后台入口点
+│      ├─ routes/          # 管理后台路由
+│      ├─ components/      # 管理后台组件
+│      └─ README.md        # 管理后台说明
 ├─ modules/
 │  └─ <module>/
 │     ├─ README.md         # 功能/边界/结构
@@ -63,7 +124,7 @@
 │     ├─ PROGRESS.md       # 进度与里程碑
 │     ├─ BUGS.md           # 缺陷与复盘
 │     └─ CHANGELOG.md
-├─ common/                  # 共享代码库（跨模块通用代码）
+├─ common/                  # 共享代码库（跨模块通用代码，全局）
 │  ├─ utils/                # 工具函数（字符串/日期/验证/加密）
 │  ├─ models/               # 数据模型（基础类/分页/响应）
 │  ├─ middleware/           # 中间件（认证/日志/限流）
@@ -80,12 +141,200 @@
 ├─ evals/                  # 评测与基线（可选）
 ├─ scripts/                # 校验/生成脚本（docgen、dagcheck 等）
 ├─ tests/                  # 测试
-├─ config/                 # 配置
+├─ config/                 # 配置（全局，保持根目录）
 │  ├─ schema.yaml
 │  ├─ defaults.yaml
 │  └─ <env>.yaml
+├─ tmp/                    # 临时文件（可选，不纳入版本控制）
+│  └─ <temp_file>_tmp.*    # 临时文件必须标记 _tmp 后缀
 └─ Makefile
 ```
+
+### 1.1 后端应用层初始化规则
+
+**重要原则**：`app/` 和 `apps/` 用于管理应用入口和路由，不包含业务逻辑。
+
+模型在初始化项目时，根据需求自动创建应用层目录：
+
+**判断条件**：
+1. **单一入口应用**：创建 `app/` 目录
+   - 只有一个应用入口
+   - 单体应用架构
+   - 微服务中的单个服务
+
+2. **多入口应用**：创建 `apps/` 目录
+   - 有多个应用入口（如客户端、管理端）
+   - 需要区分不同的应用入口
+   - 共享相同的业务模块
+
+3. **无应用层**：不创建 app/ 或 apps/
+   - 纯库项目（library）
+   - 工具集合
+   - 某些微服务架构场景
+
+**初始化流程**：
+1. 分析项目需求，确定应用入口数量
+2. 如果单一入口，创建 `app/` 目录结构：
+```text
+   app/
+   ├── main.py
+   ├── routes/
+   │   └── __init__.py
+   └── README.md
+```
+3. 如果多入口，创建 `apps/` 目录结构：
+```text
+   apps/
+   ├── client/
+   │   ├── main.py
+   │   ├── routes/
+   │   └── README.md
+   └── admin/
+       ├── main.py
+       ├── routes/
+       └── README.md
+```
+4. 确保 `config/` 和 `common/` 保持在根目录。
+
+**职责边界**：
+- **app/ 目录（单一入口应用）**
+  - **职责**：
+    - 应用入口点（main.py / main.go / index.ts）
+    - 路由配置（将 HTTP 请求分发到 modules）
+    - 应用级中间件（全局错误处理、请求日志等）
+  - **不包含**：
+    - 业务逻辑（应在 `modules/` 中）
+    - 数据模型（应在 `modules/<module>/models/` 或 `common/models/` 中）
+    - 工具函数（应在 `common/utils/` 中）
+
+- **apps/ 目录（多入口应用）**
+  - **职责**：
+    - 多个应用入口（client/、admin/ 等）
+    - 每个应用的路由配置
+    - 应用级的中间件（如需要）
+  - **不包含**：
+    - 业务逻辑（应在 `modules/` 中，可被多个应用共享）
+    - 共享代码（应在 `common/` 中）
+
+**与其他目录的关系**：
+
+**app/ 或 apps/ → modules/**
+- 应用层通过路由调用 modules 中的业务逻辑
+- 应用层不直接实现业务逻辑，只负责请求分发
+
+**app/ 或 apps/ → common/**
+- 应用层可以使用 common 中的工具函数、中间件、模型等
+- 但不应将 common 的内容移动到 app/ 或 apps/ 中
+
+**app/ 或 apps/ → config/**
+- 应用层读取 config/ 中的配置
+- config/ 保持根目录，不被移动到 app/ 或 apps/ 中
+
+**规则**：
+1. `app/` 和 `apps/` **互斥**：一个项目只使用其中一个。
+2. `app/` 或 `apps/` 是**可选**的：微服务架构可能不需要。
+3. 初始化时根据需求自动创建：参见本节说明。
+
+---
+
+### 1.2 前端应用层初始化规则
+
+**重要原则**：`frontend/` 和 `frontends/` 用于管理前端应用入口和路由，不包含业务逻辑。
+
+模型在初始化项目时，根据需求自动创建前端应用层目录：
+
+**判断条件**：
+1. **单一前端应用**：创建 `frontend/` 目录
+   - 只有一个前端入口（如单页应用 SPA）
+   - 共享相同的业务模块
+   - 单一用户界面入口
+
+2. **多入口前端应用**：创建 `frontends/` 目录
+   - 有多个前端入口（如 Web 客户端、管理后台、移动端 H5）
+   - 需要区分不同的前端应用
+   - 共享相同的业务组件和工具
+
+3. **无独立前端**：不创建 frontend/ 或 frontends/
+   - 纯后端项目
+   - 前端独立仓库
+   - 服务端渲染（SSR）场景（前端代码在服务端）
+
+**初始化流程**：
+1. 分析项目需求，确定前端入口数量
+2. 如果单一入口，创建 `frontend/` 目录结构：
+```text
+   frontend/
+   ├── main.ts              # 应用入口点
+   ├── routes/              # 路由配置
+   │   └── index.ts
+   ├── components/          # 共享组件（业务逻辑应在 modules/）
+   ├── utils/               # 前端工具函数（优先使用 common/utils）
+   ├── types/
+   │   └── api.d.ts         # 从契约自动生成的类型（见 §4.1）
+   ├── README.md
+   └── package.json
+```
+3. 如果多入口，创建 `frontends/` 目录结构：
+```text
+   frontends/
+   ├── web/                 # Web 前端
+   │   ├── main.ts
+   │   ├── routes/
+   │   ├── components/
+   │   └── README.md
+   ├── admin/               # 管理后台前端
+   │   ├── main.ts
+   │   ├── routes/
+   │   ├── components/
+   │   └── README.md
+   └── mobile/              # 移动端 H5
+       ├── main.ts
+       ├── routes/
+       └── README.md
+```
+4. 确保 `config/` 和 `common/` 保持在根目录（不被移动到前端目录）。
+
+**职责边界**：
+- **frontend/ 目录（单一入口应用）**
+  - **职责**：
+    - 应用入口点（main.ts / main.jsx / index.tsx）
+    - 路由配置（将 URL 分发到组件）
+    - 应用级中间件（全局错误处理、请求拦截、状态管理等）
+    - UI 组件和页面（展示层）
+  - **不包含**：
+    - 业务逻辑（应在 `modules/` 中，通过 API 调用）
+    - 数据模型（应在 `common/models/` 中，或从 API 契约生成）
+    - 工具函数（应优先使用 `common/utils/`）
+
+- **frontends/ 目录（多入口应用）**
+  - **职责**：
+    - 多个前端应用入口（web/、admin/、mobile/ 等）
+    - 每个应用的路由配置
+    - 应用级的中间件（如需要）
+    - UI 组件和页面（展示层）
+  - **不包含**：
+    - 业务逻辑（应在 `modules/` 中，通过 API 调用）
+    - 共享代码（应在 `common/` 中）
+
+**与其他目录的关系**：
+
+**frontend/ 或 frontends/ → modules/**
+- 前端通过 API 调用后端 modules 中的业务逻辑
+- 前端不直接实现业务逻辑，只负责展示和用户交互
+
+**frontend/ 或 frontends/ → common/**
+- 前端可以使用 common 中的工具函数、模型、常量等
+- 但不应将 common 的内容移动到前端目录中
+
+**frontend/ 或 frontends/ → config/**
+- 前端读取 config/ 中的配置（如 API 端点、环境变量）
+- config/ 保持根目录，不被移动到前端目录
+
+**规则**：
+1. `frontend/` 和 `frontends/` **互斥**：一个项目只使用其中一个。
+2. `frontend/` 或 `frontends/` 是**可选**的：纯后端项目不需要。
+3. 初始化时根据需求自动创建：参见本节说明。
+4. 前端类型定义必须从契约自动生成（见 §4.1），禁止手动定义接口类型。
 
 ---
 
@@ -137,32 +386,109 @@ policies:
 
 ---
 
+### 4.1 前后端契约交互规范
+
+#### 后端契约定义
+- 所有对外 API 必须在 `tools/<api-name>/contract.json` 定义
+- 契约使用 JSON Schema 格式
+- 语义变更必须新建 major 版本
+- 契约文件通过 `make contract_compat_check` 检查兼容性
+
+#### 前端契约消费
+- 前端通过 `make generate_frontend_types` 从契约生成 TypeScript 类型
+- 类型文件自动生成到 `frontend/src/types/api.d.ts` 或 `frontends/<app>/src/types/api.d.ts`
+- 前端代码必须使用生成的类型，禁止手动定义接口类型
+- 前端类型变更时，CI 会检查类型与契约的一致性
+
+#### 契约更新流程
+1. **后端修改契约**：更新 `tools/<api>/contract.json`
+2. **兼容性检查**：运行 `make contract_compat_check`
+3. **更新基线**（如需要）：`make update_baselines`
+4. **生成 OpenAPI**：运行 `make generate_openapi`（从 contract.json 生成 OpenAPI 3.0）
+5. **生成前端类型**：运行 `make generate_frontend_types`（从 OpenAPI 生成 TypeScript 类型）
+6. **前端更新**：使用新生成的类型定义，更新前端代码
+
+#### OpenAPI 集成
+项目采用 OpenAPI 3.0 作为前后端契约的中间格式：
+
+**工作流程**：
+```text
+contract.json (JSON Schema)
+    ↓ [generate_openapi]
+openapi.json (OpenAPI 3.0)
+    ↓ [generate_frontend_types]
+api.d.ts (TypeScript 类型)
+```
+
+**优势**：
+- 标准化：OpenAPI 是行业标准，工具链完善
+- 类型安全：自动生成 TypeScript 类型，减少前后端类型不匹配
+- 文档生成：可从 OpenAPI 自动生成 API 文档（Swagger UI）
+- 客户端生成：可使用 openapi-generator 生成前端 API 客户端
+
+**目录结构**：
+```text
+tools/
+├── <api-name>/
+│   └── contract.json          # JSON Schema 契约
+├── openapi.json                # 合并后的 OpenAPI 3.0 规范（自动生成）
+└── openapi.yaml                # OpenAPI YAML 格式（可选）
+```
+
+**前端类型输出**：
+```text
+frontend/ 或 frontends/<app>/
+├── src/
+│   ├── types/
+│   │   └── api.d.ts           # 自动生成的 TypeScript 类型
+│   └── api/
+│       └── client.ts          # API 客户端（可选，从 OpenAPI 生成）
+```
+
+#### 自动化集成
+- CI 流程中自动生成前端类型
+- 契约变更时自动触发前端类型更新
+- 类型不匹配时 CI 阻断合并（`make frontend_types_check`）
+- 前端类型检查已集成到 `make dev_check`
+
+#### 契约版本管理
+- 遵循语义化版本（Semver）：`MAJOR.MINOR.PATCH`
+- **PATCH**：Bug 修复，完全向后兼容（前端类型自动更新）
+- **MINOR**：新增功能，向后兼容（前端类型自动更新）
+- **MAJOR**：破坏性变更，不向后兼容（需要前端手动适配）
+
+---
+
 ## 5. 模块化开发流程（模型要做什么）
 **每次任务，模型严格遵循以下顺序：**
 
-**5.1 阅读顺序**（只读）  
+### 5.1 阅读顺序**（只读）  
 1) `/.aicontext/module_index.json` → 2) 该模块 `plan.md` → 3) `DAG` → 4) 相关 `contract.json` → 5) `DB_SPEC.yaml` → 6) `ENV_SPEC.yaml` → 7) 该模块 `README.md/RUNBOOK.md/TEST_PLAN.md/PROGRESS.md/BUGS.md` → 8) `common/README.md`（如需要使用共享代码）。
 
-**5.2 计划与预审**  
+### 5.2 计划与预审**  
 - 在 `modules/<name>/plan.md` 增量更新：目标、切片、接口/DB 影响、测试清单、验证命令、回滚。  
 - **检查是否需要使用 `common/` 中的代码**：查看 `common/README.md` 的"快速参考"章节，选择合适的工具函数、模型或中间件。  
 - 生成 `AI-SR-plan.md`（自审）。通过后进入 5.3。
 
-**5.3 代码骨架与目录更新**  
+### 5.3 代码骨架与目录更新**  
 - 仅在 `modules/<name>/` 或约定目录下新增/移动文件；必要时更新 `flows/dag.yaml`。  
 - **禁止跨模块大范围改动**，除非 plan 列明并通过预审。
 
-**5.4 实现与测试**  
+### 5.4 实现与测试**  
 - **优先使用 `common/` 中的代码**：在实现前查看 `common/README.md`，避免重复实现已有功能。  
 - 补/改 `tests/`；运行 `make dev_check`。失败则回到 5.3。
 
-**5.5 文档与索引更新**  
+### 5.5 文档与索引更新**  
 - 同步更新：`CONTRACT.md/contract.json`、`TEST_PLAN.md`、`RUNBOOK.md`、`PROGRESS.md`、`CHANGELOG.md`、`docs/ux/*.md`。  
 - 如果使用了 `common/` 中的代码，确保导入正确并在文档中说明。  
+- **人工测试跟踪**：在 `TEST_PLAN.md` 中更新"人工测试跟踪"章节，标记需要人工测试的功能。  
+- **UX 数据流转**：如果涉及用户流程或数据流转变更，更新 `docs/ux/*.md` 中的流程图和 API 调用序列。  
+- **临时文件管理**：如创建临时文件（用于测试、调试等），必须使用 `_tmp` 后缀标记，并在任务完成后清理。  
 - 运行 `make docgen` 刷新 `/.aicontext/*`。
 
-**5.6 自审与 PR**  
-- 生成 `AI-SR-impl.md`；创建 PR，引用本次变更涉及的**文档与契约**链接；等待人审。
+### 5.6 自审与 PR**  
+- 生成 `AI-SR-impl.md`；创建 PR，引用本次变更涉及的**文档与契约**链接；等待人审。  
+> **临时文件清理**：提交PR前必须运行 `make cleanup_tmp` 清理所有临时文件，确保无 `*_tmp.*` 文件被提交。
 
 > 任何一步缺失，CI 即阻断。
 
@@ -174,7 +500,7 @@ policies:
 **框架**：pytest（推荐）
 
 **目录结构**：
-```
+```text
 tests/
 ├── conftest.py           # pytest fixtures
 ├── <module>/
@@ -247,7 +573,7 @@ pytest -m "slow"                # 运行标记的测试
 **框架**：Vitest（推荐）或 Jest
 
 **目录结构**：
-```
+```text
 tests/
 ├── unit/
 │   └── components/
@@ -333,7 +659,7 @@ npm run test -- Button    # 运行特定测试
 **框架**：内置 `testing` 包
 
 **目录结构**：
-```
+```text
 pkg/
 ├── service/
 │   ├── user.go
@@ -454,7 +780,7 @@ go test -race ./...              # 竞态检测
 
 ### 6.4 通用测试原则
 **测试金字塔**：
-```
+```text
     /\
    /E2E\      10% - 端到端测试
   /------\
@@ -478,7 +804,7 @@ go test -race ./...              # 竞态检测
 - **T**imely：及时编写
 
 **AAA 模式**：
-```
+```text
 // Arrange - 准备测试数据
 let user = createTestUser()
 
@@ -490,18 +816,18 @@ expect(result).toBe(expected)
 ```
 
 **必须测试的场景**：
-- ✅ 正常路径（Happy Path）
-- ✅ 边界条件（空值、极值、边界）
-- ✅ 错误处理（异常、失败场景）
-- ✅ 并发安全（如适用）
-- ✅ 性能（关键路径）
+- 正常路径（Happy Path）
+- 边界条件（空值、极值、边界）
+- 错误处理（异常、失败场景）
+- 并发安全（如适用）
+- 性能（关键路径）
 
 **禁止事项**：
-- ❌ 测试依赖外部服务（必须 Mock）
-- ❌ 测试顺序依赖
-- ❌ 硬编码时间/随机数
-- ❌ 忽略失败的测试
-- ❌ 测试实现细节而非行为
+- 测试依赖外部服务（必须 Mock）
+- 测试顺序依赖
+- 硬编码时间/随机数
+- 忽略失败的测试
+- 测试实现细节而非行为
 
 ---
 
@@ -520,15 +846,16 @@ expect(result).toBe(expected)
 
 > **模板说明**：`config/loader/` 下是示例代码，实际项目需实现完整的配置加载逻辑。
 
-## 8.5. 依赖管理（requirements.txt 等）
-- **Python**：`requirements.txt` - 模型在初始化/检测到新导入时，运行 `python scripts/deps_manager.py` 自动补全
+### 8.1 依赖管理（requirements.txt 等）
+- **Python**：`requirements.txt` - 模型在初始化/检测到新导入时，必须运行 `make deps_check` 自动补全
 - **Node.js/Vue**：`package.json` - 使用 npm/yarn/pnpm 管理
 - **Go**：`go.mod` - 使用 `go mod tidy` 自动维护
 - **C/C++**：CMakeLists.txt / vcpkg / conan
 - **C#**：`*.csproj` - 使用 `dotnet restore`
 - **原则**：初始化项目时检测技术栈，按需生成/更新依赖文件
+- **强制检查**：`make dev_check` 已集成依赖检查，CI 门禁会验证依赖完整性
 
-> **模板说明**：`requirements.txt` 包含核心依赖（pyyaml, pytest），实际项目运行 `make deps_check` 自动补全。
+> **模板说明**：`requirements.txt` 包含核心依赖（pyyaml, pytest），实际项目运行 `make deps_check` 自动补全。新增依赖时，模型必须运行此命令并更新依赖文件。
 
 ---
 
@@ -560,20 +887,25 @@ sequenceDiagram
   API-->>FE: 200 OK (patch, artifacts)
 ```
 
-> **模板说明**：以上是示例流程，实际项目需在 `docs/ux/*.md` 中绘制真实的用户流程和接口序列。
+**数据流追踪要求**：
+- 模型在修改用户流程或数据流时，必须同步更新 `docs/ux/*.md` 中的流程图
+- API 端点变更必须在 UX 文档中反映
+- 使用 `make dataflow_check` 验证 UX 文档与代码实现的一致性（可选，不阻塞 CI）
+
+> **模板说明**：以上是示例流程，实际项目需在 `docs/ux/*.md` 中绘制真实的用户流程和接口序列。参考 `docs/ux/UX_GUIDE.md` 获取详细规范。
 
 ---
 
 ## 10. 提示词与清单（给模型）
 - **任务卡（Task Card）**：范围/目标/约束/输出/验证命令。  
 - **自审模板**：`AI-SR-*.md`（变更摘要、影响面、风险、测试点、回滚）。  
-- **PR 检查清单**：见下方 §10.5 和 `/.github/pull_request_template.md`。
+- **PR 检查清单**：见下方 §10.1 和 `/.github/pull_request_template.md`。
 
 ---
 
-## 10.5. Pull Request 规则
+### 10.1 Pull Request 规则
 
-### PR 提交前检查清单
+#### PR 提交前检查清单
 **必须完成**：
 - [ ] 所有测试通过（`make dev_check`）
 - [ ] 代码覆盖率达标（核心模块 ≥80%）
@@ -582,6 +914,7 @@ sequenceDiagram
 - [ ] 无 linter 错误
 - [ ] 契约兼容性检查通过（如涉及）
 - [ ] 自审文档已生成（AI-SR-impl.md）
+- [ ] 临时文件已清理（运行 `make cleanup_tmp` 确认无 `*_tmp.*` 文件）
 
 **高风险变更额外检查**：
 - [ ] 回滚验证通过（`make rollback_check PREV_REF=<tag>`）
@@ -591,7 +924,7 @@ sequenceDiagram
 
 ---
 
-### PR 标题规范
+#### PR 标题规范
 **格式**：`<type>(<scope>): <subject>`
 
 **Type 类型**：
@@ -613,8 +946,8 @@ sequenceDiagram
 
 ---
 
-### PR 描述模板
-```markdown
+#### PR 描述模板
+````markdown
 ## 变更说明
 简要描述本次变更的目的和内容。
 
@@ -657,10 +990,12 @@ sequenceDiagram
 ### 测试执行结果
 ```bash
 $ make dev_check
-✅ 所有检查通过
-```
+[所有检查通过]
 
-## 自审（AI-SR）
+    ```
+````
+
+#### 自审（AI-SR）
 链接到自审文档: `ai/sessions/20251104_feature_name/AI-SR-impl.md`
 
 **关键风险**：
@@ -671,18 +1006,17 @@ $ make dev_check
 - 数据库回滚: `psql -f migrations/003_*_down.sql`
 - Feature Flag: 设置 `feature_flags.new_feature=false`
 
-## 相关链接
+#### 相关链接
 - 计划文档: `modules/user/plan.md`
 - 相关 Issue: #123
 - 相关 PR: #122
 
-## 截图/演示
+#### 截图/演示
 （如适用，添加截图或 GIF）
-```
 
 ---
 
-### PR 审查清单（Reviewer）
+#### PR 审查清单（Reviewer）
 **代码质量**：
 - [ ] 代码遵循项目风格指南
 - [ ] 变量/函数命名清晰
@@ -708,6 +1042,7 @@ $ make dev_check
 - [ ] SQL 注入防护（如适用）
 - [ ] 无 N+1 查询问题
 - [ ] 资源正确释放
+- [ ] 无临时文件残留（确认已运行 `make cleanup_tmp`）
 
 **架构与设计**：
 - [ ] 符合现有架构模式
@@ -717,13 +1052,13 @@ $ make dev_check
 
 ---
 
-### PR 合并要求
+#### PR 合并要求
 **必须满足**：
-1. ✅ CI 门禁全部通过（`make dev_check`）
-2. ✅ 至少 1 人审查通过（人工）
-3. ✅ 所有讨论已解决
-4. ✅ 分支与 main 无冲突
-5. ✅ 自审文档已提交
+1. CI 门禁全部通过（`make dev_check`）
+2. 至少 1 人审查通过（人工）
+3. 所有讨论已解决
+4. 分支与 main 无冲突
+5. 自审文档已提交
 
 **可选（高风险变更）**：
 - 回滚演练通过
@@ -737,7 +1072,7 @@ $ make dev_check
 
 ---
 
-### PR 大小指导
+#### PR 大小指导
 **理想 PR 大小**：
 - 代码行数：< 500 行（不含测试）
 - 文件数量：< 10 个
@@ -750,7 +1085,7 @@ $ make dev_check
 
 ---
 
-### 快速 PR 通道（Hot Fix）
+#### 快速 PR 通道（Hot Fix）
 **适用场景**：
 - 生产环境严重 Bug
 - 安全漏洞修复
@@ -934,7 +1269,7 @@ npm run test:unit -- module --coverage
 ```
 
 **测试结构审查**：
-```
+```text
 tests/module/
 ├── test_unit.py          # 单元测试（快速）
 ├── test_integration.py   # 集成测试（依赖外部）
@@ -976,7 +1311,7 @@ npm ls --depth=0
 ```
 
 **模块结构示例**：
-```
+```text
 modules/user/
 ├── api/          # 对外接口
 ├── service/      # 业务逻辑
@@ -1040,7 +1375,7 @@ def process_data(config: ProcessConfig) -> ProcessResult:
         ValueError: 配置无效
         IOError: 文件访问失败
     """
-    pass
+      pass
 ```
 
 #### 2. 代码实现审查
@@ -1321,10 +1656,10 @@ jobs:
 ### 11.6 审查最佳实践
 
 #### 审查者准备
-1. **阅读背景**：PR 描述、相关 Issue、计划文档
-2. **本地运行**：检出分支，运行测试
-3. **分层审查**：根据变更范围选择粒度
-4. **限时审查**：集中注意力，30-60分钟为宜
+1. **阅读背景**：PR 描述、相关 Issue、计划文档。
+2. **本地运行**：检出分支，运行测试。
+3. **分层审查**：根据变更范围选择粒度。
+4. **限时审查**：集中注意力，30-60分钟为宜。
 
 #### 审查沟通
 1. **建设性反馈**：说明问题和改进建议
@@ -1337,15 +1672,15 @@ jobs:
 ```markdown
 ## 审查意见
 
-### 🔴 必须修复（Blocker）
+### 必须修复（Blocker）
 - [ ] **安全问题**：用户输入未验证（line 45）
 - [ ] **测试缺失**：核心接口无单元测试
 
-### 🟡 建议改进（Optional）
+### 建议改进（Optional）
 - [ ] **代码组织**：`process_data` 函数过长（150行），建议拆分
 - [ ] **性能优化**：考虑为频繁查询添加缓存
 
-### ✅ 做得好的地方
+### 做得好的地方
 - 错误处理完整，日志记录详细
 - 测试覆盖率达到 85%
 - 文档更新及时
@@ -1358,7 +1693,7 @@ jobs:
 
 ## 12. 命令与脚本
 - `make ai_begin MODULE=<name>`：初始化模块（含文档模板与测试占位），并更新索引。  
-- `make dev_check`：聚合校验 docgen/DAG/契约兼容/配置/迁移/一致性/测试。  
+- `make dev_check`：聚合校验 docgen/文档风格/DAG/契约兼容/依赖/配置/迁移/一致性/前端类型检查/测试（CI 门禁）。  
 - `make docgen`：生成 `/.aicontext/index.json`、`/.aicontext/snapshot.json` 与模块索引。  
 - `make dag_check`：DAG 静态校验（去重/无环/引用与契约存在）。  
 - `make contract_compat_check` / `make update_baselines`：契约兼容性对比与基线更新。  
@@ -1366,35 +1701,173 @@ jobs:
 - `make migrate_check`：迁移脚本 up/down 成对校验。  
 - `make consistency_check`：索引快照一致性与模块文档齐备校验。  
 - `make rollback_check PREV_REF=<tag|branch>`：回滚可行性检查。
-- `python scripts/deps_manager.py`：自动检测并补全依赖文件（Python/Node/Go 等）。
+- `make deps_check`：自动检测并补全依赖文件（Python/Node/Go 等），已集成到 `dev_check`。
+- `make test_status_check`：检查人工测试跟踪状态，验证 `TEST_PLAN.md` 中是否包含测试跟踪章节。
+- `make dataflow_check`：检查 UX 数据流转文档与代码实现的一致性（可选，不阻塞 CI）。
+- `make app_structure_check`：检查应用层结构（app/ 和 apps/ 的互斥性、职责边界）。
+- `make ai_maintenance`：AI 自动维护，检查并修复常见问题（每次任务后运行）。
+- `make cleanup_tmp`：清理所有临时文件（`*_tmp.*` 模式）。
+- `make generate_openapi`：从 `tools/*/contract.json` 生成 OpenAPI 3.0 规范（`tools/openapi.json`）。
+- `make generate_frontend_types`：从 OpenAPI 生成前端 TypeScript 类型（自动调用 `generate_openapi`）。
+- `make frontend_types_check`：检查前端类型与 OpenAPI 契约的一致性，已集成到 `dev_check`。
 
 ---
 
-## 13. 文档编写规范（Documentation Standards）
+## 13. 临时文件管理规范
+
+### 13.0 临时文件标记要求
+
+**强制要求**：AI在生成任何文件前，必须先判断是否为临时文件，如果是，必须使用 `_tmp` 后缀标记。
+
+**临时文件判定标准**（满足任意一条即视为临时文件）：
+1. **不在 `Makefile` 中作为命令使用的脚本**
+   - 检查方式：在 `Makefile` 中搜索文件名
+   - 示例：`ai_friendly_check.py` 不在 Makefile 中 → 临时文件
+   
+2. **不在 `agent.md` 中明确提及的工具脚本**
+   - 检查方式：在 `agent.md` 中搜索文件名或功能描述
+   - 示例：`comprehensive_doc_check.py` 未在 agent.md 中提及 → 临时文件
+   
+3. **不在 `README.md` 中作为项目核心功能文档的脚本**
+   - 检查方式：检查 README.md 的项目结构或核心功能章节
+   - 示例：修复脚本、一次性工具 → 临时文件
+   
+4. **仅在特定任务中使用的临时工具**
+   - 包括：修复脚本、检查脚本、一次性工具、调试工具
+   - 示例：`fix_heading_levels_tmp.py`、`fix_code_blocks_tmp.py`
+   
+5. **自动生成的报告文件**
+   - 包括：维护报告、检查报告、修复总结等
+   - 位置：`ai/maintenance_reports/*.txt`、`ai/maintenance_reports/*.json`
+   - 示例：`ai_friendly_check_20251105_161139.txt`、`DOC_FIX_SUMMARY_tmp.md`
+   
+6. **任务总结或临时文档**
+   - 包括：修复总结、任务报告、临时说明文档
+   - 命名模式：`*_SUMMARY.md`、`*_FIX.md`、`*_REPORT.md` 等
+   - 示例：`DOC_FIX_SUMMARY.md` → 应命名为 `DOC_FIX_SUMMARY_tmp.md`
+
+**适用范围**：所有由AI生成的临时文件，包括但不限于：
+- 测试脚本（`test_*_tmp.py`、`test_*_tmp.sh`）
+- 调试工具（`debug_*_tmp.py`）
+- 临时数据文件（`data_*_tmp.json`、`output_*_tmp.txt`）
+- 一次性脚本（`run_*_tmp.sh`、`verify_*_tmp.py`）
+- 修复脚本（`fix_*_tmp.py`）
+- 检查脚本（`*_check_tmp.py`）
+- 任务总结文档（`*_SUMMARY_tmp.md`、`*_FIX_tmp.md`）
+- 自动生成的报告（`ai/maintenance_reports/*.txt`、`*.json`）
+
+**标记规则**：
+1. **必须使用 `_tmp` 后缀**：所有临时文件必须以 `_tmp` 作为后缀的一部分
+   - 正确：`test_connection_tmp.py`、`debug_query_tmp.sh`、`data_sample_tmp.json`
+   - 错误：`test_connection.py`、`debug_query.sh`、`data_sample.json`
+
+2. **命名格式**：`<描述性名称>_tmp.<扩展名>`
+   - 示例：`verify_api_tmp.py`、`load_test_data_tmp.json`
+
+3. **位置要求**：
+   - 可以放在 `tmp/` 目录（推荐）
+   - 也可以放在相关模块目录下（如 `modules/<name>/tmp/`）
+   - 必须添加到 `.gitignore` 中（已自动忽略 `*_tmp.*` 模式）
+
+4. **清理要求**：
+   - 任务完成后必须清理所有临时文件
+   - 运行 `make cleanup_tmp` 自动清理所有 `*_tmp.*` 文件
+   - 或在 PR 描述中说明临时文件的用途和清理计划
+
+**AI生成流程（强制检查清单）**：
+
+在生成任何文件前，必须执行以下检查：
+
+1. **判断是否为临时文件**
+   - [ ] 检查文件是否在 `Makefile` 中作为命令使用
+   - [ ] 检查文件是否在 `agent.md` 中明确提及
+   - [ ] 检查文件是否在 `README.md` 中作为核心功能
+   - [ ] 检查文件是否为任务总结、报告或一次性工具
+   - [ ] 如果满足任意一条判定标准 → **必须使用 `_tmp` 后缀**
+
+2. **命名文件**
+   - 临时文件：`<描述性名称>_tmp.<扩展名>`
+   - 正式文件：`<描述性名称>.<扩展名>`
+   - **错误示例**：`DOC_FIX_SUMMARY.md`（应为 `DOC_FIX_SUMMARY_tmp.md`）
+
+3. **添加头部注释**（仅临时文件）
+   - [ ] 明确标注"临时文件"
+   - [ ] 说明"完成后应删除"
+   - [ ] 说明"不在 Makefile 或 agent.md 中作为正式工具使用"（如适用）
+
+4. **任务完成后清理**
+   - [ ] 在相关文档（如 `plan.md`）中说明临时文件的用途
+   - [ ] 运行 `make cleanup_tmp` 自动清理所有临时文件
+   - [ ] 在 PR 描述中说明临时文件的清理计划
+
+**示例 - 正确的临时文件生成**：
+```python
+# 文件：scripts/fix_heading_levels_tmp.py
+#!/usr/bin/env python3
+"""
+临时文件 - 批量修复标题跳级问题
+完成后应删除此文件
+
+注意：此文件为临时文件，完成后应删除
+不在 Makefile 或 agent.md 中作为正式工具使用
+"""
+```
+
+**示例 - 错误的临时文件生成**：
+```markdown
+# 文件：DOC_FIX_SUMMARY.md  [错误：缺少 _tmp 后缀]
+# 文档修复总结
+...
+```
+
+**应改为**：
+```markdown
+# 文件：DOC_FIX_SUMMARY_tmp.md  [正确]
+# 临时文件 - 文档修复总结
+# 完成后应删除此文件
+...
+```
+
+**示例**：
+```python
+# 文件：tmp/test_connection_tmp.py
+#!/usr/bin/env python3
+"""
+临时测试脚本 - 用于验证数据库连接
+完成后应删除此文件
+"""
+# ... 测试代码 ...
+```
+
+---
+
+## 13.1 文档编写规范（Documentation Standards）
+
+**重要提醒**：在生成任何文档前，必须先判断是否为临时文件（见 §13.0），如果是临时文档，必须使用 `_tmp` 后缀标记。
 
 模型在编写、更新或生成任何文档时，必须严格遵循以下规范，以保证文档的专业性、可读性和一致性。
 
-### 13.1 核心原则
+### 13.1.1 核心原则
 
 #### 1. 禁止使用颜文字（Emoji）
-**规则**：文档中不得使用任何颜文字或装饰性符号（包括分类标题前缀），除非在特定场景下用于标记状态。
+**规则**：文档中不得使用任何颜文字或装饰性符号（包括分类标题前缀），禁止在文档正文、标题、列表中使用任何颜文字。
 
 **允许的例外**：
-- 状态标记：`✅` `❌` `🔴` `🟡` `🟢`（仅用于清单、状态指示，不用于标题）
+- 代码注释中的示例说明（如代码示例中的注释行）
 
 **示例**：
 ```markdown
-❌ 错误：文档写得很好哦～ 😊
-✅ 正确：文档已按规范更新
+错误示例：文档写得很好哦～ 😊
+正确示例：文档已按规范更新
 
-❌ 错误：这个功能真棒！👍
-✅ 正确：该功能实现了预期目标
+错误示例：这个功能真棒！👍
+正确示例：该功能实现了预期目标
 
-❌ 错误：## 🏗️ 架构设计
-✅ 正确：## 架构设计
+错误示例：## 🏗️ 架构设计
+正确示例：## 架构设计
 
-❌ 错误：### 🔴 高优先级
-✅ 正确：### 高优先级
+错误示例：### 高优先级（使用颜文字）
+正确示例：### 高优先级
 ```
 
 ---
@@ -1410,15 +1883,15 @@ jobs:
 
 **示例**：
 ```markdown
-❌ 错误：混合语言
+错误示例：混合语言
 ## User Management
 用户管理模块 provides CRUD operations for 用户账户.
 
-✅ 正确：中文文档
+正确示例：中文文档
 ## 用户管理
 用户管理模块提供用户账户的创建、查询、更新和删除（CRUD）功能。
 
-✅ 正确：英文文档
+正确示例：英文文档
 ## User Management
 The user management module provides CRUD operations for user accounts.
 ```
@@ -1447,10 +1920,10 @@ The user management module provides CRUD operations for user accounts.
 
 **示例**：
 ```markdown
-❌ 错误：
+错误示例：
 要先安装依赖然后运行测试最后检查结果
 
-✅ 正确：
+正确示例：
 操作步骤如下：
 1. 安装依赖：`pip install -r requirements.txt`
 2. 运行测试：`pytest tests/`
@@ -1472,10 +1945,10 @@ The user management module provides CRUD operations for user accounts.
 
 **示例**：
 ```markdown
-❌ 错误：
+错误示例：
 检查代码，修改问题，提交PR
 
-✅ 正确：
+正确示例：
 完整流程如下：
 1. **首先**，运行静态检查工具发现问题
 2. **然后**，根据检查结果修改代码
@@ -1495,13 +1968,13 @@ The user management module provides CRUD operations for user accounts.
 
 **示例**：
 ```markdown
-❌ 错误：计算复杂度为 O(n^2)，精度为 1e-5
-✅ 正确：计算复杂度为 $O(n^2)$，精度为 $\epsilon = 10^{-5}$
+错误示例：计算复杂度为 O(n^2)，精度为 1e-5
+正确示例：计算复杂度为 $O(n^2)$，精度为 $\epsilon = 10^{-5}$
 
-❌ 错误：loss = sum((y_pred - y_true)^2) / n
-✅ 正确：损失函数定义为 $L = \frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2$
+错误示例：loss = sum((y_pred - y_true)^2) / n
+正确示例：损失函数定义为 $L = \frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2$
 
-✅ 正确：块级推导
+正确示例：块级推导
 $$
 \begin{aligned}
 L &= \frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2 \\
@@ -1551,11 +2024,11 @@ $$
 
 **示例**：
 ```markdown
-❌ 错误：
+错误示例：
 # 用户服务
 提供用户管理功能
 
-✅ 正确：
+正确示例：
 # 用户服务（User Service）
 
 ## 目标
@@ -1592,13 +2065,13 @@ $$
 
 **示例**：
 ```markdown
-❌ 错误：
+错误示例：
 - 测试覆盖率应该比较高
 - 响应时间差不多在 2 秒左右
 - 这个模块有点像工厂模式
 - 需要安装 Python、Node 等等
 
-✅ 正确：
+正确示例：
 - 测试覆盖率必须 ≥80%
 - API 响应时间 P95 < 2000ms
 - 该模块实现了工厂模式（Factory Pattern）
@@ -1621,10 +2094,10 @@ $$
 
 **示例**：
 ```markdown
-❌ 错误：
+错误示例：
 用户登录时需要验证账号密码，然后生成 token 返回给前端，同时记录日志。
 
-✅ 正确：
+正确示例：
 ## 用户登录流程
 
 ### 执行步骤
@@ -1659,7 +2132,8 @@ curl -X POST http://localhost:8000/api/login \
   -d '{"username":"test","password":"password123"}'
 
 # 预期输出：200 OK + token
-```
+
+    ```
 
 ### 回滚逻辑
 如果登录功能异常：
@@ -1825,7 +2299,7 @@ ls -lt ai/maintenance_reports/ | head -5
 
 维护脚本 (`scripts/ai_maintenance.py`) 自动执行以下检查：
 
-1. **文档风格检查** (`doc_style_check`)
+1. **文档风格检查** (`doc_style_check`)。
    - 检查模糊表达
    - 检查未标记语言的代码块
    - 检查 emoji 标题前缀
@@ -1835,7 +2309,7 @@ ls -lt ai/maintenance_reports/ | head -5
    - 验证所有文本文件为 UTF-8 编码
    - 自动转换非 UTF-8 文件（可选）
 
-3. **一致性检查** (`consistency_check`)
+3. **一致性检查** (`consistency_check`)。
    - 验证模块文档完整性
    - 检查索引哈希一致性
 
@@ -1852,7 +2326,7 @@ ls -lt ai/maintenance_reports/ | head -5
    - 验证 DAG 无环
    - 检查节点引用完整性
 
-7. **契约兼容性检查** (`contract_compat_check`)
+7. **契约兼容性检查** (`contract_compat_check`)。
    - 检测破坏性变更
    - 验证契约向后兼容
 
@@ -1927,18 +2401,18 @@ python scripts/analyze_maintenance_history.py
 
 如需添加新的维护任务：
 
-1. **在 `scripts/ai_maintenance.py` 中添加函数**
+1. **在 `scripts/ai_maintenance.py` 中添加函数**。
    ```python
-   def check_new_task(report: MaintenanceReport):
-       """新的维护任务"""
-       # 实现检查逻辑
-       pass
-   ```
+    def check_new_task(report: MaintenanceReport):
+        """新的维护任务"""
+        # 实现检查逻辑
+        pass
+    ```
 
 2. **在 `main()` 中调用**
    ```python
-   check_new_task(report)
-   ```
+      check_new_task(report)
+      ```
 
 3. **更新文档**
    - 更新本节说明

@@ -1,0 +1,160 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Specification",
+    "version": "1.0.0",
+    "description": "从 contract.json 自动生成的 OpenAPI 3.0 规范",
+    "contact": {
+      "name": "API Support"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "开发环境"
+    },
+    {
+      "url": "https://api.example.com",
+      "description": "生产环境"
+    }
+  ],
+  "paths": {
+    "/api/codegen": {
+      "post": {
+        "summary": "根据需求生成代码补丁",
+        "description": "根据需求生成代码补丁",
+        "operationId": "codegen_post",
+        "tags": [
+          "codegen"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "task": {
+                    "type": "string"
+                  },
+                  "language": {
+                    "type": "string"
+                  },
+                  "dry_run": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": [
+                  "task"
+                ],
+                "description": "根据需求生成代码补丁"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功响应",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string",
+                      "description": "处理结果"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "success",
+                        "error"
+                      ],
+                      "description": "状态"
+                    },
+                    "error_code": {
+                      "type": "string",
+                      "description": "错误代码（仅错误时）"
+                    },
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "duration_ms": {
+                          "type": "number"
+                        },
+                        "version": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "result",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "error_code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "codegenRequest": {
+        "type": "object",
+        "properties": {
+          "task": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "task"
+        ],
+        "description": "根据需求生成代码补丁"
+      }
+    }
+  }
+}

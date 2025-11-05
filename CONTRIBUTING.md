@@ -1,6 +1,18 @@
 # 贡献指南
 
-感谢你对 Agent Repo 模板的关注！本文档说明如何贡献代码和反馈问题。
+## 目标
+说明如何为 Agent Repo 模板贡献代码、报告问题和提出改进建议，确保贡献流程清晰高效。
+
+## 适用场景
+- 发现 Bug 需要修复
+- 有功能改进建议
+- 希望贡献代码或文档
+- 需要了解贡献流程
+
+## 前置条件
+- 已 Fork 本仓库
+- 已阅读 `agent.md` 了解开发流程
+- 已设置本地开发环境
 
 ---
 
@@ -27,9 +39,9 @@
 - 相关工具版本: ...
 
 ## 错误日志
-```
-[粘贴错误信息]
-```
+    ```
+    [粘贴错误信息]
+    ```
 
 ## 截图
 [如适用]
@@ -59,7 +71,7 @@
 ## 提交代码
 
 ### 准备工作
-```bash
+```
 # 1. Fork 仓库
 # 2. 克隆你的 fork
 git clone https://github.com/your-username/agent-repo-template.git
@@ -75,7 +87,7 @@ git checkout -b feature/your-feature-name
 ### 开发流程
 
 #### 1. 遵循 agent.md 流程
-```bash
+```
 # 如果是新模块
 make ai_begin MODULE=your_module
 
@@ -100,7 +112,7 @@ make dev_check
 **风格指南**: `.aicontext/style_guide.md`
 
 #### 3. 提交信息
-```bash
+```
 # 格式：<type>(<scope>): <subject>
 
 # 示例
@@ -118,7 +130,7 @@ git commit -m "docs(readme): 更新快速开始说明"
 - `chore`: 构建/工具
 
 #### 4. 测试要求
-```bash
+```
 # 必须满足
 - [ ] 新功能有单元测试
 - [ ] 测试覆盖率 ≥80%（核心代码）
@@ -129,7 +141,7 @@ git commit -m "docs(readme): 更新快速开始说明"
 ### 提交 PR
 
 #### 1. 推送分支
-```bash
+```
 git push origin feature/your-feature-name
 ```
 
