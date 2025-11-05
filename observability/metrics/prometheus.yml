@@ -1,0 +1,36 @@
+# Prometheus 配置示例
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'production'
+    environment: 'prod'
+
+rule_files:
+  - "../alerts/prometheus_alerts.yml"
+
+scrape_configs:
+  - job_name: 'app'
+    static_configs:
+      - targets: ['app:8000']
+        labels:
+          service: 'api'
+          version: 'v1.0.0'
+  
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres_exporter:9187']
+        labels:
+          service: 'database'
+  
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis_exporter:9121']
+        labels:
+          service: 'cache'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+

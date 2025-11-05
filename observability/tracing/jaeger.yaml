@@ -1,0 +1,19 @@
+# Jaeger 配置 (Kubernetes ConfigMap)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jaeger-config
+data:
+  jaeger.yaml: |
+    sampling:
+      default_strategy:
+        type: probabilistic
+        param: 0.001  # 0.1% 采样率
+    storage:
+      type: elasticsearch
+      elasticsearch:
+        server_urls: http://elasticsearch:9200
+        index_prefix: jaeger
+        username: elastic
+        password: changeme
+

@@ -1,0 +1,18 @@
+# OpenTelemetry 配置
+exporter:
+  jaeger:
+    endpoint: jaeger:14250
+    insecure: true
+
+service:
+  name: app-service
+  version: 1.0.0
+
+instrumentation:
+  python:
+    enabled: true
+    packages:
+      - flask
+      - requests
+      - sqlalchemy
+
