@@ -10,8 +10,7 @@
 | 脚本 | 功能 | 命令 |
 |------|------|------|
 | docgen.py | 生成文档索引（.aicontext/） | `make docgen` |
-| doc_style_check.py | 文档风格检查 | `make doc_style_check` |
-| encoding_check.py | 编码检查 | 内部调用 |
+| doc_style_check.py | 文档风格检查（调用scripts/encoding_check.py） | `make doc_style_check` |
 
 ### DAG与契约
 | 脚本 | 功能 | 命令 |
@@ -67,13 +66,54 @@
 | agent_lint.py | 校验agent.md YAML前言 | `make agent_lint` | ✅ Phase 1 |
 | registry_check.py | 校验模块注册表 | `make registry_check` | ✅ Phase 1 |
 | doc_route_check.py | 校验文档路由路径 | `make doc_route_check` | ✅ Phase 1 |
+| type_contract_check.py | 校验模块类型契约 | `make type_contract_check` | ✅ Phase 4 |
+| doc_script_sync_check.py | 文档与脚本同步检查 | `make doc_script_sync_check` | ✅ Phase 4 |
 | registry_gen.py | 生成registry.yaml草案（半自动） | `make registry_gen` | ✅ Phase 1 |
 | module_doc_gen.py | 生成模块实例文档 | `make module_doc_gen` | ✅ Phase 1 |
 
-### 聚合脚本
-| 脚本 | 功能 | 命令 |
-|------|------|------|
-| validate.sh | 聚合验证 | 内部调用 |
+### 聚合验证
+| 脚本 | 功能 | 命令 | 状态 |
+|------|------|------|------|
+| validate.sh | 完整验证流程（7个检查） | `make validate` | ✅ 已有 |
+
+### 内部工具（不直接调用）
+| 脚本 | 功能 | 被谁调用 |
+|------|------|---------|
+| encoding_check.py | 文件编码检查 | doc_style_check.py内部调用 |
+
+---
+
+## 命令说明
+
+### 已实现的命令
+上述表格中列出的所有脚本都已实现，可以直接使用。
+
+### 文档中提及但未实现的命令
+
+以下命令在文档中提及，但尚未实现或不需要实现：
+
+#### 示例命令（不需要实现）
+这些命令出现在`doc/modules/example/`示例模块中，仅作为示例说明：
+- `make test` - 示例：运行测试
+- `make test_integration` - 示例：集成测试
+- `make coverage` - 示例：覆盖率报告
+- `make dev MODULE=<name>` - 示例：运行服务
+- `make backup` - 示例：备份数据
+- `make setup_test_data` - 示例：准备测试数据
+- `make cleanup_test_data` - 示例：清理测试数据
+
+**说明**: 这些是文档示例，实际项目可根据需要实现。
+
+#### Phase 5将实现的命令（数据库相关）
+- `make db_migrate` - 数据库迁移
+- `make db_rollback` - 数据库回滚
+- `make db_shell` - 数据库Shell
+- `make db_gen_ddl` - 生成DDL
+
+**说明**: 这些命令将在Phase 5（数据库治理实施）中实现。
+
+#### 其他
+- `make style_check` - 可能是`doc_style_check`的别名，待确认
 
 ---
 

@@ -1,0 +1,65 @@
+# 模块注册表
+# 版本: 1.0
+# 说明: 此文件维护所有模块类型、实例及其依赖关系
+# 维护方式: 半自动化（自动生成草案 + 人工审核）
+
+version: '1.0'
+generated_at: '2025-11-07'
+description: 模块类型、实例、依赖关系注册表
+
+# 模块类型定义
+# 参见: doc/modules/MODULE_TYPES.md
+module_types:
+  - id: 1_example
+    name: 示例模块类型
+    level: 1
+    description: 一级基础模块，用于演示模块结构和规范
+    io_contract: 标准HTTP请求/响应，详见modules/example/doc/CONTRACT.md
+
+# 模块实例
+# 每个实例是某个类型的具体实现
+# 
+# 说明：example模块已移至doc/modules/example/作为参考文档
+# 它不是业务模块，仅在模块初始化时作为参考
+module_instances: []
+  # 当有真实业务模块时，在此注册
+  # 示例格式：
+  # - id: user_auth.v1
+  #   type: 1_Assign
+  #   path: modules/user_auth
+  #   level: 1
+  #   status: dev
+  #   ...
+
+# 参考文档（不参与运行时编排）
+reference_modules:
+  - id: example.reference
+    type: 1_example
+    path: doc/modules/example  # 移至文档目录
+    purpose: 模块初始化参考模板
+    description: 完整的模块结构示例，包含agent.md、README.md、doc/等所有必需文件
+    usage: 创建新模块时参考此结构和内容
+    agent_md: doc/modules/example/agent.md
+    readme: doc/modules/example/README.md
+    created_by: Phase 4
+    notes: |
+      此模块仅用于参考，不参与实际业务逻辑。
+      位于doc/modules/下，避免被模块扫描工具误认为业务模块。
+      
+      参考内容：
+      - agent.md: 完整的YAML Front Matter示例
+      - README.md: 模块文档结构
+      - doc/: 6个标准文档（BUGS, CHANGELOG, CONTRACT, PROGRESS, RUNBOOK, TEST_PLAN）
+      
+      使用方式：
+      创建新模块时，参考doc/modules/MODULE_INIT_GUIDE.md，
+      并查看doc/modules/example/的实际实现。
+
+# 维护说明
+# 1. 添加新模块时，运行: make registry_gen
+# 2. 审核生成的registry.yaml.draft
+# 3. 补充TODO标记的内容
+# 4. 合并到本文件或重命名
+# 5. 运行: make registry_check 验证
+# 6. 运行: make module_doc_gen 生成MODULE_INSTANCES.md
+

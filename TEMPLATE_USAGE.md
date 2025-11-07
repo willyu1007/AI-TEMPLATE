@@ -85,7 +85,36 @@ git commit -m "chore: init project from template"
 - 维护者信息
 ```
 
-#### 2. `.aicontext/project_onepager.md`
+#### 2. `agent.md`（Phase 3将添加YAML Front Matter）
+```
+当前：模板通用Agent指南
+需要：添加YAML Front Matter和项目特定配置
+
+修改内容（Phase 3）：
+- spec_version, agent_id, role
+- policies引用
+- context_routes（文档路由）
+- merge_strategy
+```
+
+#### 3. `doc/orchestration/registry.yaml`
+```
+当前：仅包含example模块
+需要：注册你的项目模块
+
+修改内容：
+- 添加项目的模块类型
+- 添加模块实例
+- 定义依赖关系
+- 设置责任人和标签
+
+使用命令：
+  make registry_gen  # 生成草案
+  vi doc/orchestration/registry.yaml  # 审核并补充
+  make registry_check  # 验证
+```
+
+#### 4. `.aicontext/project_onepager.md`
 ```
 当前：目标：以最小成本，用大模型提升开发效率...
 需要：你的项目一页综述
@@ -96,7 +125,7 @@ git commit -m "chore: init project from template"
 - 当前日期
 ```
 
-#### 3. `docs/project/PRD_ONEPAGER.md`
+#### 5. `docs/project/PRD_ONEPAGER.md`
 ```
 当前：空模板
 需要：填写你的项目 PRD
@@ -143,7 +172,7 @@ infra: { db: ?, cache: ?, search: ? }
 
 ### 🟡 第二优先级（开发前修改）
 
-#### 7. `docs/db/DB_SPEC.yaml`
+#### 7. `db/engines/postgres/docs/DB_SPEC.yaml`
 ```
 当前：示例 runs 表
 需要：你的数据库结构
@@ -254,7 +283,7 @@ frontend: { framework: vue3, bundler: vite, language: ts }
 
 #### PostgreSQL（默认）
 ```
-# docs/db/DB_SPEC.yaml
+# db/engines/postgres/docs/DB_SPEC.yaml
 defaults:
   primary: postgresql
   version: "16"
@@ -263,7 +292,7 @@ defaults:
 
 #### MySQL
 ```
-# docs/db/DB_SPEC.yaml
+# db/engines/mysql/docs/DB_SPEC.yaml（需创建）
 defaults:
   primary: mysql
   version: "8.0"
@@ -278,7 +307,7 @@ db:
 
 #### MongoDB
 ```
-# docs/db/DB_SPEC.yaml
+# db/engines/mongo/docs/DB_SPEC.yaml（需创建）
 defaults:
   primary: mongodb
   version: "7.0"
@@ -354,6 +383,37 @@ make style_check
 
 ---
 
+## Phase 1-2新增文件（无需修改）
+
+以下文件在Phase 1-2中已创建，**无需修改**（除非定制）：
+
+### Schema与脚本（Phase 1）
+- ✅ `schemas/agent.schema.yaml` - agent.md的Schema定义
+- ✅ `schemas/README.md` - Schema说明
+- ✅ `scripts/agent_lint.py` - Agent校验脚本
+- ✅ `scripts/registry_check.py` - 注册表校验脚本
+- ✅ `scripts/doc_route_check.py` - 文档路由校验脚本
+- ✅ `scripts/registry_gen.py` - 注册表生成脚本
+- ✅ `scripts/module_doc_gen.py` - 模块文档生成脚本
+
+### 目录结构（Phase 2）
+- ✅ `doc/orchestration/routing.md` - 路由规则说明
+- ✅ `doc/policies/goals.md` - 全局目标
+- ✅ `doc/policies/safety.md` - 安全规范
+- ✅ `doc/indexes/context-rules.md` - 上下文索引规则
+- ✅ `doc/init/PROJECT_INIT_GUIDE.md` - 项目初始化指南
+- ✅ `doc/modules/MODULE_INIT_GUIDE.md` - 模块初始化指南
+- ✅ `doc/modules/MODULE_TYPES.md` - 模块类型说明
+- ✅ `doc/modules/TEMPLATES/` - 文档模板（6个）
+- ✅ `db/engines/postgres/` - PostgreSQL目录
+- ✅ `db/engines/redis/` - Redis目录
+
+### 自动生成文件（Phase 2）
+- 🔄 `doc/orchestration/registry.yaml` - 模块注册表（需审核）
+- 🔄 `doc/modules/MODULE_INSTANCES.md` - 模块实例（自动生成）
+
+---
+
 ## 检查清单
 
 ### 项目初始化清单
@@ -363,10 +423,10 @@ make style_check
 - [ ] .aicontext/project_onepager.md 已填写
 - [ ] docs/project/PRD_ONEPAGER.md 已完成
 - [ ] docs/project/SYSTEM_BOUNDARY.md 已定义
-- [ ] docs/process/ENV_SPEC.yaml 匹配技术栈
+- [ ] doc/process/ENV_SPEC.yaml 匹配技术栈
 - [ ] config/*.yaml 已配置
-- [ ] docs/db/DB_SPEC.yaml 已定义
-- [ ] flows/dag.yaml 已更新
+- [ ] db/engines/postgres/docs/DB_SPEC.yaml 已定义
+- [ ] doc/flows/flows/*.yaml 已更新
 - [ ] tools/ 下的契约已定义或删除
 - [ ] modules/example 已删除或保留
 - [ ] docker-compose.yml 已调整

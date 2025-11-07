@@ -6,17 +6,23 @@ MOD=${1:-}
 if [ -z "$MOD" ]; then
     echo "用法: bash scripts/ai_begin.sh <module>"
     echo "示例: bash scripts/ai_begin.sh user_auth"
+    echo ""
+    echo "💡 提示：建议查看 doc/modules/MODULE_INIT_GUIDE.md"
+    echo "   了解完整的模块初始化流程（包含AI对话式引导）"
     exit 1
 fi
 
 echo "🚀 初始化模块: $MOD"
 echo ""
+echo "📚 参考：doc/modules/example/ 是完整的模块示例"
+echo ""
 
-# 创建模块目录
-mkdir -p "modules/$MOD"
+# 创建模块目录结构（Phase 6更新）
+mkdir -p "modules/$MOD/core"
+mkdir -p "modules/$MOD/doc"
 
-# 生成模块文档（带引导内容）
-echo "[1/4] 生成模块文档..."
+# 生成模块文档（Phase 6更新）
+echo "[1/5] 生成模块文档..."
 
 # README.md
 cat > "modules/$MOD/README.md" <<'EOF'
@@ -47,7 +53,7 @@ cat > "modules/$MOD/README.md" <<'EOF'
 - 外部依赖
 EOF
 
-# plan.md
+# plan.md（Phase 6.5更新：添加数据库和测试数据影响评估）
 cat > "modules/$MOD/plan.md" <<EOF
 # 计划 ($(date +%Y-%m-%d))
 
@@ -60,8 +66,38 @@ cat > "modules/$MOD/plan.md" <<EOF
 
 ## 接口/DB 影响
 - 新增/修改的接口：
-- 数据库变更：
 - DAG 节点变更：
+
+---
+
+## 数据库影响评估（必填）⭐
+
+### 本次迭代是否涉及数据库变更？
+- [ ] 是，涉及数据库变更
+  - 变更类型：
+    - [ ] 新建表
+    - [ ] 修改表结构（增加字段）
+    - [ ] 修改表结构（删除字段）
+    - [ ] 修改表结构（修改字段类型）
+    - [ ] 增加索引
+    - [ ] 删除表（慎重！）
+  - 影响表：<表名列表>
+  - 影响范围：<描述>
+  - 参考流程：doc/process/DB_CHANGE_GUIDE.md
+  
+- [ ] 否，不涉及数据库变更
+
+### 测试数据影响（如涉及数据库变更必填）⭐
+- [ ] 需要更新Fixtures
+  - 影响场景：
+    - [ ] minimal（最小集）
+    - [ ] standard（标准集）
+    - [ ] full（完整集）
+- [ ] 需要更新Mock规则
+  - 影响表：<表名列表>
+- [ ] 不需要更新测试数据（请说明原因）
+
+---
 
 ## 测试清单
 - [ ] 单元测试
@@ -71,18 +107,19 @@ cat > "modules/$MOD/plan.md" <<EOF
 ## 验证命令
 \`\`\`bash
 make dev_check
+make db_lint       # 如涉及数据库变更
 # 其他验证命令
 \`\`\`
 
 ## 回滚计划
 如果出现问题，如何回滚？
-- 数据库迁移回滚：
-- 代码回滚：
-- Feature Flag：
+- 数据库迁移回滚：<down脚本路径>
+- 代码回滚：<git commit hash>
+- Feature Flag：<标记名称>
 EOF
 
-# CONTRACT.md
-cat > "modules/$MOD/CONTRACT.md" <<'EOF'
+# CONTRACT.md（Phase 6更新：移到doc/）
+cat > "modules/$MOD/doc/CONTRACT.md" <<'EOF'
 # CONTRACT - 接口契约
 
 ## 输入
@@ -126,8 +163,8 @@ cat > "modules/$MOD/CONTRACT.md" <<'EOF'
 ```
 EOF
 
-# TEST_PLAN.md
-cat > "modules/$MOD/TEST_PLAN.md" <<'EOF'
+# TEST_PLAN.md（Phase 6更新：移到doc/）
+cat > "modules/$MOD/doc/TEST_PLAN.md" <<'EOF'
 # TEST_PLAN - 测试计划
 
 ## 关键路径用例
@@ -155,8 +192,8 @@ cat > "modules/$MOD/TEST_PLAN.md" <<'EOF'
 列出每次必须运行的回归用例。
 EOF
 
-# RUNBOOK.md
-cat > "modules/$MOD/RUNBOOK.md" <<'EOF'
+# RUNBOOK.md（Phase 6更新：移到doc/）
+cat > "modules/$MOD/doc/RUNBOOK.md" <<'EOF'
 # RUNBOOK - 运维手册
 
 ## 启动
@@ -184,8 +221,8 @@ cat > "modules/$MOD/RUNBOOK.md" <<'EOF'
 - 关键指标2：
 EOF
 
-# PROGRESS.md
-cat > "modules/$MOD/PROGRESS.md" <<EOF
+# PROGRESS.md（Phase 6更新：移到doc/）
+cat > "modules/$MOD/doc/PROGRESS.md" <<EOF
 # PROGRESS - 进度与里程碑
 
 ## 当前状态
@@ -204,8 +241,8 @@ cat > "modules/$MOD/PROGRESS.md" <<EOF
 - $(date +%Y-%m-%d): 初始化模块
 EOF
 
-# BUGS.md
-cat > "modules/$MOD/BUGS.md" <<'EOF'
+# BUGS.md（Phase 6更新：移到doc/）
+cat > "modules/$MOD/doc/BUGS.md" <<'EOF'
 # BUGS - 缺陷跟踪
 
 ## 已知缺陷
@@ -223,8 +260,8 @@ cat > "modules/$MOD/BUGS.md" <<'EOF'
 对重要缺陷的根因分析和改进措施。
 EOF
 
-# CHANGELOG.md
-cat > "modules/$MOD/CHANGELOG.md" <<EOF
+# CHANGELOG.md（Phase 6更新：移到doc/）
+cat > "modules/$MOD/doc/CHANGELOG.md" <<EOF
 # CHANGELOG - 变更日志
 
 ## [Unreleased]
@@ -244,35 +281,140 @@ cat > "modules/$MOD/CHANGELOG.md" <<EOF
 -
 EOF
 
-echo "  ✓ 模块文档已生成"
+echo "  ✓ 模块文档已生成（6个文档在doc/下）"
+
+# 生成agent.md（Phase 6新增）
+echo "[2/5] 生成agent.md..."
+cat > "modules/$MOD/agent.md" <<EOF
+---
+spec_version: "1.0"
+agent_id: "modules.$MOD.v1"
+role: "$MOD模块的业务逻辑Agent"
+level: 1
+module_type: "1_$MOD"
+
+ownership:
+  code_paths:
+    include:
+      - modules/$MOD/
+      - tests/$MOD/
+    exclude:
+      - modules/$MOD/doc/CHANGELOG.md
+
+io:
+  inputs: []
+  outputs: []
+
+contracts:
+  apis:
+    - modules/$MOD/doc/CONTRACT.md
+
+dependencies:
+  upstream: []
+  downstream: []
+
+constraints:
+  - "保持测试覆盖率≥80%"
+
+tools_allowed:
+  calls:
+    - http
+    - fs.read
+
+quality_gates:
+  required_tests:
+    - unit
+    - integration
+  coverage_min: 0.80
+
+context_routes:
+  always_read:
+    - modules/$MOD/README.md
+    - modules/$MOD/doc/CONTRACT.md
+  on_demand:
+    - topic: "开发计划"
+      paths:
+        - modules/$MOD/plan.md
+    - topic: "测试计划"
+      paths:
+        - modules/$MOD/doc/TEST_PLAN.md
+---
+
+# $MOD模块Agent
+
+## 1. 模块概述
+
+（待补充）
+
+## 2. 核心功能
+
+（待补充）
+
+## 3. 依赖关系
+
+（待补充）
+
+---
+
+**维护者**: 待指定
+**创建时间**: $(date +%Y-%m-%d)
+EOF
+
+echo "  ✓ agent.md已生成"
 
 # 生成测试脚手架
-echo "[2/4] 生成测试脚手架..."
+echo "[3/5] 生成测试脚手架..."
 python scripts/test_scaffold.py "$MOD"
 
 # 更新索引
-echo "[3/4] 更新索引..."
+echo "[4/5] 更新索引..."
 python scripts/docgen.py
 
-# 提示下一步
+# 提示数据库和测试数据（Phase 6新增）
 echo ""
-echo "[4/4] 完成！"
+echo "[5/5] 完成！"
 echo ""
 echo "✅ 模块 '$MOD' 初始化完成"
 echo ""
 echo "📂 生成的文件："
-echo "   - modules/$MOD/*.md (8个文档)"
+echo "   - modules/$MOD/agent.md（Agent配置）"
+echo "   - modules/$MOD/README.md（模块文档）"
+echo "   - modules/$MOD/plan.md（实施计划）"
+echo "   - modules/$MOD/doc/ (6个标准文档)"
+echo "   - modules/$MOD/core/ (核心代码目录)"
 echo "   - tests/$MOD/ (测试目录)"
 echo ""
-echo "💡 下一步："
-echo "   1. 编辑 modules/$MOD/plan.md 定义任务计划"
-echo "   2. 实现功能代码"
-echo "   3. 补充测试：tests/$MOD/"
-echo "   4. 检查是否需要创建应用层（app/ 或 apps/）"
-echo "   5. 运行验证：make dev_check"
+echo "💡 下一步（建议按顺序）："
 echo ""
-echo "📝 应用层说明："
-echo "   - 单一入口应用：创建 app/ 目录（应用入口和路由）"
-echo "   - 多入口应用：创建 apps/ 目录（如 apps/client/, apps/admin/）"
-echo "   - 应用层只负责路由，业务逻辑在 modules/ 中"
-echo "   - 参考：agent.md §1.1 应用层初始化规则"
+echo "   1. 📋 定义计划"
+echo "      编辑 modules/$MOD/plan.md"
+echo ""
+echo "   2. 🗄️ 数据库变更（如需要）"
+echo "      - 创建表结构: db/engines/postgres/schemas/tables/<table>.yaml"
+echo "      - 创建迁移: db/engines/postgres/migrations/<num>_${MOD}_<action>_[up|down].sql"
+echo "      - 运行校验: make db_lint"
+echo "      参考：doc/modules/MODULE_INIT_GUIDE.md Phase 6"
+echo ""
+echo "   3. 🧪 测试数据定义（推荐）"
+echo "      - 从模板复制: cp doc/modules/TEMPLATES/TEST_DATA.md.template modules/$MOD/doc/TEST_DATA.md"
+echo "      - 创建fixtures: mkdir modules/$MOD/fixtures"
+echo "      - 更新agent.md: 添加test_data字段"
+echo "      参考：doc/modules/example/doc/TEST_DATA.md"
+echo ""
+echo "   4. 💻 实现功能"
+echo "      - modules/$MOD/core/service.py（核心逻辑）"
+echo "      - modules/$MOD/api/routes.py（如需HTTP接口）"
+echo ""
+echo "   5. ✅ 补充测试"
+echo "      - tests/$MOD/（单元测试和集成测试）"
+echo ""
+echo "   6. 🔍 运行校验"
+echo "      make agent_lint    # 校验agent.md"
+echo "      make db_lint       # 校验数据库文件（如有）"
+echo "      make dev_check     # 完整校验"
+echo ""
+echo "📖 完整指南："
+echo "   - 模块初始化: doc/modules/MODULE_INIT_GUIDE.md"
+echo "   - 参考示例: doc/modules/example/"
+echo "   - 模块类型: doc/modules/MODULE_TYPES.md"
+echo ""

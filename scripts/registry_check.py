@@ -131,7 +131,7 @@ def check_module_instances(registry, type_map):
                 issues.append(f"实例'{inst_id}'引用的类型'{inst_type}'未定义")
         
         # 检查agent_md路径
-        if "agent_md" in inst:
+        if "agent_md" in inst and inst["agent_md"] is not None:
             agent_md_path = REPO_ROOT / inst["agent_md"]
             if not agent_md_path.exists():
                 issues.append(f"实例'{inst_id}'的agent_md路径不存在: {inst['agent_md']}")

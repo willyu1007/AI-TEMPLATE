@@ -6,7 +6,8 @@
         rollback_check tests_scaffold deps_check doc_style_check ai_maintenance \
         test_status_check dataflow_check app_structure_check cleanup_tmp \
         generate_openapi generate_frontend_types frontend_types_check \
-        agent_lint registry_check doc_route_check registry_gen module_doc_gen
+        agent_lint registry_check doc_route_check registry_gen module_doc_gen \
+        type_contract_check doc_script_sync_check validate db_lint
 
 help:
 	@echo "可用命令："
@@ -36,8 +37,14 @@ help:
 	@echo "  make agent_lint             - 校验agent.md YAML前言"
 	@echo "  make registry_check         - 校验模块注册表"
 	@echo "  make doc_route_check        - 校验文档路由路径"
+	@echo "  make type_contract_check    - 校验模块类型契约"
+	@echo "  make doc_script_sync_check  - 检查文档与脚本同步"
 	@echo "  make registry_gen           - 生成registry.yaml草案"
 	@echo "  make module_doc_gen         - 生成模块实例文档"
+	@echo "  make validate               - 聚合验证（7个检查）"
+	@echo ""
+	@echo "数据库管理（Phase 5新增）："
+	@echo "  make db_lint                - 校验数据库文件（迁移脚本、表YAML）"
 
 # 完整开发检查（CI 门禁）
 dev_check: docgen doc_style_check dag_check contract_compat_check deps_check runtime_config_check migrate_check consistency_check frontend_types_check
@@ -185,6 +192,20 @@ doc_route_check:
 	@echo "🔍 校验文档路由..."
 	@python scripts/doc_route_check.py || echo "⚠️  警告模式：允许失败"
 
+# 校验模块类型契约
+type_contract_check:
+	@echo "🔍 校验模块类型契约..."
+	@python scripts/type_contract_check.py || echo "⚠️  警告模式：允许失败"
+
+# 检查文档与脚本同步
+doc_script_sync_check:
+	@echo "🔍 检查文档与脚本同步..."
+	@python scripts/doc_script_sync_check.py || echo "⚠️  警告模式：允许失败"
+
+# 聚合验证（7个检查）
+validate:
+	@bash scripts/validate.sh
+
 # 生成registry.yaml草案（半自动化）
 registry_gen:
 	@echo "📝 生成registry.yaml草案..."
@@ -194,3 +215,9 @@ registry_gen:
 module_doc_gen:
 	@echo "📝 生成模块实例文档..."
 	@python scripts/module_doc_gen.py
+
+# 数据库管理（Phase 5新增）
+# 校验数据库文件（迁移脚本成对性、表YAML格式）
+db_lint:
+	@echo "🔍 校验数据库文件..."
+	@python scripts/db_lint.py || echo "⚠️  警告模式：允许失败"

@@ -91,8 +91,11 @@ fi
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "[7/7] DB 规范存在性"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-if test -f docs/db/DB_SPEC.yaml; then
+# 兼容Phase 3后的路径
+if test -f doc/db/DB_SPEC.yaml; then
     echo "✓ DB_SPEC.yaml 存在"
+elif test -f docs/db/DB_SPEC.yaml; then
+    echo "✓ DB_SPEC.yaml 存在（旧路径）"
 else
     echo "❌ DB_SPEC.yaml 不存在"
     FAILED=1

@@ -150,6 +150,26 @@ def generate_instance_section(module_instances):
             if readme:
                 lines.append(f"- **README**: [{readme}]({readme})\n")
             
+            # 测试数据信息（Phase 6新增）
+            # 检查是否有test_data配置（通过检查文件是否存在）
+            module_path = REPO_ROOT / path
+            test_data_md = module_path / "doc" / "TEST_DATA.md"
+            fixtures_dir = module_path / "fixtures"
+            
+            if test_data_md.exists() or fixtures_dir.exists():
+                test_data_info = []
+                if test_data_md.exists():
+                    test_data_info.append(f"[规格文档]({path}/doc/TEST_DATA.md)")
+                if fixtures_dir.exists():
+                    # 统计fixtures文件
+                    fixtures_files = list(fixtures_dir.glob("*.sql"))
+                    if fixtures_files:
+                        fixtures_names = [f.stem for f in fixtures_files]
+                        test_data_info.append(f"Fixtures({len(fixtures_files)}个: {', '.join(fixtures_names)})")
+                
+                if test_data_info:
+                    lines.append(f"- **测试数据**: {' | '.join(test_data_info)}\n")
+            
             lines.append("\n")
     
     return "".join(lines)

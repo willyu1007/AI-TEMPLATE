@@ -130,8 +130,8 @@ cat modules/<target>/plan.md
 cat modules/<target>/README.md
 
 # Tier-2（建议）
-cat docs/db/DB_SPEC.yaml
-cat docs/process/ENV_SPEC.yaml
+cat db/engines/postgres/docs/DB_SPEC.yaml
+cat doc/process/ENV_SPEC.yaml
 
 # Tier-3（按需）
 cat modules/<target>/TEST_PLAN.md
@@ -233,7 +233,27 @@ make rollback_check PREV_REF=<previous-tag>
 │   ├── staging.yaml         # 预发布环境
 │   ├── prod.yaml            # 生产环境
 │   └── loader/              # 配置加载器示例
-├── docs/                    # 文档
+├── db/                      # 数据库层（Phase 2新增）
+│   └── engines/             # 数据库引擎
+│       ├── postgres/        # PostgreSQL
+│       └── redis/           # Redis
+├── doc/                     # 文档层（Phase 2新增）
+│   ├── orchestration/       # 编排配置
+│   │   ├── registry.yaml    # 模块注册表
+│   │   └── routing.md       # 路由规则
+│   ├── policies/            # 全局策略
+│   │   ├── goals.md         # 全局目标
+│   │   └── safety.md        # 安全规范
+│   ├── indexes/             # 索引规则
+│   │   └── context-rules.md # 上下文索引规则
+│   ├── init/                # 初始化指南
+│   │   └── PROJECT_INIT_GUIDE.md
+│   └── modules/             # 模块相关
+│       ├── MODULE_TYPES.md  # 模块类型
+│       ├── MODULE_INSTANCES.md  # 模块实例（自动生成）
+│       ├── MODULE_INIT_GUIDE.md # 模块初始化
+│       └── TEMPLATES/       # 文档模板
+├── docs/                    # 项目文档（将在Phase 3改名为doc/）
 │   ├── project/             # 项目文档
 │   ├── process/             # 流程文档
 │   ├── db/                  # 数据库文档
@@ -241,17 +261,31 @@ make rollback_check PREV_REF=<previous-tag>
 │   └── ux/                  # UX 文档
 ├── flows/
 │   └── dag.yaml             # DAG 配置
-├── migrations/              # 数据库迁移
+├── db/                      # 数据库相关（Phase 5已迁移）
+│   └── engines/
+│       └── postgres/
+│           ├── migrations/  # 迁移脚本
+│           ├── schemas/     # 表结构YAML
+│           └── docs/        # DB文档
 ├── modules/                 # 业务模块
 │   └── <module>/
+│       ├── agent.md         # Agent配置（Phase 4添加YAML）
 │       ├── README.md        # 模块概述
 │       ├── plan.md          # 任务计划
-│       ├── CONTRACT.md      # 接口契约
-│       ├── TEST_PLAN.md     # 测试计划
-│       ├── RUNBOOK.md       # 运维手册
-│       ├── PROGRESS.md      # 进度跟踪
-│       ├── BUGS.md          # 缺陷管理
-│       └── CHANGELOG.md     # 变更日志
+│       ├── doc/             # 模块文档（Phase 4新增）
+│       │   ├── CONTRACT.md      # 接口契约
+│       │   ├── CHANGELOG.md     # 变更日志
+│       │   ├── RUNBOOK.md       # 运维手册
+│       │   ├── BUGS.md          # 缺陷管理
+│       │   ├── PROGRESS.md      # 进度跟踪
+│       │   └── TEST_PLAN.md     # 测试计划
+│       ├── core/            # 核心逻辑（必需）
+│       ├── api/             # API层（可选）
+│       ├── frontend/        # 前端组件（可选）
+│       └── models/          # 数据模型（可选）
+├── schemas/                 # Schema定义（Phase 1新增）
+│   ├── agent.schema.yaml    # agent.md的Schema
+│   └── README.md            # Schema说明
 ├── scripts/                 # 工具脚本
 │   ├── docgen.py            # 生成文档索引
 │   ├── dag_check.py         # DAG 校验
@@ -262,12 +296,17 @@ make rollback_check PREV_REF=<previous-tag>
 │   ├── test_scaffold.py     # 测试脚手架
 │   ├── migrate_check.py     # 迁移脚本检查
 │   ├── ai_begin.sh          # 模块初始化
+│   ├── agent_lint.py        # Agent校验（Phase 1）
+│   ├── registry_check.py    # 注册表校验（Phase 1）
+│   ├── doc_route_check.py   # 文档路由校验（Phase 1）
+│   ├── registry_gen.py      # 生成注册表（Phase 1）
+│   ├── module_doc_gen.py    # 生成模块文档（Phase 1）
 │   └── validate.sh          # 聚合验证
 ├── tests/                   # 测试
 ├── tools/                   # 工具/服务契约
 │   └── codegen/
 │       └── contract.json
-├── agent.md                 # AI Agent 工作指南
+├── agent.md                 # AI Agent 工作指南（Phase 3添加YAML）
 ├── Makefile                 # 命令入口
 ├── requirements.txt         # Python 依赖
 └── README.md                # 项目说明
@@ -351,10 +390,21 @@ chmod +x scripts/*.sh
 
 ## 更多信息
 
+### 核心文档
 - **详细指南**：`agent.md`
 - **改进方案**：`Agent-Repo-QA-Mapping.md`
 - **实施摘要**：`docs/project/IMPLEMENTATION_SUMMARY.md`
 - **示例模块**：`modules/example/`
+
+### 新增文档（Phase 1-2）
+- **全局目标**：`doc/policies/goals.md`
+- **安全规范**：`doc/policies/safety.md`
+- **路由规则**：`doc/orchestration/routing.md`
+- **模块注册表**：`doc/orchestration/registry.yaml`
+- **项目初始化**：`doc/init/PROJECT_INIT_GUIDE.md`
+- **模块初始化**：`doc/modules/MODULE_INIT_GUIDE.md`
+- **模块类型**：`doc/modules/MODULE_TYPES.md`
+- **模块实例**：`doc/modules/MODULE_INSTANCES.md`（自动生成）
 
 ## 提示
 

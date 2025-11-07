@@ -29,10 +29,14 @@
 - 其他模块的数据流（通过契约定义）
 - 配置参数（从 `config/` 加载）
 
+详见 `doc/CONTRACT.md` 的输入参数章节。
+
 #### 输出
 - 处理结果（JSON 格式）
 - 状态信息（成功/失败/进行中）
 - 日志和审计记录
+
+详见 `doc/CONTRACT.md` 的输出格式章节。
 
 #### 依赖
 - **工具**：codegen（`tools/codegen/contract.json`）
@@ -46,14 +50,16 @@
 
 ```text
 modules/example/
+├── agent.md         # Agent配置：编排系统使用
 ├── README.md        # 本文档：模块概述和架构
 ├── plan.md          # 开发计划：当前迭代任务
-├── CONTRACT.md      # 接口契约：输入输出定义
-├── TEST_PLAN.md     # 测试计划：测试用例清单
-├── RUNBOOK.md       # 运维手册：部署和故障排查
-├── PROGRESS.md      # 进度跟踪：里程碑和状态
-├── BUGS.md          # 缺陷管理：已知问题和复盘
-├── CHANGELOG.md     # 变更日志：版本历史
+├── doc/             # 模块文档目录
+│   ├── CONTRACT.md      # 接口契约：输入输出定义
+│   ├── TEST_PLAN.md     # 测试计划：测试用例清单
+│   ├── RUNBOOK.md       # 运维手册：部署和故障排查
+│   ├── PROGRESS.md      # 进度跟踪：里程碑和状态
+│   ├── BUGS.md          # 缺陷管理：已知问题和复盘
+│   └── CHANGELOG.md     # 变更日志：版本历史
 ├── core/            # 核心业务逻辑
 ├── api/             # API 接口层
 ├── models/          # 数据模型定义
@@ -192,8 +198,12 @@ docker-compose restart
 ---
 
 ## 相关文档
-- **开发计划**：`plan.md`
-- **接口契约**：`CONTRACT.md`
-- **测试计划**：`TEST_PLAN.md`
-- **运维手册**：`RUNBOOK.md`
-- **项目 DAG**：`flows/dag.yaml`
+- **Agent配置**：`agent.md` - 编排系统配置
+- **开发计划**：`plan.md` - 当前任务和里程碑
+- **接口契约**：`doc/CONTRACT.md` - 输入输出规范
+- **测试计划**：`doc/TEST_PLAN.md` - 测试用例清单
+- **运维手册**：`doc/RUNBOOK.md` - 部署和故障排查
+- **缺陷管理**：`doc/BUGS.md` - 已知问题
+- **进度跟踪**：`doc/PROGRESS.md` - 里程碑状态
+- **变更历史**：`doc/CHANGELOG.md` - 版本记录
+- **项目 DAG**：`/doc/flows/flows/dag.yaml` - 数据流定义

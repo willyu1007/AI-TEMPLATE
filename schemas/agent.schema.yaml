@@ -203,6 +203,21 @@ properties:
     description: "合并策略（仅根agent.md使用）"
     enum: ["child_overrides_parent", "parent_overrides_child"]
     examples: ["child_overrides_parent"]
+  
+  # 测试数据管理（模块级，Phase 6新增）
+  test_data:
+    type: object
+    description: "模块的测试数据管理配置（轻量化，详细内容在doc/TEST_DATA.md）"
+    properties:
+      enabled:
+        type: boolean
+        description: "是否启用测试数据管理"
+        default: false
+      spec:
+        type: string
+        description: "测试数据规格文档路径（相对于模块根目录）"
+        default: "doc/TEST_DATA.md"
+        examples: ["doc/TEST_DATA.md"]
 
 # 允许额外字段，以便未来扩展
 additionalProperties: true

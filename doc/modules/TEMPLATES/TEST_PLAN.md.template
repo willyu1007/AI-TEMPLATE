@@ -1,0 +1,437 @@
+# <Entity>模块 - 测试计划
+
+> **用途**: 定义测试策略和测试用例
+> **版本**: 1.0.0
+
+---
+
+## 测试概览
+
+### 测试目标
+- 验证功能正确性
+- 确保代码质量
+- 达到覆盖率目标（80%+）
+
+### 测试类型
+- [x] 单元测试（Unit Tests）
+- [x] 集成测试（Integration Tests）
+- [x] 契约测试（Contract Tests）
+- [ ] 端到端测试（E2E Tests）
+- [ ] 性能测试（Performance Tests）
+- [ ] 安全测试（Security Tests）
+
+---
+
+## 测试策略
+
+### 测试金字塔
+```
+        /\
+       /E2\      10% - 端到端测试
+      /----\
+     /Integ\     20% - 集成测试
+    /------\
+   /  Unit  \    70% - 单元测试
+  /----------\
+```
+
+### 测试环境
+- **开发环境**: 本地开发机
+- **测试环境**: test.example.com
+- **预发环境**: staging.example.com
+- **生产环境**: prod.example.com（仅冒烟测试）
+
+---
+
+## 单元测试
+
+### 覆盖范围
+- 所有核心业务逻辑（core/）
+- 所有工具函数（utils/）
+- 所有数据模型（models/）
+
+### 覆盖率目标
+- **总体**: ≥80%
+- **核心模块**: ≥90%
+- **工具函数**: ≥95%
+
+### 测试用例
+
+#### 测试类：Test<Entity>Service
+
+##### 测试用例1: test_create_<entity>_success
+```python
+def test_create_<entity>_success():
+    """测试成功创建<entity>"""
+    # Arrange
+    service = <Entity>Service()
+    data = {"field1": "value1", "field2": "value2"}
+    
+    # Act
+    result = await service.create_<entity>(data)
+    
+    # Assert
+    assert result["id"] is not None
+    assert result["field1"] == "value1"
+    assert result["field2"] == "value2"
+```
+
+##### 测试用例2: test_create_<entity>_invalid_data
+```python
+def test_create_<entity>_invalid_data():
+    """测试无效数据创建<entity>"""
+    # Arrange
+    service = <Entity>Service()
+    data = {"field1": ""}  # field1为空
+    
+    # Act & Assert
+    with pytest.raises(ValueError):
+        await service.create_<entity>(data)
+```
+
+##### 测试用例3: test_get_<entity>_success
+```python
+def test_get_<entity>_success():
+    """测试成功获取<entity>"""
+    # Arrange
+    service = <Entity>Service()
+    entity_id = "test-id"
+    
+    # Act
+    result = await service.get_<entity>(entity_id)
+    
+    # Assert
+    assert result["id"] == entity_id
+```
+
+##### 测试用例4: test_get_<entity>_not_found
+```python
+def test_get_<entity>_not_found():
+    """测试获取不存在的<entity>"""
+    # Arrange
+    service = <Entity>Service()
+    entity_id = "non-existent-id"
+    
+    # Act & Assert
+    with pytest.raises(NotFoundError):
+        await service.get_<entity>(entity_id)
+```
+
+---
+
+## 集成测试
+
+### 覆盖范围
+- API路由（api/）
+- 数据库操作
+- 第三方服务集成
+
+### 测试用例
+
+#### 测试类：TestAPI<Entity>
+
+##### 测试用例1: test_api_create_<entity>
+```python
+def test_api_create_<entity>(client):
+    """测试创建<entity> API"""
+    # Arrange
+    data = {"field1": "value1", "field2": "value2"}
+    
+    # Act
+    response = client.post("/api/<entity>/", json=data)
+    
+    # Assert
+    assert response.status_code == 201
+    assert response.json()["field1"] == "value1"
+```
+
+##### 测试用例2: test_api_get_<entity>
+```python
+def test_api_get_<entity>(client, test_<entity>):
+    """测试获取<entity> API"""
+    # Act
+    response = client.get(f"/api/<entity>/{test_<entity>.id}")
+    
+    # Assert
+    assert response.status_code == 200
+    assert response.json()["id"] == str(test_<entity>.id)
+```
+
+##### 测试用例3: test_api_list_<entity>
+```python
+def test_api_list_<entity>(client):
+    """测试查询<entity>列表 API"""
+    # Act
+    response = client.get("/api/<entity>/")
+    
+    # Assert
+    assert response.status_code == 200
+    assert "items" in response.json()
+    assert "total" in response.json()
+```
+
+---
+
+## 契约测试
+
+### 覆盖范围
+- API接口契约
+- 上游依赖契约
+- 下游输出契约
+
+### 测试用例
+
+#### 测试：契约兼容性
+```python
+def test_contract_compatibility():
+    """测试API契约兼容性"""
+    # 加载CONTRACT.md中定义的契约
+    contract = load_contract("modules/<entity>/doc/CONTRACT.md")
+    
+    # 验证实际API符合契约
+    response = client.post("/api/<entity>/", json=contract["create_request"])
+    validate_schema(response.json(), contract["create_response"])
+```
+
+---
+
+## 端到端测试
+
+### 覆盖范围
+- 完整业务流程
+- 跨模块交互
+
+### 测试用例
+
+#### 测试场景1: 完整的<entity>生命周期
+```python
+@pytest.mark.e2e
+def test_<entity>_lifecycle(browser):
+    """测试<entity>的完整生命周期"""
+    # 1. 创建
+    browser.visit("/create_<entity>")
+    browser.fill("field1", "value1")
+    browser.click("submit")
+    assert browser.is_text_present("创建成功")
+    
+    # 2. 查看
+    <entity>_id = browser.find_by_id("entity_id").value
+    browser.visit(f"/<entity>/{<entity>_id}")
+    assert browser.is_text_present("value1")
+    
+    # 3. 编辑
+    browser.click("edit")
+    browser.fill("field1", "value2")
+    browser.click("save")
+    assert browser.is_text_present("更新成功")
+    
+    # 4. 删除
+    browser.click("delete")
+    browser.click("confirm")
+    assert browser.is_text_present("删除成功")
+```
+
+---
+
+## 性能测试
+
+### 目标
+- 吞吐量：> 1000 req/s
+- 延迟：P95 < 100ms, P99 < 500ms
+- 并发用户：支持1000+
+
+### 测试用例
+
+#### 负载测试
+```python
+@pytest.mark.perf
+def test_create_<entity>_performance():
+    """测试创建<entity>的性能"""
+    # 使用locust或k6进行压测
+    results = run_load_test(
+        url="/api/<entity>/",
+        method="POST",
+        users=1000,
+        duration=60
+    )
+    
+    assert results.requests_per_second > 1000
+    assert results.p95_latency < 0.1  # 100ms
+```
+
+---
+
+## 安全测试
+
+### 测试范围
+- 认证/授权
+- SQL注入
+- XSS攻击
+- CSRF攻击
+
+### 测试用例
+
+#### 测试：未认证访问
+```python
+def test_unauthenticated_access(client):
+    """测试未认证用户无法访问"""
+    response = client.get("/api/<entity>/")
+    assert response.status_code == 401
+```
+
+#### 测试：SQL注入防御
+```python
+def test_sql_injection_prevention(client, auth_token):
+    """测试SQL注入防御"""
+    payload = {"field1": "'; DROP TABLE users; --"}
+    response = client.post(
+        "/api/<entity>/",
+        json=payload,
+        headers={"Authorization": f"Bearer {auth_token}"}
+    )
+    # 应返回400错误，而非500
+    assert response.status_code == 400
+```
+
+---
+
+## 测试数据
+
+### Fixtures
+
+```python
+# conftest.py
+import pytest
+
+@pytest.fixture
+def test_<entity>():
+    """创建测试用的<entity>"""
+    entity = <Entity>(
+        id="test-id",
+        field1="test-value1",
+        field2="test-value2"
+    )
+    db.add(entity)
+    db.commit()
+    yield entity
+    db.delete(entity)
+    db.commit()
+
+@pytest.fixture
+def client():
+    """创建测试客户端"""
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
+```
+
+### 测试数据清理
+
+```python
+@pytest.fixture(autouse=True)
+def cleanup():
+    """每个测试后清理数据"""
+    yield
+    # 清理测试数据
+    db.session.query(<Entity>).filter(<Entity>.id.like("test-%")).delete()
+    db.session.commit()
+```
+
+---
+
+## 运行测试
+
+### 本地运行
+
+```bash
+# 运行所有测试
+pytest tests/<entity>/
+
+# 运行单元测试
+pytest tests/<entity>/ -m unit
+
+# 运行集成测试
+pytest tests/<entity>/ -m integration
+
+# 生成覆盖率报告
+pytest tests/<entity>/ --cov=modules/<entity> --cov-report=html
+```
+
+### CI/CD运行
+
+```yaml
+# .github/workflows/test.yml
+name: Test
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run tests
+        run: |
+          pytest tests/<entity>/ --cov --cov-report=xml
+      - name: Upload coverage
+        uses: codecov/codecov-action@v2
+```
+
+---
+
+## 质量门槛
+
+### 通过标准
+- [x] 测试覆盖率 ≥ 80%
+- [x] 所有单元测试通过
+- [x] 所有集成测试通过
+- [ ] 契约测试通过
+- [ ] E2E测试通过（如有）
+- [ ] 无Critical/High Bug
+
+### 阻断发布条件
+- 测试覆盖率 < 80%
+- 有失败的测试用例
+- 有未修复的Critical Bug
+
+---
+
+## 缺陷跟踪
+
+### 发现的Bug
+
+| ID | 描述 | 严重程度 | 状态 | 修复版本 |
+|----|------|---------|------|---------|
+| BUG-001 | <描述> | Major | Fixed | v1.0.1 |
+
+详见：`modules/<entity>/doc/BUGS.md`
+
+---
+
+## 测试报告
+
+### 最新报告
+- **日期**: 2025-11-07
+- **版本**: v1.0.0
+- **测试用例数**: 45
+- **通过**: 43
+- **失败**: 0
+- **跳过**: 2
+- **覆盖率**: 82%
+
+### 报告链接
+- [覆盖率报告](http://coverage.example.com)
+- [CI报告](http://ci.example.com)
+
+---
+
+## 相关文档
+
+- **agent.md**: modules/<entity>/agent.md
+- **CONTRACT.md**: modules/<entity>/doc/CONTRACT.md
+- **BUGS.md**: modules/<entity>/doc/BUGS.md
+
+---
+
+**维护**: 新增功能时同步更新测试用例
+**审核**: 每次发布前审核测试覆盖率
+

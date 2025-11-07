@@ -1,10 +1,10 @@
 # 模块注册表（草案）
-# 生成时间: 2025-11-07 12:09:35
+# 生成时间: 2025-11-07 16:37:31
 # ⚠️ 此文件为草案，请人工审核并补充TODO标记的内容
 # 审核完成后，删除.draft后缀，重命名为registry.yaml
 
 version: '1.0'
-generated_at: '2025-11-07 12:09:35'
+generated_at: '2025-11-07 16:37:31'
 description: 模块类型、实例、依赖关系注册表（草案，需人工审核）
 module_types:
 - id: 1_example
@@ -15,16 +15,16 @@ module_types:
 module_instances:
 - id: example.v1
   type: 1_example
-  path: modules\example
+  path: modules/example
   level: 1
   status: active
   version: 1.0.0
   owners:
   - 'TODO: 填写责任人'
-  agent_md: modules\example/agent.md (待创建)
-  readme: modules\example\README.md
+  agent_md: modules/example/agent.md (待创建)
+  readme: modules/example/README.md
   contracts:
-  - modules\example/CONTRACT.md
+  - modules/example/CONTRACT.md
   upstream: []
   downstream: []
   tags:

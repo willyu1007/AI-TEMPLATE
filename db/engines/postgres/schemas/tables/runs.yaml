@@ -1,0 +1,163 @@
+# 表结构定义：runs
+# 用途：记录 AI 代理的执行运行记录
+# 创建日期：2025-11-07
+# 维护者：AI-TEMPLATE Team
+
+meta:
+  table_name: runs
+  description: "AI 代理执行运行记录"
+  owner: "platform"
+  created_at: "2025-11-07"
+  last_updated: "2025-11-07"
+  migration_version: "001"
+  
+# 表定义
+table:
+  name: runs
+  schema: public
+  
+  # 字段定义
+  columns:
+    - name: run_id
+      type: UUID
+      constraints:
+        - PRIMARY KEY
+      default: gen_random_uuid()
+      nullable: false
+      description: "运行唯一标识"
+      
+    - name: agent
+      type: TEXT
+      constraints: []
+      nullable: false
+      description: "代理名称"
+      
+    - name: prompt_hash
+      type: TEXT
+      constraints: []
+      nullable: true
+      description: "提示词哈希"
+      
+    - name: tool_version
+      type: TEXT
+      constraints: []
+      nullable: true
+      description: "工具版本"
+      
+    - name: latency_ms
+      type: INTEGER
+      constraints: []
+      nullable: true
+      description: "执行延迟（毫秒）"
+      
+    - name: created_at
+      type: TIMESTAMPTZ
+      constraints: []
+      default: NOW()
+      nullable: false
+      description: "创建时间"
+      
+    - name: updated_at
+      type: TIMESTAMPTZ
+      constraints: []
+      default: NOW()
+      nullable: false
+      description: "更新时间"
+
+  # 索引定义
+  indexes:
+    - name: idx_runs_agent
+      columns:
+        - agent
+      type: BTREE
+      unique: false
+      description: "按代理名称查询的索引"
+      
+    - name: idx_runs_created_at
+      columns:
+        - created_at DESC
+      type: BTREE
+      unique: false
+      description: "按创建时间倒序查询的索引"
+
+  # 约束定义（除主键外）
+  constraints: []
+
+# 关联信息
+relationships:
+  # 如果有外键关系，在此定义
+  # - type: foreign_key
+  #   column: user_id
+  #   references:
+  #     table: users
+  #     column: id
+  #   on_delete: CASCADE
+  #   on_update: CASCADE
+
+# 数据治理
+governance:
+  # 数据敏感级别
+  sensitivity: low
+  
+  # 数据保留策略
+  retention_days: 90
+  
+  # 是否需要备份
+  backup_required: true
+  
+  # 访问控制
+  access_control:
+    - role: app_service
+      permissions: [SELECT, INSERT, UPDATE]
+    - role: analytics
+      permissions: [SELECT]
+
+# 性能考虑
+performance:
+  # 预估行数
+  estimated_rows: 1000000
+  
+  # 表增长速率（行/天）
+  growth_rate: 10000
+  
+  # 分区策略（如适用）
+  partitioning:
+    enabled: false
+    # strategy: range
+    # column: created_at
+    # interval: monthly
+
+# 迁移脚本
+migrations:
+  up: "../../migrations/001_example_create_runs_table_up.sql"
+  down: "../../migrations/001_example_create_runs_table_down.sql"
+
+# 相关文档
+documentation:
+  - type: schema_guide
+    path: "../docs/SCHEMA_GUIDE.md"
+  - type: db_spec
+    path: "../docs/DB_SPEC.yaml"
+
+# 示例查询
+example_queries:
+  - description: "查询最近10次运行"
+    sql: |
+      SELECT * FROM runs
+      ORDER BY created_at DESC
+      LIMIT 10;
+      
+  - description: "统计各代理的运行次数"
+    sql: |
+      SELECT agent, COUNT(*) as run_count
+      FROM runs
+      GROUP BY agent
+      ORDER BY run_count DESC;
+      
+  - description: "查询平均延迟"
+    sql: |
+      SELECT agent, AVG(latency_ms) as avg_latency_ms
+      FROM runs
+      WHERE latency_ms IS NOT NULL
+      GROUP BY agent;
+
