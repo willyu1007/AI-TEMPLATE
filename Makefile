@@ -5,7 +5,8 @@
         update_baselines runtime_config_check migrate_check consistency_check \
         rollback_check tests_scaffold deps_check doc_style_check ai_maintenance \
         test_status_check dataflow_check app_structure_check cleanup_tmp \
-        generate_openapi generate_frontend_types frontend_types_check
+        generate_openapi generate_frontend_types frontend_types_check \
+        agent_lint registry_check doc_route_check registry_gen module_doc_gen
 
 help:
 	@echo "可用命令："
@@ -30,6 +31,13 @@ help:
 	@echo "  make generate_openapi       - 从 contract.json 生成 OpenAPI 3.0"
 	@echo "  make generate_frontend_types - 从 OpenAPI 生成前端 TypeScript 类型"
 	@echo "  make frontend_types_check    - 检查前端类型与契约一致性"
+	@echo ""
+	@echo "编排与模块管理（Phase 1新增）："
+	@echo "  make agent_lint             - 校验agent.md YAML前言"
+	@echo "  make registry_check         - 校验模块注册表"
+	@echo "  make doc_route_check        - 校验文档路由路径"
+	@echo "  make registry_gen           - 生成registry.yaml草案"
+	@echo "  make module_doc_gen         - 生成模块实例文档"
 
 # 完整开发检查（CI 门禁）
 dev_check: docgen doc_style_check dag_check contract_compat_check deps_check runtime_config_check migrate_check consistency_check frontend_types_check
@@ -160,3 +168,29 @@ generate_frontend_types: generate_openapi
 frontend_types_check:
 	@echo "🔍 检查前端类型一致性..."
 	@python scripts/frontend_types_check.py
+
+# 编排与模块管理（Phase 1新增）
+# 校验agent.md YAML前言
+agent_lint:
+	@echo "🔍 校验agent.md..."
+	@python scripts/agent_lint.py || echo "⚠️  警告模式：允许失败"
+
+# 校验模块注册表
+registry_check:
+	@echo "🔍 校验模块注册表..."
+	@python scripts/registry_check.py || echo "⚠️  警告模式：允许失败"
+
+# 校验文档路由
+doc_route_check:
+	@echo "🔍 校验文档路由..."
+	@python scripts/doc_route_check.py || echo "⚠️  警告模式：允许失败"
+
+# 生成registry.yaml草案（半自动化）
+registry_gen:
+	@echo "📝 生成registry.yaml草案..."
+	@python scripts/registry_gen.py
+
+# 生成模块实例文档
+module_doc_gen:
+	@echo "📝 生成模块实例文档..."
+	@python scripts/module_doc_gen.py

@@ -100,6 +100,15 @@ make docgen                 # 生成/更新文档索引
 make deps_check             # 检查并自动补全依赖
 ```
 
+### 编排与模块管理（新增）
+```
+make agent_lint             # 校验agent.md YAML前言
+make registry_check         # 校验模块注册表
+make doc_route_check        # 校验文档路由
+make registry_gen           # 生成registry.yaml草案
+make module_doc_gen         # 生成模块实例文档
+```
+
 ### 回滚验证
 ```
 make rollback_check PREV_REF=v1.0.0  # 验证可回滚到指定版本

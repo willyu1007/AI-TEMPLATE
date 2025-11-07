@@ -1,0 +1,33 @@
+modules:
+  - type: "1_Assign"
+    instance: "M_Assign"
+    path: "modules/assign"
+    level: 1
+    owners: ["@owner1"]
+    io_ref: ["schemas/assign.json"]
+    upstream: []
+    downstream: ["M_Assign_Select"]
+    status: "active"
+    version: "1.0.0"
+
+  - type: "2_Select"
+    instance: "M_Assign_Select"
+    path: "modules/assign/select"
+    level: 2
+    owners: ["@owner1"]
+    io_ref: ["schemas/assign/select.json"]
+    upstream: ["M_Assign"]
+    downstream: ["M_AI_Select"]
+    status: "active"
+    version: "1.0.0"
+
+  - type: "3_SelectMethod"
+    instance: "M_AI_Select"
+    path: "modules/example"
+    level: 3
+    owners: ["@owner2"]
+    io_ref: ["schemas/assign/select_method.json"]
+    upstream: ["M_Assign_Select"]
+    downstream: []
+    status: "active"
+    version: "1.0.0"

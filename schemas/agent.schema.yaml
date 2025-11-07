@@ -1,0 +1,209 @@
+# Agent.md YAML Front Matter Schema
+# 用于校验所有agent.md文件的YAML前言部分
+# 版本: 1.0
+
+type: object
+required: [spec_version, agent_id, role]
+
+properties:
+  # 基础字段（所有agent.md必需）
+  spec_version:
+    type: string
+    description: "Schema版本号"
+    pattern: "^\\d+\\.\\d+$"
+  
+  agent_id:
+    type: string
+    description: "Agent唯一标识，根级为'repo'，模块级为'modules.<entity>.<instance>'"
+    examples: ["repo", "modules.example.v1", "modules.user.v2"]
+  
+  role:
+    type: string
+    description: "Agent角色描述"
+    minLength: 1
+  
+  # 模块级字段（可选但建议填写）
+  level:
+    type: integer
+    minimum: 1
+    maximum: 4
+    description: "模块层级：1-4级"
+  
+  module_type:
+    type: string
+    description: "模块类型标识，如'1_Assign', '2_Select', '3_SelectMethod'"
+    examples: ["1_example", "1_Assign", "2_Select", "3_SelectMethod"]
+  
+  # 权限与所有权
+  ownership:
+    type: object
+    properties:
+      code_paths:
+        type: object
+        description: "可改动的代码路径范围"
+        properties:
+          include:
+            type: array
+            items: {type: string}
+            description: "允许改动的路径列表"
+            examples: [["modules/example/"]]
+          exclude:
+            type: array
+            items: {type: string}
+            description: "禁止改动的路径列表"
+            examples: [["modules/*/doc/CHANGELOG.md"]]
+  
+  # 输入输出定义
+  io:
+    type: object
+    properties:
+      inputs:
+        type: array
+        items:
+          type: object
+          properties:
+            name: {type: string}
+            schema_ref: {type: string}
+            description: {type: string}
+        description: "输入定义列表"
+      outputs:
+        type: array
+        items:
+          type: object
+          properties:
+            name: {type: string}
+            schema_ref: {type: string}
+            description: {type: string}
+        description: "输出定义列表"
+  
+  # 契约定义
+  contracts:
+    type: object
+    properties:
+      apis:
+        type: array
+        items: {type: string}
+        description: "接口契约文件路径列表"
+        examples: [["modules/example/doc/CONTRACT.md"]]
+  
+  # 依赖关系
+  dependencies:
+    type: object
+    properties:
+      upstream:
+        type: array
+        items: {type: string}
+        description: "上游依赖的agent_id列表"
+        examples: [["modules.data_query.v1"]]
+      downstream:
+        type: array
+        items: {type: string}
+        description: "下游输出到的agent_id列表"
+        examples: [["orchestrator.main"]]
+  
+  # 约束条件
+  constraints:
+    type: array
+    items: {type: string}
+    description: "行为约束列表"
+    examples: [["must not access DB directly", "must maintain test coverage >= 80%"]]
+  
+  # 工具权限
+  tools_allowed:
+    type: object
+    properties:
+      calls:
+        type: array
+        items: {type: string}
+        description: "允许调用的工具/API列表"
+        examples: [["http", "fs.read", "db.query"]]
+      models:
+        type: array
+        items: {type: string}
+        description: "允许使用的模型列表"
+        examples: [["gpt-4", "claude-3"]]
+  
+  # 质量门槛
+  quality_gates:
+    type: object
+    properties:
+      required_tests:
+        type: array
+        items: {type: string}
+        description: "必需的测试类型"
+        examples: [["unit", "integration", "smoke"]]
+      coverage_min:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "最低测试覆盖率（0-1之间）"
+        examples: [0.80, 0.75]
+  
+  # 编排提示
+  orchestration_hints:
+    type: object
+    properties:
+      triggers:
+        type: array
+        items: {type: string}
+        description: "触发条件列表"
+        examples: [["on_http_request", "on_schedule", "on_event"]]
+      routing_tags:
+        type: array
+        items: {type: string}
+        description: "路由标签，用于调度"
+        examples: [["module:user", "level:1", "domain:auth"]]
+      priority:
+        type: integer
+        minimum: 0
+        description: "调度优先级，数字越大越优先"
+        examples: [5, 10]
+  
+  # 上下文路由（关键字段）
+  context_routes:
+    type: object
+    description: "文档路由，指定模型应该读取哪些文档"
+    properties:
+      always_read:
+        type: array
+        items: {type: string}
+        description: "每次必读的文档路径列表"
+        examples: [["/doc/policies/goals.md", "/doc/policies/safety.md"]]
+      on_demand:
+        type: array
+        items:
+          type: object
+          properties:
+            topic: {type: string}
+            paths: 
+              type: array
+              items: {type: string}
+        description: "按需读取的文档，按topic分组"
+      by_scope:
+        type: array
+        items:
+          type: object
+          properties:
+            scope: {type: string}
+            read:
+              type: array
+              items: {type: string}
+        description: "按范围读取的文档"
+  
+  # 根级特有字段
+  policies:
+    type: object
+    description: "全局策略引用（仅根agent.md使用）"
+    properties:
+      goals_ref: {type: string}
+      safety_ref: {type: string}
+  
+  merge_strategy:
+    type: string
+    description: "合并策略（仅根agent.md使用）"
+    enum: ["child_overrides_parent", "parent_overrides_child"]
+    examples: ["child_overrides_parent"]
+
+# 允许额外字段，以便未来扩展
+additionalProperties: true
+
