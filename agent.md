@@ -33,6 +33,12 @@ context_routes:
         - /doc/process/DB_CHANGE_GUIDE.md
         - /db/engines/postgres/schemas/tables/runs.yaml
         - /db/engines/postgres/docs/DB_SPEC.yaml
+    - topic: "数据库变更详细"
+      paths:
+        - /doc/process/resources/db-create-table.md
+        - /doc/process/resources/db-alter-table.md
+        - /doc/process/resources/db-migration-script.md
+        - /doc/process/resources/db-test-data.md
     - topic: "模块开发"
       paths:
         - /doc/modules/MODULE_INIT_GUIDE.md
@@ -40,6 +46,16 @@ context_routes:
         - /doc/modules/MODULE_TYPE_CONTRACTS.yaml
         - /doc/modules/MODULE_INSTANCES.md
         - /doc/modules/example/README.md
+    - topic: "模块开发详细"
+      paths:
+        - /doc/modules/resources/init-planning.md
+        - /doc/modules/resources/init-directory.md
+        - /doc/modules/resources/init-documents.md
+        - /doc/modules/resources/init-registration.md
+        - /doc/modules/resources/init-validation.md
+        - /doc/modules/resources/init-database.md
+        - /doc/modules/resources/init-testdata.md
+        - /doc/modules/resources/init-context.md
     - topic: "项目初始化"
       paths:
         - /doc/init/PROJECT_INIT_GUIDE.md
@@ -59,6 +75,21 @@ context_routes:
     - topic: "文档路由使用"
       paths:
         - /doc/orchestration/routing.md
+    - topic: "智能触发系统"
+      paths:
+        - /doc/orchestration/agent-triggers.yaml
+        - /doc/orchestration/triggers-guide.md
+    - topic: "Workdocs任务管理"
+      paths:
+        - /ai/workdocs/README.md
+        - /doc/process/WORKDOCS_GUIDE.md
+        - /doc/templates/workdoc-plan.md
+        - /doc/templates/workdoc-context.md
+        - /doc/templates/workdoc-tasks.md
+    - topic: "Guardrail防护机制"
+      paths:
+        - /doc/process/GUARDRAIL_GUIDE.md
+        - /doc/orchestration/agent-triggers.yaml
   by_scope:
     - scope: "模块开发"
       read:

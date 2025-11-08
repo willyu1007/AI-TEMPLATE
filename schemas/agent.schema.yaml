@@ -218,6 +218,50 @@ properties:
         description: "测试数据规格文档路径（相对于模块根目录）"
         default: "doc/TEST_DATA.md"
         examples: ["doc/TEST_DATA.md"]
+  
+  # 智能触发器配置（可选，Phase 10新增）
+  trigger_config:
+    type: object
+    description: "智能触发器配置，用于自动加载相关文档（与agent-triggers.yaml配合使用）"
+    properties:
+      enabled:
+        type: boolean
+        description: "是否启用智能触发器"
+        default: true
+      rules:
+        type: array
+        description: "适用的触发规则ID列表（来自agent-triggers.yaml）"
+        items: {type: string}
+        examples: [["database-operations", "module-development"]]
+      exclude_rules:
+        type: array
+        description: "排除的触发规则ID列表"
+        items: {type: string}
+        examples: [["security", "deployment"]]
+      custom_triggers:
+        type: array
+        description: "自定义触发规则（仅当前模块有效）"
+        items:
+          type: object
+          properties:
+            id: 
+              type: string
+              description: "规则ID"
+            file_patterns:
+              type: array
+              items: {type: string}
+              description: "文件路径模式"
+            prompt_keywords:
+              type: array
+              items: {type: string}
+              description: "Prompt关键词"
+            load_documents:
+              type: array
+              items:
+                type: object
+                properties:
+                  path: {type: string}
+                  priority: {type: string, enum: ["critical", "high", "medium", "low"]}
 
 # 允许额外字段，以便未来扩展
 additionalProperties: true

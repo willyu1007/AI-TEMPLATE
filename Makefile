@@ -44,6 +44,11 @@ help:
 	@echo "  make module_doc_gen         - 生成模块实例文档"
 	@echo "  make validate               - 聚合验证（7个检查）"
 	@echo ""
+	@echo "智能触发系统（Phase 10新增）："
+	@echo "  make agent_trigger_test     - 测试智能触发器"
+	@echo "  make agent_trigger FILE=<path> - 检查文件触发哪些规则"
+	@echo "  make agent_trigger_prompt PROMPT=\"text\" - 检查prompt触发哪些规则"
+	@echo ""
 	@echo "数据库管理（Phase 5新增）："
 	@echo "  make db_lint                - 校验数据库文件（迁移脚本、表YAML）"
 	@echo ""
@@ -54,7 +59,7 @@ help:
 
 # 完整开发检查（CI 门禁）
 # Phase 7更新：整合Phase 1-5新增的校验命令
-dev_check: docgen doc_style_check agent_lint registry_check doc_route_check type_contract_check doc_script_sync_check db_lint dag_check contract_compat_check deps_check runtime_config_check migrate_check consistency_check frontend_types_check
+dev_check: docgen doc_style_check agent_lint registry_check doc_route_check type_contract_check doc_script_sync_check db_lint resources_check dag_check contract_compat_check deps_check runtime_config_check migrate_check consistency_check frontend_types_check
 	@echo ""
 	@echo "================================"
 	@echo "✅ 全部检查通过"
@@ -319,3 +324,92 @@ delete_mock:
 		exit 1; \
 	fi
 	@python scripts/mock_lifecycle.py --delete $(ID) $(if $(DRY_RUN),--dry-run)
+
+# 智能触发系统（Phase 10新增）
+# 测试触发器
+agent_trigger_test:
+	@echo "🧪 测试智能触发器..."
+	@echo ""
+	@echo "测试场景1: 模块开发"
+	@python scripts/agent_trigger.py --prompt "创建一个新模块"
+	@echo ""
+	@echo "测试场景2: 数据库操作"
+	@python scripts/agent_trigger.py --prompt "修改数据库表结构"
+	@echo ""
+	@echo "✅ 触发器测试完成"
+
+# 检查文件触发哪些规则
+agent_trigger:
+	@if [ -z "$(FILE)" ]; then \
+		echo "❌ 错误：需要指定 FILE 参数"; \
+		echo "用法: make agent_trigger FILE=<path>"; \
+		exit 1; \
+	fi
+	@python scripts/agent_trigger.py --file $(FILE) --verbose
+
+# 检查prompt触发哪些规则
+agent_trigger_prompt:
+	@if [ -z "$(PROMPT)" ]; then \
+		echo "❌ 错误：需要指定 PROMPT 参数"; \
+		echo "用法: make agent_trigger_prompt PROMPT=\"your prompt here\""; \
+		exit 1; \
+	fi
+	@python scripts/agent_trigger.py --prompt "$(PROMPT)" --verbose
+
+# ============================================================
+# Workdoc管理（Phase 10.3）
+# ============================================================
+
+# 创建新workdoc
+workdoc_create:
+	@if [ -z "$(TASK)" ]; then \
+		echo "❌ 错误：需要指定 TASK 参数"; \
+		echo "用法: make workdoc_create TASK=<task-name>"; \
+		echo "示例: make workdoc_create TASK=implement-user-auth"; \
+		exit 1; \
+	fi
+	@bash scripts/workdoc_create.sh $(TASK)
+
+# 归档workdoc
+workdoc_archive:
+	@if [ -z "$(TASK)" ]; then \
+		echo "❌ 错误：需要指定 TASK 参数"; \
+		echo "用法: make workdoc_archive TASK=<task-name>"; \
+		echo ""; \
+		echo "可归档的任务:"; \
+		@ls -1 ai/workdocs/active/ 2>/dev/null || echo "  (无)"; \
+		exit 1; \
+	fi
+	@bash scripts/workdoc_archive.sh $(TASK)
+
+# 列出所有workdocs
+workdoc_list:
+	@echo "📋 Active Workdocs:"
+	@ls -1 ai/workdocs/active/ 2>/dev/null || echo "  (无)"
+	@echo ""
+	@echo "📦 Archived Workdocs:"
+	@ls -1 ai/workdocs/archive/ 2>/dev/null || echo "  (无)"
+
+# ============================================================
+# Guardrail统计（Phase 10.4）
+# ============================================================
+
+# 显示Guardrail统计
+guardrail_stats:
+	@python scripts/guardrail_stats.py
+
+# 显示详细统计
+guardrail_stats_detailed:
+	@python scripts/guardrail_stats.py --detailed
+
+# 检查Guardrail覆盖
+guardrail_coverage:
+	@python scripts/guardrail_stats.py --check-coverage
+
+# ============================================================
+# Resources文件检查（Phase 10.5）
+# ============================================================
+
+# 检查resources文件完整性
+resources_check:
+	@python scripts/resources_check.py

@@ -337,10 +337,89 @@ Windows用户可以使用Git Bash或WSL。
 
 ---
 
-**最后更新**: 2025-11-08 (Phase 8.5+)
+**最后更新**: 2025-11-08 (Phase 10.1)
+
+## Phase 10: 智能触发系统（新增）
+
+### agent_trigger.py
+**功能**: 智能触发器引擎，基于文件路径和prompt自动匹配触发规则
+
+**用法**:
+```bash
+# 检查文件触发规则
+python scripts/agent_trigger.py --file modules/user/models/user.py
+
+# 检查prompt触发规则
+python scripts/agent_trigger.py --prompt "创建一个新模块"
+
+# Make命令
+make agent_trigger FILE=<path>
+make agent_trigger_prompt PROMPT="..."
+make agent_trigger_test
+```
+
+**特性**:
+- 支持file_triggers（路径模式+内容模式）
+- 支持prompt_triggers（关键词+意图模式）
+- 自动推荐需要加载的文档
+- 支持Guardrail强制检查（block/warn/suggest）
+- Dry-run和详细模式
+
+**配置文件**: `doc/orchestration/agent-triggers.yaml`（8个核心规则）
+
+**使用指南**: `doc/orchestration/triggers-guide.md`
+
+---
+
+### workdoc_create.sh
+**功能**: 创建新的workdoc（任务上下文管理）
+
+**用法**:
+```bash
+# 创建新任务
+bash scripts/workdoc_create.sh implement-user-auth
+
+# Make命令
+make workdoc_create TASK=implement-user-auth
+```
+
+**特性**:
+- 自动创建ai/workdocs/active/<task>/目录
+- 从模板复制plan/context/tasks三个文件
+- 自动替换占位符（任务名、日期）
+- 参数验证（任务名格式、重复检查）
+
+---
+
+### workdoc_archive.sh
+**功能**: 归档已完成的workdoc
+
+**用法**:
+```bash
+# 归档任务
+bash scripts/workdoc_archive.sh implement-user-auth
+
+# Make命令
+make workdoc_archive TASK=implement-user-auth
+make workdoc_list  # 列出所有workdocs
+```
+
+**特性**:
+- 将任务从active/移动到archive/
+- 自动添加归档时间戳
+- 安全确认机制（避免误操作）
+- 覆盖保护
+
+**配置文件**: 
+- 模板：`doc/templates/workdoc-*.md`（3个模板）
+- 使用指南：`doc/process/WORKDOCS_GUIDE.md`
+
+---
 
 ## 变更历史
 
+- **2025-11-08 Phase 10.3**: 新增Workdoc任务管理工具（workdoc_create.sh、workdoc_archive.sh）
+- **2025-11-08 Phase 10.1**: 新增智能触发系统（agent_trigger.py）、更新agent_lint支持trigger_config校验
 - **2025-11-08 Phase 8.5+**: 新增Mock数据生成与管理工具（mock_generator.py、mock_lifecycle.py）
 - **2025-11-07 Phase 7**: 新增测试数据管理工具（fixture_loader.py）、更新dev_check集成所有校验
 - **2025-11-07 Phase 5**: 新增数据库治理工具（db_lint.py）

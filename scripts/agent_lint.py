@@ -157,6 +157,64 @@ def validate_context_routes(meta, file_path):
             print(f"    - {issue}", file=sys.stderr)
 
 
+def load_trigger_rules():
+    """加载agent-triggers.yaml中的触发规则ID列表"""
+    triggers_path = REPO_ROOT / "doc" / "orchestration" / "agent-triggers.yaml"
+    if not triggers_path.exists():
+        return None
+    
+    try:
+        with open(triggers_path, "r", encoding="utf-8") as f:
+            config = yaml.safe_load(f)
+            return set(config.get("triggers", {}).keys())
+    except Exception as e:
+        print(f"  [warn] 无法加载agent-triggers.yaml: {e}", file=sys.stderr)
+        return None
+
+
+def validate_trigger_config(meta, file_path):
+    """校验trigger_config字段（Phase 10新增）"""
+    if "trigger_config" not in meta:
+        return  # 可选字段，不存在则跳过
+    
+    trigger_config = meta["trigger_config"]
+    issues = []
+    
+    # 加载可用的触发规则
+    available_rules = load_trigger_rules()
+    if available_rules is None:
+        print(f"  [info] agent-triggers.yaml不存在，跳过trigger_config校验", file=sys.stderr)
+        return
+    
+    # 检查rules字段
+    if "rules" in trigger_config:
+        for rule_id in trigger_config["rules"]:
+            if rule_id not in available_rules:
+                issues.append(f"rules中引用了不存在的触发规则: {rule_id}")
+    
+    # 检查exclude_rules字段
+    if "exclude_rules" in trigger_config:
+        for rule_id in trigger_config["exclude_rules"]:
+            if rule_id not in available_rules:
+                issues.append(f"exclude_rules中引用了不存在的触发规则: {rule_id}")
+    
+    # 检查custom_triggers中引用的文档路径
+    if "custom_triggers" in trigger_config:
+        for custom in trigger_config["custom_triggers"]:
+            if "load_documents" in custom:
+                for doc in custom["load_documents"]:
+                    if "path" in doc:
+                        path = doc["path"]
+                        full_path = REPO_ROOT / path.lstrip("/")
+                        if not full_path.exists():
+                            issues.append(f"custom_triggers中文档路径不存在: {path}")
+    
+    if issues:
+        print(f"  [warn] trigger_config检查:", file=sys.stderr)
+        for issue in issues:
+            print(f"    - {issue}", file=sys.stderr)
+
+
 def check_agent_file(file_path, schema):
     """检查单个agent.md文件"""
     rel_path = file_path.relative_to(REPO_ROOT)
@@ -182,6 +240,9 @@ def check_agent_file(file_path, schema):
         
         # context_routes路径校验
         validate_context_routes(meta, file_path)
+        
+        # trigger_config校验（Phase 10新增）
+        validate_trigger_config(meta, file_path)
         
         print(f"[ok] {rel_path}")
         return True
