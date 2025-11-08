@@ -403,3 +403,13 @@ tmp/
 # 文档构建输出
 /docs/_build/
 /site/
+
+# 保留模块的.context/目录（上下文恢复机制 - Phase 8.5）
+!modules/*/.context/
+!modules/*/.context/**
+!doc/modules/*/.context/
+!doc/modules/*/.context/**
+
+# 可选：忽略.context/中的私密会话
+modules/*/.context/sessions/private_*
+doc/modules/*/.context/sessions/private_*

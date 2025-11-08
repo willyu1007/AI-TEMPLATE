@@ -7,7 +7,7 @@ import yaml
 import pathlib
 from collections import defaultdict, deque
 
-def load_dag(dag_path='flows/dag.yaml'):
+def load_dag(dag_path='doc/flows/dag.yaml'):
     """加载 DAG 配置"""
     try:
         with open(dag_path, 'r', encoding='utf-8') as f:

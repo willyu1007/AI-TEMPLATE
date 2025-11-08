@@ -125,7 +125,7 @@ git commit -m "chore: init project from template"
 - 当前日期
 ```
 
-#### 5. `docs/project/PRD_ONEPAGER.md`
+#### 5. `doc/project/PRD_ONEPAGER.md`
 ```
 当前：空模板
 需要：填写你的项目 PRD
@@ -138,7 +138,7 @@ git commit -m "chore: init project from template"
 - 里程碑
 ```
 
-#### 4. `docs/project/SYSTEM_BOUNDARY.md`
+#### 4. `doc/project/SYSTEM_BOUNDARY.md`
 ```
 当前：空模板
 需要：定义系统边界
@@ -149,7 +149,7 @@ git commit -m "chore: init project from template"
 - 非功能需求
 ```
 
-#### 5. `docs/process/ENV_SPEC.yaml`
+#### 5. `doc/process/ENV_SPEC.yaml`
 ```
 当前：vue3, fastapi, postgres...
 需要：你的实际技术栈
@@ -172,7 +172,7 @@ infra: { db: ?, cache: ?, search: ? }
 
 ### 🟡 第二优先级（开发前修改）
 
-#### 7. `db/engines/postgres/docs/DB_SPEC.yaml`
+#### 7. `db/engines/postgres/doc/DB_SPEC.yaml`
 ```
 当前：示例 runs 表
 需要：你的数据库结构
@@ -183,7 +183,7 @@ infra: { db: ?, cache: ?, search: ? }
 - PII 字段标记
 ```
 
-#### 8. `flows/dag.yaml`
+#### 8. `doc/flows/dag.yaml`
 ```
 当前：示例 web.frontend -> api.codegen
 需要：你的实际 DAG 拓扑
@@ -233,7 +233,7 @@ B. 删除并创建新模块：
 ```
 # 可选：删除这些文件（如果不需要）
 rm TEMPLATE_USAGE.md  # 本文件
-rm docs/project/IMPLEMENTATION_SUMMARY.md  # 模板实施记录
+rm doc/project/IMPLEMENTATION_SUMMARY.md  # 模板实施记录
 rm CHANGES_SUMMARY.md  # 模板变更记录（如果还在根目录）
 ```
 
@@ -283,7 +283,7 @@ frontend: { framework: vue3, bundler: vite, language: ts }
 
 #### PostgreSQL（默认）
 ```
-# db/engines/postgres/docs/DB_SPEC.yaml
+# db/engines/postgres/doc/DB_SPEC.yaml
 defaults:
   primary: postgresql
   version: "16"
@@ -292,7 +292,7 @@ defaults:
 
 #### MySQL
 ```
-# db/engines/mysql/docs/DB_SPEC.yaml（需创建）
+# db/engines/mysql/doc/DB_SPEC.yaml（需创建）
 defaults:
   primary: mysql
   version: "8.0"
@@ -307,7 +307,7 @@ db:
 
 #### MongoDB
 ```
-# db/engines/mongo/docs/DB_SPEC.yaml（需创建）
+# db/engines/mongo/doc/DB_SPEC.yaml（需创建）
 defaults:
   primary: mongodb
   version: "7.0"
@@ -327,8 +327,8 @@ db:
 #### 添加新的文档类型
 ```
 # 示例：添加 API 文档目录
-mkdir -p docs/api
-echo "# API 文档" > docs/api/README.md
+mkdir -p doc/api
+echo "# API 文档" > doc/api/README.md
 
 # 更新 agent.md §1 目录规范（可选）
 ```
@@ -421,11 +421,11 @@ make style_check
 ```markdown
 - [ ] README.md 已更新为项目说明
 - [ ] .aicontext/project_onepager.md 已填写
-- [ ] docs/project/PRD_ONEPAGER.md 已完成
-- [ ] docs/project/SYSTEM_BOUNDARY.md 已定义
+- [ ] doc/project/PRD_ONEPAGER.md 已完成
+- [ ] doc/project/SYSTEM_BOUNDARY.md 已定义
 - [ ] doc/process/ENV_SPEC.yaml 匹配技术栈
 - [ ] config/*.yaml 已配置
-- [ ] db/engines/postgres/docs/DB_SPEC.yaml 已定义
+- [ ] db/engines/postgres/doc/DB_SPEC.yaml 已定义
 - [ ] doc/flows/flows/*.yaml 已更新
 - [ ] tools/ 下的契约已定义或删除
 - [ ] modules/example 已删除或保留
@@ -476,11 +476,11 @@ make style_check
 - modules/*/CONTRACT.md
 
 ### Q3: 我不需要 DAG，可以删除吗？
-**A**: 可以。删除 `flows/dag.yaml`，并在 `Makefile` 的 `dev_check` 中移除 `dag_check`。
+**A**: 可以。删除 `doc/flows/dag.yaml`，并在 `Makefile` 的 `dev_check` 中移除 `dag_check`。
 
 ### Q4: 如何添加多语言支持？
 **A**: 
-1. 在 `docs/process/ENV_SPEC.yaml` 中添加语言配置。
+1. 在 `doc/process/ENV_SPEC.yaml` 中添加语言配置。
 2. 在 `agent.md` §6 测试准则中参考示例添加测试指导。
 3. 更新 `scripts/deps_manager.py` 支持新语言依赖检测。
 

@@ -7,7 +7,8 @@
         test_status_check dataflow_check app_structure_check cleanup_tmp \
         generate_openapi generate_frontend_types frontend_types_check \
         agent_lint registry_check doc_route_check registry_gen module_doc_gen \
-        type_contract_check doc_script_sync_check validate db_lint
+        type_contract_check doc_script_sync_check validate db_lint \
+        load_fixture cleanup_fixture db_env list_modules list_fixtures
 
 help:
 	@echo "可用命令："
@@ -45,9 +46,15 @@ help:
 	@echo ""
 	@echo "数据库管理（Phase 5新增）："
 	@echo "  make db_lint                - 校验数据库文件（迁移脚本、表YAML）"
+	@echo ""
+	@echo "测试数据管理（Phase 7新增）："
+	@echo "  make load_fixture MODULE=<name> FIXTURE=<scenario> - 加载模块Fixtures"
+	@echo "  make cleanup_fixture MODULE=<name>                 - 清理模块测试数据"
+	@echo "  make db_env ENV=<env>                              - 切换数据库环境（dev/test/demo）"
 
 # 完整开发检查（CI 门禁）
-dev_check: docgen doc_style_check dag_check contract_compat_check deps_check runtime_config_check migrate_check consistency_check frontend_types_check
+# Phase 7更新：整合Phase 1-5新增的校验命令
+dev_check: docgen doc_style_check agent_lint registry_check doc_route_check type_contract_check doc_script_sync_check db_lint dag_check contract_compat_check deps_check runtime_config_check migrate_check consistency_check frontend_types_check
 	@echo ""
 	@echo "================================"
 	@echo "✅ 全部检查通过"
@@ -221,3 +228,94 @@ module_doc_gen:
 db_lint:
 	@echo "🔍 校验数据库文件..."
 	@python scripts/db_lint.py || echo "⚠️  警告模式：允许失败"
+
+# 测试数据管理（Phase 7新增）
+# 列举所有模块
+list_modules:
+	@python scripts/fixture_loader.py --list-modules
+
+# 列举模块的Fixtures
+list_fixtures:
+	@if [ -z "$(MODULE)" ]; then \
+		echo "❌ 错误：需要指定 MODULE 参数"; \
+		echo "用法: make list_fixtures MODULE=<name>"; \
+		exit 1; \
+	fi
+	@python scripts/fixture_loader.py --module $(MODULE) --list-fixtures
+
+# 加载模块Fixtures
+load_fixture:
+	@if [ -z "$(MODULE)" ]; then \
+		echo "❌ 错误：需要指定 MODULE 参数"; \
+		echo "用法: make load_fixture MODULE=<name> FIXTURE=<scenario>"; \
+		exit 1; \
+	fi
+	@if [ -z "$(FIXTURE)" ]; then \
+		echo "❌ 错误：需要指定 FIXTURE 参数"; \
+		echo "用法: make load_fixture MODULE=$(MODULE) FIXTURE=<scenario>"; \
+		echo "提示: 使用 'make list_fixtures MODULE=$(MODULE)' 查看可用场景"; \
+		exit 1; \
+	fi
+	@python scripts/fixture_loader.py --module $(MODULE) --fixture $(FIXTURE) $(if $(DRY_RUN),--dry-run)
+
+# 清理模块测试数据
+cleanup_fixture:
+	@if [ -z "$(MODULE)" ]; then \
+		echo "❌ 错误：需要指定 MODULE 参数"; \
+		echo "用法: make cleanup_fixture MODULE=<name>"; \
+		exit 1; \
+	fi
+	@python scripts/fixture_loader.py --module $(MODULE) --cleanup $(if $(DRY_RUN),--dry-run)
+
+# 数据库环境管理
+db_env:
+	@if [ -z "$(ENV)" ]; then \
+		python scripts/db_env.py; \
+	else \
+		python scripts/db_env.py --env $(ENV); \
+	fi
+
+# Mock数据管理（Phase 8.5+新增）
+# 生成Mock数据
+generate_mock:
+	@if [ -z "$(MODULE)" ]; then \
+		echo "❌ 错误：需要指定 MODULE 参数"; \
+		echo "用法: make generate_mock MODULE=<name> TABLE=<table> COUNT=<num>"; \
+		exit 1; \
+	fi
+	@if [ -z "$(TABLE)" ]; then \
+		echo "❌ 错误：需要指定 TABLE 参数"; \
+		echo "用法: make generate_mock MODULE=$(MODULE) TABLE=<table> COUNT=<num>"; \
+		exit 1; \
+	fi
+	@if [ -z "$(COUNT)" ]; then \
+		echo "❌ 错误：需要指定 COUNT 参数"; \
+		echo "用法: make generate_mock MODULE=$(MODULE) TABLE=$(TABLE) COUNT=<num>"; \
+		exit 1; \
+	fi
+	@python scripts/mock_generator.py --module $(MODULE) --table $(TABLE) --count $(COUNT) \
+		$(if $(LIFECYCLE),--lifecycle $(LIFECYCLE)) \
+		$(if $(DRY_RUN),--dry-run) \
+		$(if $(SEED),--seed $(SEED))
+
+# 列出活跃的Mock记录
+list_mocks:
+	@python scripts/mock_lifecycle.py --list $(if $(MODULE),--module $(MODULE))
+
+# 清理过期的Mock数据
+cleanup_mocks:
+	@python scripts/mock_lifecycle.py --cleanup $(if $(DRY_RUN),--dry-run)
+
+# 查看Mock统计信息
+mock_stats:
+	@python scripts/mock_lifecycle.py --stats $(if $(MODULE),--module $(MODULE))
+
+# 删除指定Mock记录
+delete_mock:
+	@if [ -z "$(ID)" ]; then \
+		echo "❌ 错误：需要指定 ID 参数"; \
+		echo "用法: make delete_mock ID=<mock_id>"; \
+		echo "提示: 使用 'make list_mocks' 查看可用ID"; \
+		exit 1; \
+	fi
+	@python scripts/mock_lifecycle.py --delete $(ID) $(if $(DRY_RUN),--dry-run)

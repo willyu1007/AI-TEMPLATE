@@ -84,19 +84,22 @@ ls -la tests/my_feature/
 │   ├── defaults.yaml       # 默认配置
 │   └── <env>.yaml          # 环境配置
 │
-├── docs/                    # 项目文档
+├── doc/                     # 项目文档
 │   ├── project/            # 项目级文档
 │   ├── process/            # 流程规范
-│   ├── db/                 # 数据库文档
-│   ├── flows/              # 流程图
-│   └── ux/                 # UX 文档
+│   ├── db/                 # 数据库文档（重定向）
+│   ├── flows/              # 流程图和DAG配置
+│   ├── ux/                 # UX 文档
+│   ├── modules/            # 模块文档
+│   ├── orchestration/      # 编排配置
+│   └── ...                 # 其他文档
 │
-├── flows/                   # DAG 配置
-│   └── dag.yaml
-│
-├── migrations/              # 数据库迁移
-│   ├── *_up.sql
-│   └── *_down.sql
+├── db/                      # 数据库治理
+│   └── engines/
+│       └── postgres/
+│           ├── migrations/ # 数据库迁移
+│           ├── schemas/    # 表结构定义
+│           └── docs/       # 数据库文档
 │
 ├── modules/                 # 业务模块
 │   └── <module>/
@@ -177,8 +180,9 @@ make rollback_check         # 回滚验证
   - 自定义配置指南
 
 ### 技术文档
-- `docs/project/` - 项目级文档（PRD、架构、发布）
-- `docs/process/` - 流程规范（约定、DoR/DoD、环境）
+- `doc/project/` - 项目级文档（PRD、架构、发布）
+- `doc/process/` - 流程规范（约定、DoR/DoD、环境）
+- `doc/modules/` - 模块文档（类型、实例、模板）
 - `db/engines/postgres/` - 数据库相关（迁移、Schema、文档）
 
 ---
@@ -236,8 +240,8 @@ make rollback_check         # 回滚验证
 
 ## 相关资源
 
-- [改进实施摘要](docs/project/IMPLEMENTATION_SUMMARY.md)
-- [示例模块](modules/example/)
+- [改进实施摘要](doc/project/IMPLEMENTATION_SUMMARY.md)
+- [示例模块](doc/modules/example/) - 参考文档
 - [测试示例](tests/example/)
 
 ---

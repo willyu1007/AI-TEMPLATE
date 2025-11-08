@@ -1,299 +1,233 @@
 # 安全规范与质量门槛
 
-> **用途**: 定义安全约束和质量要求
-> **版本**: 1.0
-> **创建时间**: 2025-11-07
+> **用途**: 定义安全约束和质量要求（核心原则）  
+> **版本**: 2.0  
+> **创建时间**: 2025-11-07  
+> **最后更新**: 2025-11-08
 
 ---
 
-## 安全约束
+## 快速参考
 
-### 1. 路径访问控制
+### 安全约束速查
 
-#### 读权限
-智能体只能读取以下路径：
-- `context_routes`中声明的路径
-- 当前模块的目录（如modules/user/）
-- 公共文档（doc/, docs/, README.md）
+| 类别 | 原则 | 详细说明 |
+|------|------|---------|
+| **路径访问** | 读context_routes，写ownership范围 | security_details.md § 1 |
+| **工具调用** | 白名单机制，默认禁止 | security_details.md § 2 |
+| **数据库操作** | 半自动化，人工审核 | security_details.md § 3 |
+| **网络访问** | 默认禁止，显式声明 | security_details.md § 4 |
 
-#### 写权限
-智能体只能写入`ownership.code_paths`中声明的路径：
+### 质量门槛速查
 
-```yaml
-ownership:
-  code_paths:
-    include:
-      - modules/user/          # 允许写入user模块
-      - tests/user/            # 允许写入user测试
-    exclude:
-      - modules/*/doc/CHANGELOG.md  # 禁止直接改CHANGELOG
-      - "**/*.sql"                   # 禁止直接改SQL
-```
-
-**校验**: 智能体尝试写入未声明路径时应报错
+| 类别 | 要求 | 详细说明 |
+|------|------|---------|
+| **测试覆盖** | ≥80% | quality_standards.md § 1 |
+| **文档完整** | 6个标准文档 | quality_standards.md § 2 |
+| **兼容性** | 向后兼容 | quality_standards.md § 3 |
+| **代码规范** | 命名+风格+复杂度 | quality_standards.md § 4 |
 
 ---
 
-### 2. 工具与API调用限制
+## 1. 安全约束
 
-#### 白名单机制
-只允许调用`tools_allowed.calls`中声明的工具：
+### 1.1 路径访问控制
+- ✅ 读权限: context_routes + 当前模块 + 公共文档
+- ✅ 写权限: 仅限ownership.code_paths声明的路径
+- ❌ 禁止越权: 未声明路径默认拒绝
 
-```yaml
-tools_allowed:
-  calls:
-    - http.get              # 允许HTTP GET
-    - http.post             # 允许HTTP POST
-    - fs.read               # 允许读文件
-    - fs.write              # 允许写文件
-    - db.query              # 允许查询数据库
-    # db.execute 未声明，禁止执行DDL
-  models:
-    - gpt-4                 # 允许使用GPT-4
-    - claude-3-sonnet       # 允许使用Claude
-```
+**详见**: `doc/policies/security_details.md` § 1
 
-**校验**: 调用未声明的工具时应拦截
+### 1.2 工具与API调用限制
+- ✅ 白名单机制: 仅允许tools_allowed中声明的工具
+- ❌ 默认禁止: 未声明的工具调用被拦截
+- ⚠️ 外部API需审核: 访问外部网络需安全团队批准
 
----
+**详见**: `doc/policies/security_details.md` § 2
 
-### 3. 数据库安全
+### 1.3 数据库安全
+- ✅ 半自动化: AI生成 + 人工审核 + 人工执行
+- ❌ 禁止直接DDL: 不允许AI直接执行CREATE/ALTER/DROP
+- ⚠️ 迁移脚本成对: 每个up必须有对应的down
 
-#### 半自动化原则
-数据库操作必须经过人工审核：
+**详见**: `doc/policies/security_details.md` § 3
 
-1. **生成DDL**（自动）
-   ```bash
-   make db_gen_ddl TABLE=users
-   # 生成: db/engines/postgres/migrations/XXX_create_users.sql
-   ```
+### 1.4 网络访问控制
+- ❌ 默认禁止: 模块不能访问网络
+- ✅ 显式声明: 需要时在tools_allowed中声明
+- ⚠️ 域名白名单: 仅允许访问声明的域名
 
-2. **人工审核**
-   - 检查生成的SQL是否正确
-   - 确认对现有表的影响
-   - 评估性能影响
-
-3. **执行迁移**（需确认）
-   ```bash
-   make db_migrate  # 需要用户确认
-   ```
-
-4. **回滚测试**
-   ```bash
-   make rollback_check PREV_REF=v1.0.0
-   ```
-
-#### 禁止操作
-❌ 直接执行`DROP TABLE`
-❌ 直接执行`TRUNCATE`
-❌ 跳过迁移脚本直接改表
-❌ 删除迁移脚本
+**详见**: `doc/policies/security_details.md` § 4
 
 ---
 
-### 4. 网络访问控制
+## 2. 质量门槛
 
-#### 默认禁止
-模块默认**不能**访问网络，除非显式声明：
+### 2.1 测试要求
+- ✅ 必需测试: 单元测试、集成测试、契约测试
+- ✅ 覆盖率要求: ≥80%（可配置更高）
+- 校验: `make test_status_check`
 
-```yaml
-tools_allowed:
-  calls:
-    - http.get
-    - http.post
-constraints:
-  - "只能访问内部API（*.internal.example.com）"
-  - "禁止访问外部第三方API"
-```
+**详见**: `doc/policies/quality_standards.md` § 1
 
-#### 外部依赖审核
-如需访问外部API：
-1. 在agent.md中声明
-2. 说明用途和频率
-3. 经安全审核批准
+### 2.2 文档要求
+- ✅ 必需文档: 6个标准文档（CONTRACT/CHANGELOG/RUNBOOK/BUGS/PROGRESS/TEST_PLAN）
+- ✅ 同步要求: 代码变更必须更新相关文档
+- 校验: `make consistency_check`
 
----
+**详见**: `doc/policies/quality_standards.md` § 2
 
-## 质量门槛
+### 2.3 兼容性要求
+- ✅ API兼容: 不删除字段、不改类型、不改语义
+- ✅ 数据库兼容: 迁移脚本成对、通过回滚测试
+- 校验: `make contract_compat_check`, `make rollback_check`
 
-### 1. 测试要求
+**详见**: `doc/policies/quality_standards.md` § 3
 
-#### 必需的测试类型
-每个模块至少包含：
+### 2.4 代码规范
+- ✅ 命名: 模块（蛇形）、类（大驼峰）、函数（蛇形/小驼峰）、常量（大写）
+- ✅ 文档: 语言一致、无颜文字、结构化
+- 校验: `make doc_style_check`
 
-```yaml
-quality_gates:
-  required_tests:
-    - unit           # 单元测试
-    - integration    # 集成测试
-    - contract       # 契约测试
-```
-
-可选测试类型：
-- e2e: 端到端测试
-- smoke: 冒烟测试
-- performance: 性能测试
-
-#### 覆盖率要求
-默认最低覆盖率：80%
-
-```yaml
-quality_gates:
-  coverage_min: 0.80
-```
-
-模块可设置更高要求（如90%）
-
-**校验**: 
-```bash
-make test_status_check
-```
+**详见**: `doc/policies/quality_standards.md` § 4
 
 ---
 
-### 2. 文档要求
+## 3. 违规处理
 
-#### 必需的文档
-每个模块实例必须有：
+### 3.1 分阶段门槛
 
-```
-modules/<entity>/
-├── agent.md        ✅ 带YAML Front Matter
-├── README.md       ✅ 含"目录结构"章节
-├── doc/
-│   ├── CONTRACT.md     ✅ API契约
-│   ├── CHANGELOG.md    ✅ 变更记录
-│   ├── RUNBOOK.md      ✅ 运维手册
-│   ├── BUGS.md         ✅ 已知问题
-│   ├── PROGRESS.md     ✅ 进度追踪
-│   └── TEST_PLAN.md    ✅ 测试计划
-```
-
-**校验**: 
-```bash
-make consistency_check
-```
-
----
-
-### 3. 兼容性要求
-
-#### 契约兼容性
-API变更必须保持向后兼容，或：
-1. 更新CONTRACT.md
-2. 更新CHANGELOG.md
-3. 通过兼容性检查
-
-```bash
-make contract_compat_check
-```
-
-#### 数据库兼容性
-表结构变更必须：
-1. 提供up和down迁移脚本（成对）
-2. 通过回滚测试
-3. 记录在CHANGELOG.md
-
-```bash
-make migrate_check
-make rollback_check PREV_REF=v1.0.0
-```
-
----
-
-### 4. 代码规范
-
-#### 命名约束
-- 模块名：小写字母+下划线（user_auth）
-- 类名：大驼峰（UserService）
-- 函数名：小驼峰或蛇形（getUserById, get_user_by_id）
-- 常量：大写+下划线（MAX_RETRY_COUNT）
-
-#### 文档风格
-- 语言一致（中文或英文，不混用）
-- 无颜文字（emoji）
-- 结构化（使用标题、列表、表格）
-
-```bash
-make doc_style_check
-```
-
----
-
-## 违规处理
-
-### 开发阶段（警告模式）
-- 不符合规范时发出警告
+**开发阶段**（警告模式）:
+- 不符合规范 → 显示警告
 - 允许继续开发
 - 提示需要修复
 
-### 提交阶段（严格模式）
-- CI门禁检查所有规范
-- 不通过则拒绝合并
+**提交阶段**（严格模式）:
+- CI门禁检查
+- 不通过 → 拒绝合并
 - 必须修复后重新提交
 
-### 生产阶段（强制模式）
+**生产阶段**（强制模式）:
 - 部署前最终检查
-- 任何违规都阻断部署
+- 任何违规 → 阻断部署
 - 人工审核关键变更
 
 ---
 
-## 豁免机制
+### 3.2 CI门禁
 
-特殊情况下可申请豁免：
+**必须通过的检查**:
+```bash
+make validate  # 聚合7个检查
+make test      # 所有测试通过
+coverage ≥80%  # 测试覆盖率达标
+```
 
-### 申请流程
-1. 在agent.md中添加`exemptions`字段
-2. 说明豁免原因和范围
-3. 设置豁免到期时间
-4. 经审核批准
+**高风险变更额外检查**:
+```bash
+make rollback_check  # 数据库变更需通过回滚测试
+```
 
-### 示例
+---
+
+## 4. 豁免机制
+
+### 4.1 何时申请
+
+**适用场景**:
+- 原型验证阶段（临时放宽测试覆盖率）
+- 紧急修复（跳过部分流程）
+- 技术限制（暂时无法满足）
+- 迁移过渡期（新规范未全部适配）
+
+**不适用**:
+- ❌ 长期绕过规范
+- ❌ 核心安全规范
+- ❌ 数据安全相关
+
+---
+
+### 4.2 申请流程
+
+**在agent.md中配置**:
 ```yaml
 exemptions:
   - rule: "coverage_min"
-    reason: "原型验证阶段，暂时放宽覆盖率要求"
+    reason: "原型验证阶段"
+    current_value: 0.60
+    standard_value: 0.80
     expiry: "2025-12-31"
     approved_by: "tech_lead"
 ```
 
+**审核要点**:
+- ✅ 豁免理由充分？
+- ✅ 豁免范围最小化？
+- ✅ 到期时间合理？
+- ✅ 有修复计划？
+
+**到期处理**:
+- 到期后自动失效
+- CI会报错
+- 需续期需重新申请
+
+**详见**: `doc/policies/security_details.md` § 5
+
 ---
 
-## 审计与监控
+## 5. 审计与监控
 
-### 定期审计
-- 每月检查所有模块的安全配置
-- 审查工具调用日志
-- 检查是否有越权访问
+### 5.1 审计范围
 
-### 监控指标
-- 文档覆盖率
-- 测试覆盖率
-- 校验通过率
-- 违规次数
+**记录内容**:
+- 文件操作（read/write/delete）
+- 工具调用（http/db/shell）
+- 数据库操作（DDL/DML/DQL）
+- 越权尝试（拦截记录）
 
-### 报告
+**详见**: `doc/policies/security_details.md` § 6
+
+---
+
+### 5.2 监控指标
+
+**关键指标**:
+- 文档覆盖率（agent.md、CONTRACT.md存在率）
+- 测试覆盖率（≥80%达标率）
+- 校验通过率（dev_check通过率）
+- 违规次数（越权尝试、工具滥用）
+
+**报告生成**:
 ```bash
-make ai_maintenance  # 生成维护报告
+make ai_maintenance
+# 输出: 未通过的校验项、缺失的文档、待修复的问题
 ```
 
-报告包含：
-- 未通过的校验项
-- 需要补充的文档
-- 待修复的问题
+**详见**: `doc/policies/security_details.md` § 6
 
 ---
 
-## 相关资源
+## 6. 相关资源
 
+### 核心策略
 - **全局目标**: doc/policies/goals.md
+- **角色与门禁**: doc/policies/roles.md
+
+### 详细规范
+- **安全详情**: doc/policies/security_details.md（路径控制、工具限制、审计监控）
+- **质量标准**: doc/policies/quality_standards.md（测试、文档、兼容性、代码规范）
+
+### 流程指南
+- **数据库变更**: doc/process/DB_CHANGE_GUIDE.md
+- **PR工作流**: doc/process/pr_workflow.md
+- **测试准则**: doc/process/testing.md
+
+### 工具参考
 - **路由规则**: doc/orchestration/routing.md
 - **初始化指南**: doc/init/PROJECT_INIT_GUIDE.md
 - **模块初始化**: doc/modules/MODULE_INIT_GUIDE.md
 
 ---
 
-**维护**: 发现新的安全风险时，及时更新本文档
+**维护**: 发现新的安全风险时，及时更新本文档和详细说明文档  
 **审核**: 每季度由安全团队审核一次
-

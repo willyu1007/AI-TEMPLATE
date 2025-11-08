@@ -125,7 +125,7 @@ cat .aicontext/snapshot.json
 cat .aicontext/module_index.json
 
 # Tier-1（强烈建议）
-cat flows/dag.yaml
+cat doc/flows/dag.yaml
 cat modules/<target>/plan.md
 cat modules/<target>/README.md
 
@@ -186,10 +186,10 @@ vim modules/<target>/PROGRESS.md
 vim modules/<target>/CHANGELOG.md
 
 # 如涉及 DAG/契约/配置
-vim flows/dag.yaml
+vim doc/flows/dag.yaml
 vim tools/*/contract.json
 vim config/*.yaml
-vim docs/process/CONFIG_GUIDE.md
+vim doc/process/CONFIG_GUIDE.md
 
 # 刷新索引
 make docgen
@@ -253,15 +253,15 @@ make rollback_check PREV_REF=<previous-tag>
 │       ├── MODULE_INSTANCES.md  # 模块实例（自动生成）
 │       ├── MODULE_INIT_GUIDE.md # 模块初始化
 │       └── TEMPLATES/       # 文档模板
-├── docs/                    # 项目文档（将在Phase 3改名为doc/）
+├── doc/                     # 项目文档（已统一）
 │   ├── project/             # 项目文档
 │   ├── process/             # 流程文档
-│   ├── db/                  # 数据库文档
-│   ├── flows/               # 流程图
+│   ├── modules/             # 模块文档
+│   ├── flows/               # 流程图和DAG配置
+│   ├── orchestration/       # 编排配置
+│   ├── db/                  # 数据库重定向
 │   └── ux/                  # UX 文档
-├── flows/
-│   └── dag.yaml             # DAG 配置
-├── db/                      # 数据库相关（Phase 5已迁移）
+├── db/                      # 数据库治理（Phase 5统一）
 │   └── engines/
 │       └── postgres/
 │           ├── migrations/  # 迁移脚本
@@ -359,8 +359,8 @@ make ai_begin MODULE=<module>
 
 #### 3. DAG 有环
 ```
-# 解决：检查 flows/dag.yaml，移除循环依赖
-vim flows/dag.yaml
+# 解决：检查 doc/flows/dag.yaml，移除循环依赖
+vim doc/flows/dag.yaml
 make dag_check
 ```
 
@@ -393,8 +393,8 @@ chmod +x scripts/*.sh
 ### 核心文档
 - **详细指南**：`agent.md`
 - **改进方案**：`Agent-Repo-QA-Mapping.md`
-- **实施摘要**：`docs/project/IMPLEMENTATION_SUMMARY.md`
-- **示例模块**：`modules/example/`
+- **实施摘要**：`doc/project/IMPLEMENTATION_SUMMARY.md`
+- **示例模块**：`doc/modules/example/` - 参考文档
 
 ### 新增文档（Phase 1-2）
 - **全局目标**：`doc/policies/goals.md`

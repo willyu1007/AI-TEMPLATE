@@ -79,6 +79,11 @@ context_routes:
     - modules/example/README.md
     - modules/example/doc/CONTRACT.md
   on_demand:
+    - topic: "模块背景和决策（含错误记录）"
+      paths:
+        - modules/example/.context/overview.md
+        - modules/example/.context/decisions.md
+      when: "上下文丢失或需要避免重复错误"
     - topic: "开发计划"
       paths:
         - modules/example/plan.md
@@ -276,7 +281,7 @@ make coverage
 3. **性能基线**: 响应时间不超过500ms（P95）
 4. **文档同步**: 代码变更必须同步更新CONTRACT.md
 
-### 💡 最佳实践
+### 最佳实践
 
 1. **增量开发**: 每次改动尽量小，便于review
 2. **测试先行**: 先写测试，再写实现
@@ -300,6 +305,18 @@ make coverage
 
 ---
 
-**最后更新**: 2025-11-07
+## 6. 上下文恢复
+
+**快速恢复**: `.context/overview.md` + `plan.md`（5分钟）  
+**完整恢复**: 上述 + `.context/decisions.md`（含错误记录，15分钟）
+
+**何时查阅**: 上下文丢失或需要避免重复错误  
+**详细规范**: `doc/process/CONTEXT_GUIDE.md`
+
+**注意**: 已在context_routes.on_demand中配置路由
+
+---
+
+**最后更新**: 2025-11-08
 **版本**: 1.0.0
 

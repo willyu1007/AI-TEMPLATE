@@ -325,7 +325,7 @@ make rollback_check PREV_REF=<stable-version>
 feature/<module>-<description>   # 新功能
 fix/<module>-<description>       # Bug修复
 refactor/<module>-<description>  # 重构
-docs/<description>               # 文档更新
+doc/<description>               # 文档更新
 ```
 
 ### 主要分支

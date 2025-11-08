@@ -60,7 +60,7 @@
 | ai_maintenance.py | AI自动维护 | `make ai_maintenance` |
 | ai_begin.sh | 模块初始化 | `make ai_begin MODULE=<name>` |
 
-### 编排与模块管理（Phase 1新增）
+### 编排与模块管理（Phase 1-4）
 | 脚本 | 功能 | 命令 | 状态 |
 |------|------|------|------|
 | agent_lint.py | 校验agent.md YAML前言 | `make agent_lint` | ✅ Phase 1 |
@@ -70,6 +70,19 @@
 | doc_script_sync_check.py | 文档与脚本同步检查 | `make doc_script_sync_check` | ✅ Phase 4 |
 | registry_gen.py | 生成registry.yaml草案（半自动） | `make registry_gen` | ✅ Phase 1 |
 | module_doc_gen.py | 生成模块实例文档 | `make module_doc_gen` | ✅ Phase 1 |
+
+### 数据库治理（Phase 5）
+| 脚本 | 功能 | 命令 | 状态 |
+|------|------|------|------|
+| db_lint.py | 数据库文件校验（迁移脚本、表YAML） | `make db_lint` | ✅ Phase 5 |
+
+### 测试数据管理（Phase 7）
+| 脚本 | 功能 | 命令 | 状态 |
+|------|------|------|------|
+| fixture_loader.py | Fixtures加载工具（模块感知） | `make load_fixture MODULE=<name> FIXTURE=<scenario>` | ✅ Phase 7 |
+| fixture_loader.py | 清理模块测试数据 | `make cleanup_fixture MODULE=<name>` | ✅ Phase 7 |
+| fixture_loader.py | 列举所有模块 | `make list_modules` | ✅ Phase 7 |
+| fixture_loader.py | 列举模块的Fixtures | `make list_fixtures MODULE=<name>` | ✅ Phase 7 |
 
 ### 聚合验证
 | 脚本 | 功能 | 命令 | 状态 |
@@ -104,13 +117,17 @@
 
 **说明**: 这些是文档示例，实际项目可根据需要实现。
 
-#### Phase 5将实现的命令（数据库相关）
-- `make db_migrate` - 数据库迁移
-- `make db_rollback` - 数据库回滚
-- `make db_shell` - 数据库Shell
-- `make db_gen_ddl` - 生成DDL
+#### Phase 5+将实现的命令（数据库相关）
+- `make db_migrate` - 数据库迁移（待Phase 8+实现）
+- `make db_rollback` - 数据库回滚（待Phase 8+实现）
+- `make db_shell` - 数据库Shell（待Phase 8+实现）
+- `make db_gen_ddl` - 生成DDL（待Phase 8+实现）
+- `make db_env ENV=<env>` - 数据库环境切换（Phase 7部分实现）
 
-**说明**: 这些命令将在Phase 5（数据库治理实施）中实现。
+**说明**: 
+- Phase 5已实现：db_lint（数据库文件校验）
+- Phase 7已实现：fixture_loader（Fixtures加载）
+- 其他数据库命令待Phase 8+实现。
 
 #### 其他
 - `make style_check` - 可能是`doc_style_check`的别名，待确认
@@ -130,9 +147,15 @@ make ai_begin MODULE=my_feature
 #### 2. 开发过程中
 ```bash
 make dev_check
-# 聚合调用：
+# 聚合调用（Phase 7更新）：
 #   - docgen.py
 #   - doc_style_check.py
+#   - agent_lint.py (Phase 1)
+#   - registry_check.py (Phase 1)
+#   - doc_route_check.py (Phase 1)
+#   - type_contract_check.py (Phase 4)
+#   - doc_script_sync_check.py (Phase 4)
+#   - db_lint.py (Phase 5)
 #   - dag_check.py
 #   - contract_compat_check.py
 #   - deps_manager.py
@@ -140,9 +163,6 @@ make dev_check
 #   - migrate_check.py
 #   - consistency_check.py
 #   - frontend_types_check.py
-#   - agent_lint.py (Phase 1新增)
-#   - registry_check.py (Phase 1新增)
-#   - doc_route_check.py (Phase 1新增)
 ```
 
 #### 3. 提交前
@@ -151,7 +171,7 @@ make rollback_check PREV_REF=v1.0.0
 # 调用：rollback_check.sh
 ```
 
-#### 4. 模块注册（Phase 1新增）
+#### 4. 模块注册（Phase 1）
 ```bash
 # 生成草案
 make registry_gen
@@ -168,6 +188,88 @@ make registry_check
 # 生成模块文档
 make module_doc_gen
 ```
+
+#### 5. 测试数据管理（Phase 7新增）
+```bash
+# 列举所有模块
+make list_modules
+
+# 列举模块的Fixtures
+make list_fixtures MODULE=example
+
+# 加载Fixtures（dry-run模式，仅检查）
+make load_fixture MODULE=example FIXTURE=minimal DRY_RUN=1
+
+# 加载Fixtures（实际执行，需要数据库连接）
+make load_fixture MODULE=example FIXTURE=minimal
+
+# 清理测试数据
+make cleanup_fixture MODULE=example
+```
+
+### 8. Mock数据生成与管理（Phase 8.5+）
+
+**Mock数据生成器** (`mock_generator.py`):
+- 从TEST_DATA.md读取Mock生成规则
+- 使用Faker生成随机测试数据
+- 支持数据分布、约束、关系
+- 批量插入数据库
+- 注册到生命周期管理
+
+**Mock生命周期管理** (`mock_lifecycle.py`):
+- 列出活跃的Mock记录
+- 清理过期的Mock数据
+- 查看Mock统计信息
+- 手动删除Mock记录
+
+**用法**:
+```bash
+# 生成Mock数据（dry-run模式）
+make generate_mock MODULE=example TABLE=runs COUNT=1000 DRY_RUN=1
+
+# 生成Mock数据（实际插入，需要数据库连接和Faker库）
+make generate_mock MODULE=example TABLE=runs COUNT=1000
+
+# 生成短期Mock数据（1小时后过期）
+make generate_mock MODULE=example TABLE=runs COUNT=100 LIFECYCLE=ephemeral
+
+# 生成持久Mock数据（需手动清理）
+make generate_mock MODULE=example TABLE=runs COUNT=50 LIFECYCLE=persistent
+
+# 使用随机种子（可重复生成）
+make generate_mock MODULE=example TABLE=runs COUNT=100 SEED=42
+
+# 列出活跃的Mock记录
+make list_mocks
+
+# 按模块过滤
+make list_mocks MODULE=example
+
+# 清理过期的Mock数据
+make cleanup_mocks
+
+# Dry-run模式
+make cleanup_mocks DRY_RUN=1
+
+# 查看Mock统计信息
+make mock_stats
+
+# 按模块查看统计
+make mock_stats MODULE=example
+
+# 删除指定Mock记录
+make delete_mock ID=<mock_id>
+```
+
+**生命周期类型**:
+- `ephemeral`: 1小时后自动过期
+- `temporary`: 7天后自动过期（默认）
+- `persistent`: 持久保留，需手动清理
+- `fixture`: 可转为Fixture保存
+
+**依赖**:
+- `Faker>=20.0.0` - Mock数据生成（必需）
+- `psycopg2-binary>=2.9.0` - 数据库连接（可选，无则dry-run）
 
 ---
 
@@ -221,7 +323,7 @@ Windows用户可以使用Git Bash或WSL。
 3. **路径**：使用pathlib.Path，兼容Windows和Linux
 4. **错误处理**：友好的错误信息，明确的退出码
 5. **输出格式**：使用[ok]/[error]/[warn]前缀
-6. **兼容性**：考虑Phase过渡期的路径兼容（docs/ vs doc/）
+6. **兼容性**：考虑Phase过渡期的路径兼容（doc/ vs doc/）
 
 ---
 
@@ -235,6 +337,15 @@ Windows用户可以使用Git Bash或WSL。
 
 ---
 
-**最后更新**: 2025-11-07 (Phase 1)
+**最后更新**: 2025-11-08 (Phase 8.5+)
+
+## 变更历史
+
+- **2025-11-08 Phase 8.5+**: 新增Mock数据生成与管理工具（mock_generator.py、mock_lifecycle.py）
+- **2025-11-07 Phase 7**: 新增测试数据管理工具（fixture_loader.py）、更新dev_check集成所有校验
+- **2025-11-07 Phase 5**: 新增数据库治理工具（db_lint.py）
+- **2025-11-07 Phase 4**: 新增类型契约校验和文档同步检查
+- **2025-11-07 Phase 1**: 新增编排与模块管理工具（agent_lint等7个脚本）
+- **2025-11-07**: 初始版本
 
 

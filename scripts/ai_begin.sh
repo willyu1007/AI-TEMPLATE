@@ -21,6 +21,9 @@ echo ""
 mkdir -p "modules/$MOD/core"
 mkdir -p "modules/$MOD/doc"
 
+# 创建.context/目录（Phase 8.5新增，精简版）
+mkdir -p "modules/$MOD/.context"
+
 # 生成模块文档（Phase 6更新）
 echo "[1/5] 生成模块文档..."
 
@@ -363,16 +366,106 @@ EOF
 echo "  ✓ agent.md已生成"
 
 # 生成测试脚手架
-echo "[3/5] 生成测试脚手架..."
+echo "[3/6] 生成测试脚手架..."
 python scripts/test_scaffold.py "$MOD"
 
 # 更新索引
-echo "[4/5] 更新索引..."
+echo "[4/6] 更新索引..."
 python scripts/docgen.py
+
+# 生成.context/基础文件（Phase 8.5新增）
+echo "[5/6] 生成上下文恢复文件..."
+
+cat > "modules/$MOD/.context/README.md" <<EOF
+# .context/ - 上下文恢复（精简版）
+
+> **读者**: AI/智能编排系统
+
+## 快速恢复
+
+**5分钟**: \`overview.md\` + \`../plan.md\`  
+**15分钟**: 上述 + \`decisions.md\`（含错误记录）
+
+## 文件说明（仅3个文件）
+
+- **overview.md**: 背景、目标、约束（<200行）
+- **decisions.md**: 设计决策 + **错误经验**
+- **prd.md**: 原始需求（可选）
+
+**禁止**: ❌ 不创建子目录！
+
+**详见**: doc/process/CONTEXT_GUIDE.md
+EOF
+
+cat > "modules/$MOD/.context/overview.md" <<EOF
+# ${MOD}模块概览（精简版）
+
+> **读者**: AI/智能编排系统  
+> **限制**: <200行  
+> **创建**: $(date +%Y-%m-%d)
+
+## 背景
+
+[为什么需要这个模块？2-3句话]
+
+## 目标
+
+1. [目标1]
+2. [目标2]
+3. [目标3]
+
+## 关键约束
+
+1. [约束1]
+2. [约束2]
+
+## 参考链接
+
+- \`../doc/CONTRACT.md\`
+- \`decisions.md\` - 错误记录
+EOF
+
+cat > "modules/$MOD/.context/decisions.md" <<'EOF'
+# 设计决策（精简版）
+
+> **读者**: AI/智能编排系统  
+> **用途**: 正确决策 + **错误记录**
+
+## 正确决策
+
+### ADR-001: [决策标题]
+
+**日期**: [日期]  
+**决策**: [简述]  
+**原因**: [简述]
+
+---
+
+## 错误经验（⭐ 重点）
+
+### ERROR-001: [错误标题]
+
+**日期**: [日期]  
+**错误**: [做了什么错]  
+**后果**: [导致什么问题]  
+**教训**: [应该怎么做]  
+**修复**: [如何修复]
+
+**AI注意**: [给AI的警告]
+
+---
+
+## 被否决方案
+
+### REJECTED-001: [方案标题]
+
+**方案**: [简述]  
+**否决原因**: [为什么不行]
+EOF
 
 # 提示数据库和测试数据（Phase 6新增）
 echo ""
-echo "[5/5] 完成！"
+echo "[6/6] 完成！"
 echo ""
 echo "✅ 模块 '$MOD' 初始化完成"
 echo ""
@@ -381,10 +474,16 @@ echo "   - modules/$MOD/agent.md（Agent配置）"
 echo "   - modules/$MOD/README.md（模块文档）"
 echo "   - modules/$MOD/plan.md（实施计划）"
 echo "   - modules/$MOD/doc/ (6个标准文档)"
+echo "   - modules/$MOD/.context/ (上下文恢复，3个文件)"
 echo "   - modules/$MOD/core/ (核心代码目录)"
 echo "   - tests/$MOD/ (测试目录)"
 echo ""
 echo "💡 下一步（建议按顺序）："
+echo ""
+echo "   0. 📝 完善上下文（推荐，5分钟）"
+echo "      - 编辑 modules/$MOD/.context/overview.md（背景+目标+约束）"
+echo "      - 如有PRD，复制为 modules/$MOD/.context/prd.md"
+echo "      参考：doc/process/CONTEXT_GUIDE.md"
 echo ""
 echo "   1. 📋 定义计划"
 echo "      编辑 modules/$MOD/plan.md"

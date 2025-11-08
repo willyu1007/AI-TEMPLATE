@@ -11,3 +11,12 @@ pytest-cov>=4.0.0
 # pylint>=2.0.0
 # black>=22.0.0
 
+# Schema校验（用于agent_lint等工具）
+jsonschema>=4.0.0
+
+# 数据库连接（可选，用于fixture_loader实际执行SQL）
+# psycopg2-binary>=2.9.0  # 取消注释以启用PostgreSQL支持
+
+# Mock数据生成（可选，用于mock_generator）
+# Faker>=20.0.0  # 取消注释以启用Mock数据生成
+

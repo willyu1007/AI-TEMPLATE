@@ -902,7 +902,7 @@ COMMIT;
 ## 相关文档
 
 - **表YAML示例**: /db/engines/postgres/schemas/tables/runs.yaml
-- **数据库规范**: /db/engines/postgres/docs/DB_SPEC.yaml
+- **数据库规范**: /db/engines/postgres/doc/DB_SPEC.yaml
 - **模块初始化**: /doc/modules/MODULE_INIT_GUIDE.md（Phase 6）
 - **测试数据规格**: /doc/modules/TEMPLATES/TEST_DATA.md.template
 - **测试数据示例**: /doc/modules/example/doc/TEST_DATA.md

@@ -80,7 +80,7 @@
 │   ├── logging/             # 日志配置
 │   ├── metrics/             # 指标配置
 │   └── tracing/             # 追踪配置
-├── migrations/              # 数据库迁移（遗留，Phase 5迁移）
+├── db/engines/postgres/migrations/              # 数据库迁移（遗留，Phase 5迁移）
 ├── agent.md                 # 根Agent配置
 ├── README.md                # 项目说明
 ├── Makefile                 # 命令入口

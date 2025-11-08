@@ -6,7 +6,7 @@
 
 ---
 
-## 📁 目录结构
+## 目录结构
 
 ```
 doc/modules/
@@ -139,7 +139,7 @@ make module_doc_gen
 
 ---
 
-## 🚀 快速开始
+## 快速开始
 
 ### 场景1: 创建新模块
 
@@ -253,7 +253,7 @@ cat doc/modules/example/README.md
 
 ---
 
-## 📖 相关文档
+## 相关文档
 
 - **项目初始化**: doc/init/PROJECT_INIT_GUIDE.md
 - **编排注册表**: doc/orchestration/registry.yaml

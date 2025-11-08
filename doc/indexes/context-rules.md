@@ -187,8 +187,8 @@ keywords:
     - modules/user/core/service.py:1-200
     - common/middleware/auth.py
   "数据库":
-    - db/engines/postgres/docs/README.md
-    - docs/db/DB_SPEC.yaml
+    - db/engines/postgres/doc/README.md
+    - doc/db/DB_SPEC.yaml
 ```
 
 ### deps.yaml

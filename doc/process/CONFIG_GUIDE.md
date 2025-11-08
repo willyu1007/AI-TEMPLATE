@@ -85,6 +85,6 @@ python -c "from config.loader.python_loader import load_config; print(load_confi
 
 ## 相关文档
 - 配置 Schema：`config/schema.yaml`
-- 环境规范：`docs/process/ENV_SPEC.yaml`
+- 环境规范：`doc/process/ENV_SPEC.yaml`
 - 配置加载器：`config/loader/`
 

@@ -19,6 +19,10 @@ context_routes:
     - topic: "目录结构"
       paths:
         - /doc/architecture/directory.md
+    - topic: "安全详情"
+      paths:
+        - /doc/policies/security_details.md
+        - /doc/policies/quality_standards.md
     - topic: "数据库操作"
       paths:
         - /doc/db/DB_SPEC.yaml

@@ -1,4 +1,0 @@
-frontend: { framework: vue3, bundler: vite, language: ts }
-backend: { language: python3.11, web: fastapi, orm: sqlalchemy, tasks: celery }
-infra:   { db: postgres16+pgvector, cache: redis7, search: meilisearch }
-

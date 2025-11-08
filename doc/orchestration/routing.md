@@ -64,11 +64,11 @@ context_routes:
   on_demand:
     - topic: "数据库操作"
       paths:
-        - /docs/db/DB_SPEC.yaml
-        - /docs/db/SCHEMA_GUIDE.md
+        - /doc/db/DB_SPEC.yaml
+        - /doc/db/SCHEMA_GUIDE.md
     - topic: "API开发"
       paths:
-        - /docs/process/CONVENTIONS.md
+        - /doc/process/CONVENTIONS.md
         - /tools/openapi.json
     - topic: "模块开发"
       paths:
@@ -155,7 +155,7 @@ make doc_route_check
 ### 路径规范
 - 使用绝对路径（从根目录开始）
 - 使用正斜杠`/`（跨平台兼容）
-- 路径兼容：当前支持`docs/`和`doc/`（Phase 3后统一为`doc/`）
+- 路径兼容：当前支持`doc/`和`doc/`（Phase 3后统一为`doc/`）
 
 ### 安全限制
 - 智能体只能读取`context_routes`中声明的路径

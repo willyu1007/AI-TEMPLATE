@@ -31,6 +31,29 @@ jobs:
       - name: 生成文档索引
         run: make docgen
       
+      - name: Agent.md 校验 (Phase 1)
+        run: make agent_lint
+      
+      - name: 模块注册表校验 (Phase 1)
+        run: make registry_check
+      
+      - name: 文档路由校验 (Phase 1)
+        run: make doc_route_check
+      
+      - name: 文档风格检查
+        run: make doc_style_check
+        continue-on-error: true  # 不阻断构建
+      
+      - name: 模块类型契约校验 (Phase 4)
+        run: make type_contract_check
+      
+      - name: 文档脚本同步检查 (Phase 4)
+        run: make doc_script_sync_check
+        continue-on-error: true  # 允许占位符存在
+      
+      - name: 数据库文件校验 (Phase 5)
+        run: make db_lint
+      
       - name: DAG 校验
         run: make dag_check
       
@@ -46,6 +69,10 @@ jobs:
       
       - name: 一致性检查
         run: make consistency_check
+      
+      - name: 前端类型检查
+        run: make frontend_types_check
+        continue-on-error: true  # 可能没有前端代码
 
   # ============================================
   # Job 2: Python 测试
@@ -199,8 +226,12 @@ jobs:
       - name: 安装依赖
         run: pip install -r requirements.txt
       
-      - name: 运行完整检查
+      - name: 运行完整检查 (包含15个检查)
         run: make dev_check
+      
+      - name: 聚合验证 (7个核心检查)
+        run: make validate
+        continue-on-error: true  # 可能因为缺少测试数据失败
       
       - name: 检查依赖
         run: make deps_check || true  # 交互式，不阻断

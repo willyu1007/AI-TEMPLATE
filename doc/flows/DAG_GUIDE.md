@@ -71,7 +71,7 @@ edges:
 
 ```bash
 # 1. 语法检查
-yamllint flows/dag.yaml
+yamllint doc/flows/dag.yaml
 
 # 2. DAG 校验
 make dag_check
@@ -86,7 +86,7 @@ make dag_check
 ## 维护流程
 
 ### 1. 添加新节点
-1. 在 `flows/dag.yaml` 的 `nodes` 中添加节点定义。
+1. 在 `doc/flows/dag.yaml` 的 `nodes` 中添加节点定义。
 2. 添加必要的边
 3. 运行 `make dag_check` 验证
 4. 运行 `make docgen` 更新索引
@@ -115,7 +115,7 @@ make dag_check
 
 2. **回滚变更**
    ```
-   git checkout HEAD~1 -- flows/dag.yaml
+   git checkout HEAD~1 -- doc/flows/dag.yaml
    make dag_check
 ```
 
@@ -125,7 +125,7 @@ make dag_check
 ```
 
 ## 相关文档
-- DAG 定义：`flows/dag.yaml`
+- DAG 定义：`doc/flows/dag.yaml`
 - 契约文件：`tools/*/contract.json`
-- 系统边界：`docs/project/SYSTEM_BOUNDARY.md`
+- 系统边界：`doc/project/SYSTEM_BOUNDARY.md`
 

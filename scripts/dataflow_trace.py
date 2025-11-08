@@ -17,7 +17,7 @@ if sys.platform == 'win32':
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 
-def load_dag(dag_path: pathlib.Path = pathlib.Path('flows/dag.yaml')) -> Dict:
+def load_dag(dag_path: pathlib.Path = pathlib.Path('doc/flows/dag.yaml')) -> Dict:
     """加载 DAG 配置"""
     try:
         with open(dag_path, 'r', encoding='utf-8') as f:

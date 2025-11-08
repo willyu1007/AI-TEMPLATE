@@ -75,9 +75,9 @@ def check_module_docs():
 def check_key_references():
     """检查关键引用存在"""
     checks = [
-        ('flows/dag.yaml', 'DAG 配置'),
-        ('docs/db/DB_SPEC.yaml', '数据库规范'),
-        ('docs/process/ENV_SPEC.yaml', '环境规范'),
+        ('doc/flows/dag.yaml', 'DAG 配置'),
+        ('db/engines/postgres/docs/DB_SPEC.yaml', '数据库规范'),
+        ('doc/process/ENV_SPEC.yaml', '环境规范'),
         ('.aicontext/index.json', '文档索引'),
         ('.aicontext/module_index.json', '模块索引'),
     ]
