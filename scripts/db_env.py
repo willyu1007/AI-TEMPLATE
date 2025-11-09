@@ -27,6 +27,12 @@ import yaml
 from pathlib import Path
 from typing import Dict, Optional
 
+# Windows UTF-8 support
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 # 可选的数据库连接库
 try:
     import psycopg2

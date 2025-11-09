@@ -8,6 +8,48 @@ description: 模块类型的IO契约和关系定义
 
 # 类型契约定义
 type_contracts:
+  # 类型0: Infrastructure/Common（基础设施 - 通用工具）
+  - id: 0_Infrastructure/Common
+    name: 基础设施 - 通用工具模块
+    level_range: [1, 1]
+    description: 提供跨模块共享的通用代码（工具函数、数据模型、中间件、常量），无业务逻辑
+    
+    # IO契约（函数调用方式，不同于业务模块）
+    io_contract:
+      inputs:
+        - name: function_call
+          type: mixed
+          required: true
+          description: 函数调用（各工具函数有不同参数）
+          examples:
+            - "validate_email(email: str) -> bool"
+            - "PaginationParams(page: int, page_size: int)"
+            - "@require_auth decorator"
+          
+      outputs:
+        - name: function_result
+          type: mixed
+          required: true
+          description: 函数返回值（根据具体函数而定）
+          examples:
+            - "bool (validation functions)"
+            - "formatted string (string utils)"
+            - "model instance (models)"
+    
+    instances:
+      - common
+    
+    typical_downstream: ["*"]  # 所有模块都可以使用
+    typical_upstream: []  # 基础设施，无上游
+    
+    special_notes: |
+      This is infrastructure module, not a business module.
+      - No module-to-module data flow
+      - Provides utility functions called directly
+      - Zero business logic
+      - High stability requirement
+      - Backward compatibility critical
+  
   # 类型1: Assign（分配型）
   - id: 1_Assign
     name: 分配型模块

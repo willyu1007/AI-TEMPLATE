@@ -416,8 +416,28 @@ make workdoc_list  # 列出所有workdocs
 
 ---
 
+## Phase 13: 数据流分析增强（新增）
+
+### 核心脚本
+
+| 脚本 | 功能 | 命令 | 行数 |
+|------|------|------|------|
+| dataflow_trace.py | 数据流追踪检查（增强版） | `make dataflow_trace` | 723行 |
+| dataflow_visualizer.py | 多格式可视化生成器 | `make dataflow_visualize` | 438行 |
+| bottleneck_rules.yaml | 性能瓶颈检测规则配置 | N/A | 166行 |
+
+**dataflow_trace.py增强**: DataflowAnalyzer（循环依赖、调用链、N+1查询）+ BottleneckDetector（并行化、缓存、重复计算）+ ReportGenerator（JSON/Markdown报告）
+
+**dataflow_visualizer.py新增**: Mermaid/Graphviz DOT/D3.js HTML三种可视化格式
+
+**Makefile命令**（5个）: dataflow_trace、dataflow_visualize、dataflow_analyze、bottleneck_detect、dataflow_report
+
+---
+
 ## 变更历史
 
+- **2025-11-09 Phase 13**: 新增数据流分析增强（dataflow_visualizer.py、bottleneck_rules.yaml，增强dataflow_trace.py）
+- **2025-11-09 Phase 12**: 新增工作流模式推荐引擎（workflow_suggest.py）
 - **2025-11-08 Phase 10.3**: 新增Workdoc任务管理工具（workdoc_create.sh、workdoc_archive.sh）
 - **2025-11-08 Phase 10.1**: 新增智能触发系统（agent_trigger.py）、更新agent_lint支持trigger_config校验
 - **2025-11-08 Phase 8.5+**: 新增Mock数据生成与管理工具（mock_generator.py、mock_lifecycle.py）

@@ -414,6 +414,171 @@ make style_check
 
 ---
 
+## Phase 10新增特性（智能功能）
+
+Phase 10引入了4个智能特性，提升AI工作效率和安全性。这些功能开箱即用，无需额外配置。
+
+### 1. 智能触发系统
+
+**功能**: 根据文件路径和操作意图，自动推荐相关文档
+
+**相关文件**:
+- ✅ `doc/orchestration/agent-triggers.yaml` - 13个触发规则定义
+- ✅ `scripts/agent_trigger.py` - 触发器引擎（536行）
+- ✅ `doc/orchestration/triggers-guide.md` - 使用指南
+
+**使用方法**:
+```bash
+# 测试触发器
+python scripts/agent_trigger.py --prompt "创建新模块" --dry-run
+
+# 查看所有触发规则
+cat doc/orchestration/agent-triggers.yaml
+```
+
+**定制方法**:
+```yaml
+# 在 agent-triggers.yaml 中添加新规则
+triggers:
+  custom-operation:
+    priority: high
+    file_triggers:
+      path_patterns:
+        - "your/path/**"
+    load_documents:
+      - path: /doc/your-guide.md
+        priority: critical
+```
+
+---
+
+### 2. 渐进式披露
+
+**功能**: 大文档拆分为主文件+resources，按需加载，节省70% Token
+
+**相关文件**:
+- ✅ `doc/modules/MODULE_INIT_GUIDE.md` - 主文件（285行）
+  - `doc/modules/resources/init-*.md` - 8个resources（详细步骤）
+- ✅ `doc/process/DB_CHANGE_GUIDE.md` - 主文件（273行）
+  - `doc/process/resources/db-*.md` - 4个resources（详细指南）
+- ✅ `scripts/resources_check.py` - Resources完整性检查
+
+**使用方法**:
+```bash
+# 检查resources完整性
+make resources_check
+
+# 查看主文件（快速概览）
+cat doc/modules/MODULE_INIT_GUIDE.md
+
+# 按需查看详细步骤
+cat doc/modules/resources/init-planning.md
+```
+
+**定制方法**:
+- 如需拆分其他大文档（>500行），参考MODULE_INIT_GUIDE.md的结构
+- 主文件包含：快速概览、Resources索引表、常见问题
+- Resources文件：每个≤250行，聚焦单一主题
+
+---
+
+### 3. Dev Docs机制
+
+**功能**: 三层上下文管理，2-5分钟快速恢复工作状态
+
+**相关文件**:
+- ✅ `ai/workdocs/` - 工作文档目录
+  - `active/` - 活跃任务
+  - `archive/` - 已完成任务
+- ✅ `doc/templates/workdoc-*.md` - 3个模板（plan/context/tasks）
+- ✅ `scripts/workdoc_create.sh` - 创建工作文档
+- ✅ `scripts/workdoc_archive.sh` - 归档工作文档
+- ✅ `doc/process/WORKDOCS_GUIDE.md` - 详细指南（653行）
+
+**使用方法**:
+```bash
+# 创建新任务的work doc
+make workdoc_create TASK=feature-auth
+
+# 查看活跃任务
+make workdoc_list
+
+# 更新任务进度（自动从git log提取）
+make workdoc_update
+
+# 归档完成的任务
+make workdoc_archive TASK=feature-auth
+```
+
+**最佳实践**:
+- 每个任务创建一个work doc
+- 及时更新SESSION PROGRESS（关键！）
+- 记录错误和决策（避免重复踩坑）
+- 完成后归档（保留历史记录）
+
+---
+
+### 4. Guardrail防护
+
+**功能**: 事前阻止破坏性操作，100%关键领域覆盖
+
+**相关文件**:
+- ✅ `doc/orchestration/agent-triggers.yaml` - Guardrail规则定义
+  - 4个Block规则（数据库变更、契约变更、生产配置、安全操作）
+  - 3个Warn规则（根agent.md变更、关键文件删除、依赖版本升级）
+  - 6个Suggest规则（文档更新、测试覆盖、性能优化等）
+- ✅ `scripts/guardrail_stats.py` - Guardrail统计工具
+- ✅ `doc/process/GUARDRAIL_GUIDE.md` - 详细指南（782行）
+
+**使用方法**:
+```bash
+# 查看Guardrail覆盖率
+make guardrail_coverage
+
+# 查看Guardrail统计
+make guardrail_stats
+
+# 测试Guardrail（会被阻止）
+# 修改CONTRACT.md但未运行 contract_compat_check
+```
+
+**Guardrail规则示例**:
+```yaml
+contract-changes:
+  priority: critical
+  enforcement: block  # 阻止操作
+  file_triggers:
+    path_patterns:
+      - "**/CONTRACT.md"
+  check_enforcement:
+    required_command: "make contract_compat_check"
+    block_if_failed: true
+```
+
+**豁免机制**:
+```yaml
+# 紧急情况下使用skip_conditions
+skip_conditions:
+  - file_contains: "# SKIP_CONTRACT_CHECK"
+  - env_var: "SKIP_CONTRACT_GUARD=true"
+```
+
+---
+
+### Phase 10验证清单
+
+```markdown
+- [ ] make agent_trigger_test 触发器测试通过
+- [ ] make resources_check resources完整性检查通过
+- [ ] make workdoc_create TASK=test 可以创建work doc
+- [ ] make guardrail_coverage 显示100%覆盖
+- [ ] make dev_check 包含16个检查（新增resources_check）
+- [ ] doc/orchestration/agent-triggers.yaml 包含13个规则
+- [ ] agent.md context_routes 包含49个路由
+```
+
+---
+
 ## 检查清单
 
 ### 项目初始化清单

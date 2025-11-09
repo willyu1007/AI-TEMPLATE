@@ -134,9 +134,9 @@ pytest tests/common/ -v --cov=common --cov-report=html
 
 **导入方式**：
 ```
-from common.utils import camel_to_snake, snake_to_camel, truncate_string, normalize_string
+from modules.common.utils import camel_to_snake, snake_to_camel, truncate_string, normalize_string
 # 或
-from common.utils.string_utils import camel_to_snake
+from modules.common.utils.string_utils import camel_to_snake
 ```
 
 ---
@@ -151,9 +151,9 @@ from common.utils.string_utils import camel_to_snake
 
 **导入方式**：
 ```
-from common.utils import now_utc, format_datetime, parse_datetime, time_ago
+from modules.common.utils import now_utc, format_datetime, parse_datetime, time_ago
 # 或
-from common.utils.date_utils import now_utc
+from modules.common.utils.date_utils import now_utc
 ```
 
 ---
@@ -168,9 +168,9 @@ from common.utils.date_utils import now_utc
 
 **导入方式**：
 ```
-from common.utils import validate_email, validate_phone, validate_url, validate_uuid
+from modules.common.utils import validate_email, validate_phone, validate_url, validate_uuid
 # 或
-from common.utils.validation import validate_email
+from modules.common.utils.validation import validate_email
 ```
 
 ---
@@ -185,9 +185,9 @@ from common.utils.validation import validate_email
 
 **导入方式**：
 ```
-from common.utils import hash_password, verify_password, encrypt_data, decrypt_data
+from modules.common.utils import hash_password, verify_password, encrypt_data, decrypt_data
 # 或
-from common.utils.encryption import hash_password
+from modules.common.utils.encryption import hash_password
 ```
 
 **注意**：生产环境应使用 `bcrypt` 或 `argon2` 替代示例实现。
@@ -205,15 +205,15 @@ from common.utils.encryption import hash_password
 
 **导入方式**：
 ```
-from common.models import BaseModel, TimestampMixin, PaginationParams, PaginationResult, ApiResponse
+from modules.common.models import BaseModel, TimestampMixin, PaginationParams, PaginationResult, ApiResponse
 # 或
-from common.models.base import BaseModel
-from common.models.common import PaginationParams
+from modules.common.models.base import BaseModel
+from modules.common.models.common import PaginationParams
 ```
 
 **使用示例**：
 ```
-from common.models import BaseModel, TimestampMixin, PaginationParams
+from modules.common.models import BaseModel, TimestampMixin, PaginationParams
 
 @dataclass
 class User(BaseModel, TimestampMixin):
@@ -241,16 +241,16 @@ limit = params.get_limit()    # 20
 
 **导入方式**：
 ```
-from common.middleware import require_auth, rate_limit, setup_logging
-from common.middleware import RateLimiter
+from modules.common.middleware import require_auth, rate_limit, setup_logging
+from modules.common.middleware import RateLimiter
 # 或
-from common.middleware.auth import require_auth
-from common.middleware.rate_limit import rate_limit
+from modules.common.middleware.auth import require_auth
+from modules.common.middleware.rate_limit import rate_limit
 ```
 
 **使用示例**：
 ```
-from common.middleware import require_auth, rate_limit
+from modules.common.middleware import require_auth, rate_limit
 
 @require_auth
 @rate_limit(max_requests=10, window_seconds=60)
@@ -270,15 +270,15 @@ def api_endpoint():
 
 **导入方式**：
 ```
-from common.constants import ErrorCode, Status, UserStatus, OrderStatus
+from modules.common.constants import ErrorCode, Status, UserStatus, OrderStatus
 # 或
-from common.constants.error_codes import ErrorCode
-from common.constants.status import UserStatus
+from modules.common.constants.error_codes import ErrorCode
+from modules.common.constants.status import UserStatus
 ```
 
 **使用示例**：
 ```
-from common.constants import ErrorCode, UserStatus
+from modules.common.constants import ErrorCode, UserStatus
 
 # 错误码
 if not validate_email(email):
@@ -300,15 +300,15 @@ user.status = UserStatus.ACTIVE.value  # "active"
 
 **导入方式**：
 ```
-from common.interfaces import Repository, CRUDRepository
+from modules.common.interfaces import Repository, CRUDRepository
 # 或
-from common.interfaces.repository import Repository
+from modules.common.interfaces.repository import Repository
 ```
 
 **使用示例**：
 ```
-from common.interfaces import CRUDRepository
-from common.models import User
+from modules.common.interfaces import CRUDRepository
+from modules.common.models import User
 
 class UserRepository(CRUDRepository[User, str]):
     def find_by_id(self, id: str) -> Optional[User]:
@@ -330,9 +330,9 @@ class UserRepository(CRUDRepository[User, str]):
 **Python 示例**：
 ```
 # modules/user/service.py
-from common.utils.validation import validate_email
-from common.middleware.auth import require_auth
-from common.constants.error_codes import ErrorCode
+from modules.common.utils.validation import validate_email
+from modules.common.middleware.auth import require_auth
+from modules.common.constants.error_codes import ErrorCode
 
 def create_user(email: str):
     if not validate_email(email):
@@ -377,45 +377,45 @@ export function createUser(email: string) {
 ### 如何查找和使用 common 函数
 
 1. **按功能查找**：
-   - 需要验证数据？→ 查看 `common.utils.validation`
-   - 需要处理字符串？→ 查看 `common.utils.string_utils`
-   - 需要日期时间？→ 查看 `common.utils.date_utils`
-   - 需要加密？→ 查看 `common.utils.encryption`
-   - 需要分页？→ 查看 `common.models.common.PaginationParams`
-   - 需要认证？→ 查看 `common.middleware.auth`
-   - 需要限流？→ 查看 `common.middleware.rate_limit`
-   - 需要错误码？→ 查看 `common.constants.error_codes`
+   - 需要验证数据？→ 查看 `modules.common.utils.validation`
+   - 需要处理字符串？→ 查看 `modules.common.utils.string_utils`
+   - 需要日期时间？→ 查看 `modules.common.utils.date_utils`
+   - 需要加密？→ 查看 `modules.common.utils.encryption`
+   - 需要分页？→ 查看 `modules.common.models.common.PaginationParams`
+   - 需要认证？→ 查看 `modules.common.middleware.auth`
+   - 需要限流？→ 查看 `modules.common.middleware.rate_limit`
+   - 需要错误码？→ 查看 `modules.common.constants.error_codes`
 
 2. **快速导入模板**：
 ```
 # 验证数据
-from common.utils import validate_email, validate_phone, validate_url
+from modules.common.utils import validate_email, validate_phone, validate_url
 
 # 处理字符串
-from common.utils import camel_to_snake, snake_to_camel, truncate_string
+from modules.common.utils import camel_to_snake, snake_to_camel, truncate_string
 
 # 日期时间
-from common.utils import now_utc, format_datetime, parse_datetime, time_ago
+from modules.common.utils import now_utc, format_datetime, parse_datetime, time_ago
 
 # 加密解密（注意：生产环境应使用专业库）
-from common.utils import hash_password, verify_password
+from modules.common.utils import hash_password, verify_password
 
 # 数据模型
-from common.models import BaseModel, PaginationParams, ApiResponse
+from modules.common.models import BaseModel, PaginationParams, ApiResponse
 
 # 中间件
-from common.middleware import require_auth, rate_limit, setup_logging
+from modules.common.middleware import require_auth, rate_limit, setup_logging
 
 # 常量
-from common.constants import ErrorCode, UserStatus
+from modules.common.constants import ErrorCode, UserStatus
 ```
 
 3. **常见使用场景**：
 
 **场景 1：用户注册验证**
 ```
-from common.utils import validate_email, validate_phone
-from common.constants import ErrorCode
+from modules.common.utils import validate_email, validate_phone
+from modules.common.constants import ErrorCode
 
 def register_user(email: str, phone: str):
     if not validate_email(email):
@@ -427,7 +427,7 @@ def register_user(email: str, phone: str):
 
 **场景 2：分页查询**
 ```
-from common.models import PaginationParams, PaginationResult
+from modules.common.models import PaginationParams, PaginationResult
 
 def get_users(page: int = 1, page_size: int = 20):
     params = PaginationParams(page=page, page_size=page_size)
@@ -443,7 +443,7 @@ def get_users(page: int = 1, page_size: int = 20):
 
 **场景 3：API 响应**
 ```
-from common.models import ApiResponse
+from modules.common.models import ApiResponse
 
 def get_user_api(user_id: str):
     try:
@@ -455,7 +455,7 @@ def get_user_api(user_id: str):
 
 **场景 4：认证和限流**
 ```
-from common.middleware import require_auth, rate_limit
+from modules.common.middleware import require_auth, rate_limit
 
 @require_auth
 @rate_limit(max_requests=10, window_seconds=60)
@@ -473,6 +473,8 @@ def sensitive_api():
 2. **更新 `__init__.py`**：确保新函数可从包级别导入。
 3. **编写测试**：覆盖率达到 ≥90%
 4. **更新文档**：确保函数有完整的文档字符串
+5. **更新 CONTRACT.md**：添加API文档说明
+6. **更新 CHANGELOG.md**：记录变更
 
 ---
 
@@ -486,10 +488,11 @@ def sensitive_api():
 | C/C++ | `lib/`, `src/` | `lib/` 很常见 |
 | Java | `common/`, `shared/`, `src/main/java/` | `lib/` 通常指依赖库 |
 
-**本模板使用 `common/`**，因为：
+**本模板使用 `modules/common/`**，因为：
 - 跨语言通用
 - Python/Go/JS 项目都常用
 - 语义清晰（"通用代码"）
+- 模块化组织，便于AI理解
 
 ---
 
@@ -548,7 +551,7 @@ pytest tests/common/ -v
 pytest tests/common/ --cov=common --cov-report=html
 
 # 3. 检查导入是否正常
-python -c "from common.utils.validation import validate_email; print('OK')"
+python -c "from modules.common.utils.validation import validate_email; print('OK')"
 
 # 4. 运行完整检查
 make dev_check
@@ -590,9 +593,9 @@ make deploy
 
 **检查**：
 ```
-# 检查 common/ 中的导入
-grep -r "from modules" common/
-grep -r "import modules" common/
+# 检查 modules/common/ 中的导入
+grep -r "from modules\." modules/common/ | grep -v "from modules.common"
+grep -r "import modules\." modules/common/ | grep -v "import modules.common"
 ```
 
 ## 2. 性能考虑
@@ -612,7 +615,8 @@ grep -r "import modules" common/
 每次修改 `common/` 代码后，AI 应执行以下检查：
 
 1. **更新文档**
-   - [ ] 在 `common/README.md` 的"快速参考"章节更新函数列表
+   - [ ] 在 `modules/common/README.md` 的"快速参考"章节更新函数列表
+   - [ ] 在 `modules/common/doc/CONTRACT.md` 添加API文档
    - [ ] 确保所有新函数都有使用示例
    - [ ] 更新导入方式说明
 
@@ -621,7 +625,7 @@ grep -r "import modules" common/
    - [ ] 确保可以从包级别导入
 
 3. **测试验证**
-   - [ ] 运行 `pytest tests/common/ -v`
+   - [ ] 运行 `pytest tests/common/ -v --cov=modules.common`
    - [ ] 检查覆盖率 ≥90%
    - [ ] 验证导入测试通过
 

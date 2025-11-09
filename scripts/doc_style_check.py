@@ -9,6 +9,12 @@ import sys
 from pathlib import Path
 from typing import List, Tuple, Dict
 
+# Windows UTF-8 support
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 # 模糊表达模式
 VAGUE_PATTERNS = [
     (r'有点像', '使用精确描述，如"实现了...模式"'),

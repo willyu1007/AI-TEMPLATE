@@ -13,6 +13,12 @@ import sys
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 
+# Windows UTF-8 support
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 
 def json_schema_to_openapi_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
     """将 JSON Schema 转换为 OpenAPI Schema 格式"""

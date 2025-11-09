@@ -1,0 +1,299 @@
+# AI工作流模式：数据库变更
+# 此文件为AI优化文档，轻量化设计（约220行）
+# 人类完整参考：../examples/database-migration-example.md
+
+pattern_id: "database-migration"
+version: "1.0"
+name: "数据库变更标准工作流"
+description: "安全的数据库Schema变更流程（表/字段/索引）"
+complexity: "medium"
+estimated_time: "30-60分钟"
+ai_optimized: true
+category: "maintenance"
+
+# 前置条件
+prerequisites:
+  - "明确数据库变更需求（新建/修改/删除表，添加/修改字段等）"
+  - "了解当前表结构"
+  - "已评估变更影响（数据迁移、兼容性）"
+
+# 工作流步骤
+workflow:
+  - step: 1
+    name: "变更需求分析"
+    description: "明确变更类型和影响范围"
+    estimated_time: "5-10分钟"
+    
+    ai_prompt_template: |
+      数据库变更需求：{change_description}
+      影响表：{tables}
+      请分析：
+      1. 变更类型（新建表/修改表/删除表/索引优化）
+      2. 数据迁移需求
+      3. 兼容性影响
+      4. 回滚策略
+    
+    documents_to_load:
+      - path: /doc/process/DB_CHANGE_GUIDE.md
+        priority: critical
+      - path: /doc/db/DB_SPEC.yaml
+        priority: high
+    
+    expected_output:
+      - "变更类型明确"
+      - "影响范围评估报告"
+      - "回滚方案"
+    
+    validation:
+      - "变更类型清晰（create/alter/drop/optimize）"
+      - "已评估数据迁移需求"
+      - "有明确回滚策略"
+    
+    common_issues:
+      - issue: "不确定变更影响范围"
+        solution: "查询依赖该表的所有模块（参考registry.yaml）"
+      - issue: "不知道如何设计回滚方案"
+        solution: "down脚本必须完全反转up脚本的操作"
+
+  - step: 2
+    name: "创建表结构YAML"
+    description: "定义新表或修改现有表的YAML"
+    estimated_time: "10-15分钟"
+    
+    ai_prompt_template: |
+      表名：{table_name}
+      字段：{columns}
+      请创建表结构YAML
+    
+    documents_to_load:
+      - path: /doc/process/resources/db-create-table.md
+        priority: critical
+      - path: /db/engines/postgres/schemas/tables/runs.yaml
+        priority: high
+        description: "示例参考"
+    
+    expected_output:
+      - "db/engines/postgres/schemas/tables/{table}.yaml"
+    
+    validation:
+      - "YAML格式正确"
+      - "包含所有必需字段（columns, indexes, constraints）"
+      - "字段类型正确（参考DB_SPEC.yaml）"
+    
+    common_issues:
+      - issue: "不确定字段类型选择"
+        solution: "参考DB_SPEC.yaml支持的类型列表"
+      - issue: "索引设计不合理"
+        solution: "根据查询模式设计索引，避免过多索引"
+
+  - step: 3
+    name: "编写迁移脚本"
+    description: "生成up.sql和down.sql"
+    estimated_time: "15-20分钟"
+    
+    ai_prompt_template: |
+      基于{table}.yaml生成迁移脚本：
+      1. {NNN}_{module}_{action}_up.sql
+      2. {NNN}_{module}_{action}_down.sql
+      确保down脚本能完全回滚
+    
+    documents_to_load:
+      - path: /doc/process/resources/db-migration-script.md
+        priority: critical
+      - path: /db/engines/postgres/migrations/001_example_create_runs_table_up.sql
+        priority: high
+    
+    expected_output:
+      - "db/engines/postgres/migrations/{NNN}_{module}_{action}_up.sql"
+      - "db/engines/postgres/migrations/{NNN}_{module}_{action}_down.sql"
+    
+    validation:
+      - "脚本成对存在"
+      - "up脚本语法正确"
+      - "down脚本能完全回滚up脚本"
+      - "包含必要的注释"
+    
+    common_issues:
+      - issue: "down脚本不知道如何写"
+        solution: "down脚本应该反转up脚本的所有操作（DROP vs CREATE, DELETE vs INSERT）"
+      - issue: "迁移脚本编号冲突"
+        solution: "使用当前最大编号+1，格式为3位数字（如002, 003）"
+
+  - step: 4
+    name: "更新测试数据"
+    description: "更新TEST_DATA.md和Fixtures"
+    estimated_time: "10-15分钟"
+    
+    ai_prompt_template: |
+      表{table_name}变更后，更新：
+      1. 相关模块的TEST_DATA.md
+      2. Fixtures文件（minimal.sql, standard.sql）
+    
+    documents_to_load:
+      - path: /doc/process/resources/db-test-data.md
+        priority: critical
+      - path: /doc/process/TEST_DATA_STRATEGY.md
+        priority: medium
+    
+    expected_output:
+      - "modules/{module}/doc/TEST_DATA.md (更新)"
+      - "modules/{module}/fixtures/*.sql (更新)"
+    
+    validation:
+      - "TEST_DATA.md反映新表结构"
+      - "Fixtures包含新字段"
+      - "测试场景仍然有效"
+    
+    common_issues:
+      - issue: "不知道如何更新Fixtures"
+        solution: "根据新表结构添加/修改字段，保持数据合理性"
+      - issue: "测试场景需要调整"
+        solution: "重新评估测试场景，确保覆盖新增功能"
+
+  - step: 5
+    name: "本地验证"
+    description: "本地环境测试迁移脚本"
+    estimated_time: "10-15分钟"
+    
+    ai_prompt_template: |
+      在本地测试环境执行：
+      1. 运行up脚本
+      2. 验证表结构正确
+      3. 运行down脚本
+      4. 验证完全回滚
+      5. 再次运行up脚本
+    
+    documents_to_load:
+      - path: /db/engines/README.md
+        priority: high
+    
+    expected_output:
+      - "up脚本执行成功"
+      - "down脚本完全回滚"
+      - "可重复执行up"
+    
+    validation:
+      - "迁移成功，无SQL错误"
+      - "表结构符合YAML定义"
+      - "回滚成功，无残留"
+      - "可幂等执行"
+    
+    common_issues:
+      - issue: "SQL语法错误"
+        solution: "使用数据库工具验证SQL语法"
+      - issue: "回滚不完全"
+        solution: "检查down脚本是否反转了所有操作"
+      - issue: "无法重复执行"
+        solution: "添加IF NOT EXISTS等幂等性检查"
+
+  - step: 6
+    name: "自动化检查"
+    description: "运行db_lint和相关检查"
+    estimated_time: "5分钟"
+    
+    ai_prompt_template: |
+      运行自动化检查：
+      make db_lint
+    
+    documents_to_load:
+      - path: /scripts/db_lint.py
+        priority: high
+    
+    expected_output:
+      - "db_lint全部通过"
+    
+    validation:
+      - "迁移脚本成对性检查通过"
+      - "Table YAML格式检查通过"
+      - "文件命名规范检查通过"
+    
+    common_issues:
+      - issue: "db_lint失败"
+        solution: "根据错误信息修复（通常是命名或格式问题）"
+
+# 常见陷阱
+pitfalls:
+  - issue: "迁移脚本不成对"
+    impact: "无法回滚，生产环境风险极高"
+    solution: "每个up.sql必须有对应的down.sql"
+    severity: "critical"
+  
+  - issue: "down脚本测试不充分"
+    impact: "回滚失败，生产环境数据损坏"
+    solution: "本地至少执行3次：up→down→up"
+    severity: "critical"
+  
+  - issue: "忘记更新测试数据"
+    impact: "测试环境与生产环境不一致"
+    solution: "变更后立即更新TEST_DATA.md和Fixtures"
+    severity: "high"
+  
+  - issue: "字段类型选择不当"
+    impact: "性能问题或数据溢出"
+    solution: "参考DB_SPEC.yaml选择合适类型，考虑数据范围"
+    severity: "medium"
+
+# 质量检查清单
+quality_checklist:
+  - "[ ] 表结构YAML已创建/更新"
+  - "[ ] up.sql和down.sql成对存在"
+  - "[ ] 本地测试：up→down→up成功"
+  - "[ ] make db_lint通过"
+  - "[ ] TEST_DATA.md已更新"
+  - "[ ] Fixtures已更新"
+  - "[ ] 迁移脚本包含注释"
+  - "[ ] down脚本能完全回滚"
+  - "[ ] 无SQL语法错误"
+  - "[ ] 已评估兼容性影响"
+
+# 估时参考
+time_breakdown:
+  analysis: "5-10分钟"
+  table_yaml: "10-15分钟"
+  migration_scripts: "15-20分钟"
+  test_data_update: "10-15分钟"
+  local_validation: "10-15分钟"
+  automated_checks: "5分钟"
+  total: "55-80分钟"
+
+# 变更类型快速参考
+change_types:
+  create_table:
+    documents: ["/doc/process/resources/db-create-table.md"]
+    template: "001_example_create_runs_table_up.sql"
+  alter_table:
+    documents: ["/doc/process/resources/db-alter-table.md"]
+    common_operations: ["ADD COLUMN", "DROP COLUMN", "MODIFY COLUMN", "ADD INDEX"]
+  drop_table:
+    documents: ["/doc/process/resources/db-alter-table.md"]
+    warning: "极危险操作，需要审批"
+  optimize_indexes:
+    documents: ["/doc/process/resources/db-create-table.md"]
+    focus: "查询性能分析"
+
+# Guardrail防护
+guardrails:
+  - rule: "生产环境变更必须先在staging验证"
+    enforcement: "block"
+  - rule: "DROP TABLE需要双人确认"
+    enforcement: "block"
+  - rule: "必须运行make db_lint"
+    enforcement: "block"
+
+# 参考资源
+references:
+  detailed_guide: "/ai/workflow-patterns/examples/database-migration-example.md"
+  related_patterns:
+    - "module-creation (如新模块需要表)"
+  templates:
+    - "/db/engines/postgres/schemas/tables/runs.yaml"
+    - "/db/engines/postgres/migrations/001_example_create_runs_table_up.sql"
+
+# 成功标准
+success_criteria:
+  - "所有6个步骤完成"
+  - "所有质量检查清单项通过"
+  - "本地测试成功（up→down→up）"
+  - "make db_lint通过"
+  - "测试数据已更新"
+

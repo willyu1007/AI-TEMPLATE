@@ -286,13 +286,13 @@ EOF
 
 echo "  ✓ 模块文档已生成（6个文档在doc/下）"
 
-# 生成agent.md（Phase 6新增）
+# 生成agent.md（Phase 6新增，Phase 14.0更新为英文）
 echo "[2/5] 生成agent.md..."
 cat > "modules/$MOD/agent.md" <<EOF
 ---
 spec_version: "1.0"
 agent_id: "modules.$MOD.v1"
-role: "$MOD模块的业务逻辑Agent"
+role: "Business logic agent for $MOD module"
 level: 1
 module_type: "1_$MOD"
 
@@ -305,8 +305,19 @@ ownership:
       - modules/$MOD/doc/CHANGELOG.md
 
 io:
-  inputs: []
-  outputs: []
+  inputs:
+    - name: "input_placeholder"
+      type: "object"
+      required: true
+      description: "TODO: Define input parameters"
+      schema_ref: "modules/$MOD/doc/CONTRACT.md#inputs"
+  
+  outputs:
+    - name: "result"
+      type: "object"
+      required: true
+      description: "TODO: Define output format"
+      schema_ref: "modules/$MOD/doc/CONTRACT.md#outputs"
 
 contracts:
   apis:
@@ -317,7 +328,9 @@ dependencies:
   downstream: []
 
 constraints:
-  - "保持测试覆盖率≥80%"
+  - "Maintain test coverage ≥80%"
+  - "Backward compatibility required"
+  - "Response time <500ms (P95)"
 
 tools_allowed:
   calls:
@@ -335,32 +348,39 @@ context_routes:
     - modules/$MOD/README.md
     - modules/$MOD/doc/CONTRACT.md
   on_demand:
-    - topic: "开发计划"
+    - topic: "Development Plan"
       paths:
         - modules/$MOD/plan.md
-    - topic: "测试计划"
+    - topic: "Test Plan"
       paths:
         - modules/$MOD/doc/TEST_PLAN.md
+    - topic: "Operations Guide"
+      paths:
+        - modules/$MOD/doc/RUNBOOK.md
 ---
 
-# $MOD模块Agent
+# $MOD Module - Agent Guide
 
-## 1. 模块概述
+> **For AI Agents** - Module-specific guidance  
+> **Language**: English (AI-optimized)
 
-（待补充）
+## 1. Module Overview
 
-## 2. 核心功能
+TODO: Describe the purpose and scope of this module
 
-（待补充）
+## 2. Core Features
 
-## 3. 依赖关系
+TODO: List the main functionalities provided by this module
 
-（待补充）
+## 3. Dependencies
+
+TODO: Document upstream and downstream module dependencies
 
 ---
 
-**维护者**: 待指定
-**创建时间**: $(date +%Y-%m-%d)
+**Maintainer**: TBD  
+**Created**: $(date +%Y-%m-%d)  
+**Last Updated**: $(date +%Y-%m-%d)
 EOF
 
 echo "  ✓ agent.md已生成"

@@ -1,0 +1,262 @@
+# Script Trigger Configuration
+# Version: 1.0
+# Purpose: Centralized management of all script triggers
+# Maintained by: Phase 14.0.6
+
+version: '1.0'
+generated_at: '2025-11-09'
+description: Script trigger configuration for CI/CD, Git hooks, and manual execution
+
+# Trigger Categories
+categories:
+  - id: ci_required
+    name: CI Required Checks
+    description: Must pass before merge
+    severity: critical
+    
+  - id: ci_optional
+    name: CI Optional Checks
+    description: Run but don't block merge
+    severity: medium
+    
+  - id: git_hooks
+    name: Git Hooks
+    description: Triggered by git events
+    severity: high
+    
+  - id: manual
+    name: Manual Execution
+    description: Run on demand
+    severity: low
+
+# Script Triggers
+triggers:
+  # Makefile Checks
+  - name: makefile_check
+    script: scripts/makefile_check.py
+    category: ci_optional
+    description: Validate Makefile targets and dependencies
+    triggers:
+      - type: push
+        branches: [main, develop]
+      - type: pr
+        paths: [Makefile, scripts/*.py, scripts/*.sh]
+      - type: manual
+    commands:
+      make: make makefile_check
+      direct: python scripts/makefile_check.py
+    estimated_time: 5s
+    
+  - name: python_scripts_lint
+    script: scripts/python_scripts_lint.py
+    category: ci_required
+    description: Lint Python scripts for quality
+    triggers:
+      - type: push
+        branches: [main, develop]
+      - type: pr
+        paths: [scripts/*.py]
+      - type: manual
+    commands:
+      make: make python_scripts_lint
+      direct: python scripts/python_scripts_lint.py
+    estimated_time: 10s
+    
+  - name: shell_scripts_lint
+    script: scripts/shell_scripts_lint.sh
+    category: ci_required
+    description: Lint shell scripts for quality
+    triggers:
+      - type: push
+        branches: [main, develop]
+      - type: pr
+        paths: [scripts/*.sh]
+      - type: manual
+    commands:
+      make: make shell_scripts_lint
+      direct: bash scripts/shell_scripts_lint.sh
+    estimated_time: 5s
+    
+  - name: config_lint
+    script: scripts/config_lint.py
+    category: ci_required
+    description: Validate YAML config files
+    triggers:
+      - type: push
+        branches: [main, develop, staging, prod]
+      - type: pr
+        paths: [config/*.yaml, config/*.yml]
+      - type: git_hook
+        hook: pre-commit
+        condition: config_changed
+      - type: manual
+    commands:
+      make: make config_lint
+      direct: python scripts/config_lint.py
+    estimated_time: 3s
+    
+  # Core Development Checks
+  - name: dev_check
+    script: Makefile (aggregate)
+    category: ci_required
+    description: Full development check suite
+    triggers:
+      - type: push
+        branches: [main, develop]
+      - type: pr
+        paths: ['**/*.py', '**/*.yaml', '**/*.md']
+      - type: git_hook
+        hook: pre-push
+      - type: schedule
+        cron: '0 2 * * *'  # Daily at 2 AM
+      - type: manual
+    commands:
+      make: make dev_check
+    estimated_time: 60s
+    dependencies:
+      - docgen
+      - doc_style_check
+      - agent_lint
+      - registry_check
+      - doc_route_check
+      - type_contract_check
+      - doc_script_sync_check
+      - db_lint
+      - resources_check
+      - dag_check
+      - contract_compat_check
+      - deps_check
+      - runtime_config_check
+      - migrate_check
+      - consistency_check
+      - frontend_types_check
+      
+  # Agent Orchestration
+  - name: agent_lint
+    script: scripts/agent_lint.py
+    category: ci_required
+    description: Validate agent.md files
+    triggers:
+      - type: push
+        branches: [main, develop]
+      - type: pr
+        paths: ['**/agent.md', schemas/agent.schema.yaml]
+      - type: manual
+    commands:
+      make: make agent_lint
+      direct: python scripts/agent_lint.py
+    estimated_time: 5s
+    
+  - name: agent_trigger_test
+    script: scripts/agent_trigger.py
+    category: ci_optional
+    description: Test intelligent trigger system
+    triggers:
+      - type: pr
+        paths: [doc/orchestration/agent-triggers.yaml]
+      - type: manual
+    commands:
+      make: make agent_trigger_test
+      direct: python scripts/agent_trigger.py --test
+    estimated_time: 10s
+    
+  # Workflow Patterns
+  - name: workflow_validate
+    script: scripts/workflow_suggest.py
+    category: ci_optional
+    description: Validate workflow pattern files
+    triggers:
+      - type: pr
+        paths: [ai/workflow-patterns/**/*.yaml]
+      - type: manual
+    commands:
+      make: make workflow_validate
+      direct: python scripts/workflow_suggest.py --validate
+    estimated_time: 5s
+    
+  # Dataflow Analysis
+  - name: dataflow_analyze
+    script: scripts/dataflow_trace.py
+    category: manual
+    description: Full dataflow analysis
+    triggers:
+      - type: manual
+      - type: schedule
+        cron: '0 3 * * 0'  # Weekly on Sunday at 3 AM
+    commands:
+      make: make dataflow_analyze
+    estimated_time: 30s
+    
+  - name: bottleneck_detect
+    script: scripts/dataflow_trace.py
+    category: ci_optional
+    description: Detect performance bottlenecks
+    triggers:
+      - type: pr
+        paths: [modules/**/*.py, db/**/*.yaml]
+      - type: manual
+    commands:
+      make: make bottleneck_detect
+      direct: python scripts/dataflow_trace.py --bottleneck
+    estimated_time: 15s
+    
+  # Registry Management
+  - name: registry_check
+    script: scripts/registry_check.py
+    category: ci_required
+    description: Validate module registry
+    triggers:
+      - type: push
+        branches: [main, develop]
+      - type: pr
+        paths: [doc/orchestration/registry.yaml, modules/**/agent.md]
+      - type: manual
+    commands:
+      make: make registry_check
+      direct: python scripts/registry_check.py
+    estimated_time: 5s
+    
+  - name: registry_gen
+    script: scripts/registry_gen.py
+    category: manual
+    description: Generate registry.yaml draft
+    triggers:
+      - type: manual
+    commands:
+      make: make registry_gen
+      direct: python scripts/registry_gen.py
+    estimated_time: 10s
+
+# Automation Coverage Summary
+automation_coverage:
+  total_scripts: 40
+  automated_scripts: 16
+  coverage_percentage: 40%
+  target_percentage: 60%
+  
+  by_category:
+    ci_required: 8
+    ci_optional: 5
+    git_hooks: 2
+    manual: 25
+    
+  recommendations:
+    - Add more git hooks (pre-commit, pre-push)
+    - Automate more manual checks in CI
+    - Add scheduled health checks
+    - Implement auto-fix capabilities
+
+# Notes
+notes: |
+  This configuration serves as:
+  1. Documentation of all script triggers
+  2. Input for trigger_manager.py and trigger_visualizer.py
+  3. Reference for CI/CD workflow generation
+  4. Automation coverage tracking
+  
+  Usage:
+  - make trigger_show: Display all triggers
+  - make trigger_check: Validate this configuration
+  - make trigger_gen_workflow: Generate GitHub Actions workflow
+  - make trigger_matrix: Generate trigger matrix markdown
+

@@ -7,6 +7,12 @@ import json
 import pathlib
 from typing import Dict, List, Tuple
 
+# Windows UTF-8 support
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 def load_contract(path):
     """加载契约文件"""
     try:

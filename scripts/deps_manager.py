@@ -8,6 +8,12 @@ import pathlib
 import re
 from collections import defaultdict
 
+# Windows UTF-8 support
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 # Python 依赖检测规则
 PYTHON_DEPS = {
     # 核心框架

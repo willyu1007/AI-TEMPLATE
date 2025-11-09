@@ -1,14 +1,23 @@
 #!/usr/bin/env python3
 """
-数据流追踪检查脚本
+数据流追踪检查脚本（增强版）
 检查 UX 文档中的流程图是否与代码实现一致
+Phase 13增强功能：
+- 循环依赖检测
+- 调用链深度分析
+- N+1查询模式识别
+- 性能瓶颈检测
+- JSON/Markdown报告生成
 """
 
 import sys
 import re
 import pathlib
 import yaml
-from typing import List, Dict, Set, Tuple
+import json
+from typing import List, Dict, Set, Tuple, Optional, Any
+from collections import defaultdict, deque
+from datetime import datetime
 
 # Windows控制台编码修复
 if sys.platform == 'win32':
@@ -234,6 +243,479 @@ def main():
     
     sys.exit(0 if all_passed else 0)  # 数据流检查不阻塞，仅警告
 
+
+# ============================================================================
+# Phase 13新增功能：静态分析增强
+# ============================================================================
+
+class DataflowAnalyzer:
+    """数据流分析器（Phase 13增强）"""
+    
+    def __init__(self, dag: Dict):
+        self.dag = dag
+        self.graph = dag.get('graph', {}) if dag else {}
+        self.nodes = {n['id']: n for n in self.graph.get('nodes', [])}
+        self.edges = self.graph.get('edges', [])
+        self.issues = []
+        
+    def detect_circular_dependencies(self) -> List[Dict]:
+        """检测循环依赖"""
+        circular_deps = []
+        
+        # 构建邻接表
+        adj_list = defaultdict(list)
+        for edge in self.edges:
+            from_node = edge.get('from')
+            to_node = edge.get('to')
+            if from_node and to_node:
+                adj_list[from_node].append(to_node)
+        
+        # DFS检测环
+        visited = set()
+        rec_stack = set()
+        path = []
+        
+        def dfs(node):
+            visited.add(node)
+            rec_stack.add(node)
+            path.append(node)
+            
+            for neighbor in adj_list.get(node, []):
+                if neighbor not in visited:
+                    if dfs(neighbor):
+                        return True
+                elif neighbor in rec_stack:
+                    # 找到循环
+                    cycle_start = path.index(neighbor)
+                    cycle = path[cycle_start:] + [neighbor]
+                    circular_deps.append({
+                        'type': 'circular_dependency',
+                        'severity': 'critical',
+                        'cycle': cycle,
+                        'description': f"循环依赖: {' → '.join(cycle)}"
+                    })
+                    return True
+            
+            path.pop()
+            rec_stack.remove(node)
+            return False
+        
+        for node in self.nodes:
+            if node not in visited:
+                path = []
+                dfs(node)
+        
+        return circular_deps
+    
+    def analyze_call_chain_depth(self, max_depth: int = 5) -> List[Dict]:
+        """分析调用链深度"""
+        deep_chains = []
+        
+        # 构建邻接表
+        adj_list = defaultdict(list)
+        for edge in self.edges:
+            from_node = edge.get('from')
+            to_node = edge.get('to')
+            if from_node and to_node:
+                adj_list[from_node].append(to_node)
+        
+        # BFS计算最长路径
+        def get_longest_path(start_node):
+            queue = deque([(start_node, [start_node], 0)])
+            longest = ([], 0)
+            
+            while queue:
+                node, path, depth = queue.popleft()
+                
+                if depth > longest[1]:
+                    longest = (path, depth)
+                
+                for neighbor in adj_list.get(node, []):
+                    if neighbor not in path:  # 避免循环
+                        queue.append((neighbor, path + [neighbor], depth + 1))
+            
+            return longest
+        
+        # 检查每个起始节点
+        for node in self.nodes:
+            longest_path, depth = get_longest_path(node)
+            if depth > max_depth:
+                deep_chains.append({
+                    'type': 'deep_call_chain',
+                    'severity': 'high',
+                    'start_node': node,
+                    'depth': depth,
+                    'path': longest_path,
+                    'description': f"调用链深度过深({depth}层): {' → '.join(longest_path[:5])}..."
+                })
+        
+        return deep_chains
+    
+    def detect_n_plus_one_queries(self) -> List[Dict]:
+        """检测N+1查询模式"""
+        n_plus_one_issues = []
+        
+        # 查找模式：循环内有数据库查询
+        for node_id, node in self.nodes.items():
+            node_type = node.get('type', '')
+            node_label = node.get('label', '')
+            
+            # 检查是否是循环节点
+            if 'loop' in node_label.lower() or 'foreach' in node_label.lower():
+                # 查找循环内的数据库查询
+                children = [e['to'] for e in self.edges if e['from'] == node_id]
+                
+                for child in children:
+                    child_node = self.nodes.get(child, {})
+                    child_label = child_node.get('label', '')
+                    
+                    if any(keyword in child_label.lower() for keyword in ['query', 'select', 'db', 'database', 'find']):
+                        n_plus_one_issues.append({
+                            'type': 'n_plus_one_query',
+                            'severity': 'high',
+                            'loop_node': node_id,
+                            'query_node': child,
+                            'description': f"可能的N+1查询: 循环'{node_label}'内有数据库查询'{child_label}'"
+                        })
+        
+        return n_plus_one_issues
+    
+    def detect_missing_indexes(self) -> List[Dict]:
+        """检测可能缺少索引的大表查询"""
+        missing_indexes = []
+        
+        # 查找涉及JOIN但可能缺少索引的查询
+        for node_id, node in self.nodes.items():
+            node_label = node.get('label', '')
+            node_meta = node.get('metadata', {})
+            
+            # 检查是否是查询节点且涉及JOIN
+            if 'join' in node_label.lower():
+                table_size = node_meta.get('table_size', 'unknown')
+                has_index = node_meta.get('indexed', False)
+                
+                if table_size in ['large', 'very_large'] and not has_index:
+                    missing_indexes.append({
+                        'type': 'missing_index',
+                        'severity': 'medium',
+                        'node': node_id,
+                        'table_size': table_size,
+                        'description': f"大表JOIN可能缺少索引: {node_label}"
+                    })
+        
+        return missing_indexes
+    
+    def analyze_all(self) -> Dict:
+        """运行所有分析"""
+        return {
+            'circular_dependencies': self.detect_circular_dependencies(),
+            'deep_call_chains': self.analyze_call_chain_depth(),
+            'n_plus_one_queries': self.detect_n_plus_one_queries(),
+            'missing_indexes': self.detect_missing_indexes()
+        }
+
+
+# ============================================================================
+# Phase 13新增功能：性能瓶颈检测
+# ============================================================================
+
+class BottleneckDetector:
+    """性能瓶颈检测器"""
+    
+    def __init__(self, dag: Dict):
+        self.dag = dag
+        self.graph = dag.get('graph', {}) if dag else {}
+        self.nodes = {n['id']: n for n in self.graph.get('nodes', [])}
+        self.edges = self.graph.get('edges', [])
+    
+    def detect_serial_vs_parallel(self) -> List[Dict]:
+        """检测串行vs并行调用机会"""
+        opportunities = []
+        
+        # 构建邻接表
+        adj_list = defaultdict(list)
+        for edge in self.edges:
+            from_node = edge.get('from')
+            to_node = edge.get('to')
+            if from_node and to_node:
+                adj_list[from_node].append(to_node)
+        
+        # 查找有多个独立后继的节点
+        for node_id, children in adj_list.items():
+            if len(children) >= 2:
+                # 检查子节点间是否有依赖
+                children_deps = set()
+                for child in children:
+                    for edge in self.edges:
+                        if edge['from'] in children and edge['to'] in children:
+                            children_deps.add((edge['from'], edge['to']))
+                
+                # 如果子节点间无依赖，可以并行
+                if not children_deps:
+                    node_label = self.nodes.get(node_id, {}).get('label', node_id)
+                    children_labels = [self.nodes.get(c, {}).get('label', c) for c in children]
+                    
+                    opportunities.append({
+                        'type': 'parallelization_opportunity',
+                        'severity': 'medium',
+                        'parent_node': node_id,
+                        'parallel_tasks': children,
+                        'description': f"可并行执行: '{node_label}' 后的 {len(children)} 个独立任务: {', '.join(children_labels[:3])}"
+                    })
+        
+        return opportunities
+    
+    def recommend_caching(self) -> List[Dict]:
+        """推荐可缓存点"""
+        cache_recommendations = []
+        
+        # 查找被多次调用的节点
+        in_degree = defaultdict(int)
+        for edge in self.edges:
+            to_node = edge.get('to')
+            if to_node:
+                in_degree[to_node] += 1
+        
+        # 推荐缓存入度>2的节点
+        for node_id, degree in in_degree.items():
+            if degree > 2:
+                node = self.nodes.get(node_id, {})
+                node_label = node.get('label', node_id)
+                node_type = node.get('type', '')
+                
+                # 排除某些不适合缓存的类型
+                if node_type not in ['user_input', 'random']:
+                    cache_recommendations.append({
+                        'type': 'caching_opportunity',
+                        'severity': 'low',
+                        'node': node_id,
+                        'call_count': degree,
+                        'description': f"高频调用节点({degree}次): '{node_label}' 建议添加缓存"
+                    })
+        
+        return cache_recommendations
+    
+    def detect_redundant_computations(self) -> List[Dict]:
+        """检测重复计算路径"""
+        redundant = []
+        
+        # 查找相同标签的节点（可能是重复计算）
+        label_groups = defaultdict(list)
+        for node_id, node in self.nodes.items():
+            label = node.get('label', '').strip()
+            if label:
+                label_groups[label].append(node_id)
+        
+        # 报告重复标签
+        for label, node_ids in label_groups.items():
+            if len(node_ids) > 1:
+                redundant.append({
+                    'type': 'redundant_computation',
+                    'severity': 'low',
+                    'label': label,
+                    'nodes': node_ids,
+                    'count': len(node_ids),
+                    'description': f"重复计算检测: '{label}' 出现 {len(node_ids)} 次"
+                })
+        
+        return redundant
+    
+    def prioritize_optimizations(self, all_issues: List[Dict]) -> List[Dict]:
+        """对优化建议排序"""
+        severity_order = {'critical': 0, 'high': 1, 'medium': 2, 'low': 3}
+        
+        # 按严重性和影响排序
+        sorted_issues = sorted(all_issues, key=lambda x: (
+            severity_order.get(x.get('severity', 'low'), 99),
+            -x.get('impact_score', 0)
+        ))
+        
+        # 添加优先级标记
+        for i, issue in enumerate(sorted_issues, 1):
+            issue['priority'] = i
+        
+        return sorted_issues
+    
+    def analyze_all(self) -> Dict:
+        """运行所有瓶颈检测"""
+        all_issues = []
+        
+        serial_parallel = self.detect_serial_vs_parallel()
+        caching = self.recommend_caching()
+        redundant = self.detect_redundant_computations()
+        
+        all_issues.extend(serial_parallel)
+        all_issues.extend(caching)
+        all_issues.extend(redundant)
+        
+        prioritized = self.prioritize_optimizations(all_issues)
+        
+        return {
+            'parallelization_opportunities': serial_parallel,
+            'caching_recommendations': caching,
+            'redundant_computations': redundant,
+            'prioritized_issues': prioritized
+        }
+
+
+# ============================================================================
+# Phase 13新增功能：报告生成
+# ============================================================================
+
+class ReportGenerator:
+    """报告生成器"""
+    
+    def __init__(self, analysis_results: Dict, bottleneck_results: Dict):
+        self.analysis = analysis_results
+        self.bottlenecks = bottlenecks
+        self.timestamp = datetime.now().isoformat()
+    
+    def generate_json_report(self, output_path: pathlib.Path) -> Dict:
+        """生成JSON格式报告"""
+        report = {
+            'timestamp': self.timestamp,
+            'version': '1.0',
+            'summary': self._generate_summary(),
+            'static_analysis': self.analysis,
+            'bottleneck_detection': self.bottlenecks
+        }
+        
+        try:
+            with open(output_path, 'w', encoding='utf-8') as f:
+                json.dump(report, f, indent=2, ensure_ascii=False)
+            return report
+        except Exception as e:
+            print(f"❌ 生成JSON报告失败: {e}", file=sys.stderr)
+            return {}
+    
+    def generate_markdown_report(self, output_path: pathlib.Path) -> str:
+        """生成Markdown格式报告（人类可读）"""
+        summary = self._generate_summary()
+        
+        md = f"# 数据流分析报告\n\n"
+        md += f"> **生成时间**: {self.timestamp}\n\n"
+        md += "---\n\n"
+        
+        # 摘要
+        md += "## 📊 分析摘要\n\n"
+        md += f"- **Critical问题**: {summary['critical_count']} 个\n"
+        md += f"- **High问题**: {summary['high_count']} 个\n"
+        md += f"- **Medium问题**: {summary['medium_count']} 个\n"
+        md += f"- **Low建议**: {summary['low_count']} 个\n"
+        md += f"- **总计**: {summary['total_issues']} 个\n\n"
+        md += "---\n\n"
+        
+        # Critical问题
+        if summary['critical_count'] > 0:
+            md += "## 🔴 Critical问题（需立即处理）\n\n"
+            md += self._format_issues_markdown(self._get_issues_by_severity('critical'))
+            md += "\n---\n\n"
+        
+        # High问题
+        if summary['high_count'] > 0:
+            md += "## 🟠 High问题（高优先级）\n\n"
+            md += self._format_issues_markdown(self._get_issues_by_severity('high'))
+            md += "\n---\n\n"
+        
+        # Medium问题
+        if summary['medium_count'] > 0:
+            md += "## 🟡 Medium问题（中优先级）\n\n"
+            md += self._format_issues_markdown(self._get_issues_by_severity('medium'))
+            md += "\n---\n\n"
+        
+        # Low建议
+        if summary['low_count'] > 0:
+            md += "## 🟢 Low建议（优化建议）\n\n"
+            md += self._format_issues_markdown(self._get_issues_by_severity('low'))
+            md += "\n---\n\n"
+        
+        # 优化建议Top 5
+        md += "## 🎯 优化建议Top 5\n\n"
+        md += self._format_top_recommendations()
+        
+        try:
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(md)
+            return md
+        except Exception as e:
+            print(f"❌ 生成Markdown报告失败: {e}", file=sys.stderr)
+            return ""
+    
+    def _generate_summary(self) -> Dict:
+        """生成摘要信息"""
+        all_issues = []
+        
+        # 收集所有问题
+        for category, issues in self.analysis.items():
+            all_issues.extend(issues)
+        
+        for category, issues in self.bottlenecks.items():
+            if category != 'prioritized_issues':
+                all_issues.extend(issues)
+        
+        # 按严重性统计
+        severity_counts = {'critical': 0, 'high': 0, 'medium': 0, 'low': 0}
+        for issue in all_issues:
+            severity = issue.get('severity', 'low')
+            severity_counts[severity] = severity_counts.get(severity, 0) + 1
+        
+        return {
+            'total_issues': len(all_issues),
+            'critical_count': severity_counts['critical'],
+            'high_count': severity_counts['high'],
+            'medium_count': severity_counts['medium'],
+            'low_count': severity_counts['low']
+        }
+    
+    def _get_issues_by_severity(self, severity: str) -> List[Dict]:
+        """获取指定严重性的问题"""
+        issues = []
+        
+        for category, items in self.analysis.items():
+            for issue in items:
+                if issue.get('severity') == severity:
+                    issues.append(issue)
+        
+        for category, items in self.bottlenecks.items():
+            if category != 'prioritized_issues':
+                for issue in items:
+                    if issue.get('severity') == severity:
+                        issues.append(issue)
+        
+        return issues
+    
+    def _format_issues_markdown(self, issues: List[Dict]) -> str:
+        """格式化问题为Markdown"""
+        if not issues:
+            return "无问题\n"
+        
+        md = ""
+        for i, issue in enumerate(issues, 1):
+            issue_type = issue.get('type', 'unknown')
+            description = issue.get('description', 'N/A')
+            md += f"{i}. **{issue_type}**: {description}\n"
+        
+        return md
+    
+    def _format_top_recommendations(self) -> str:
+        """格式化Top建议"""
+        prioritized = self.bottlenecks.get('prioritized_issues', [])
+        
+        if not prioritized:
+            return "暂无优化建议\n"
+        
+        md = ""
+        for i, issue in enumerate(prioritized[:5], 1):
+            description = issue.get('description', 'N/A')
+            severity = issue.get('severity', 'low')
+            md += f"{i}. [{severity.upper()}] {description}\n"
+        
+        return md
+
+
+# ============================================================================
+# 更新main函数以支持新功能
+# ============================================================================
 
 if __name__ == '__main__':
     main()

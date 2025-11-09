@@ -342,59 +342,7 @@ triggers:
       require_confirmation: true
       confirmation_prompt: "已确认遵守安全规范? (yes/no)"
 
-  # 规则9: 契约变更（Block）
-  contract-changes:
-    priority: critical
-    enforcement: block
-    description: "API/模块契约变更"
-    
-    file_triggers:
-      path_patterns:
-        - "modules/*/doc/CONTRACT.md"
-        - "schemas/**/*.yaml"
-        - "openapi.json"
-      content_patterns:
-        - "## API接口"
-        - "### 接口"
-        - "endpoints:"
-    
-    prompt_triggers:
-      keywords:
-        - "契约"
-        - "contract"
-        - "接口变更"
-        - "API变更"
-        - "破坏性变更"
-        - "breaking change"
-      intent_patterns:
-        - "(修改|变更).{0,5}(契约|接口|API)"
-        - "(modify|change).{0,10}(contract|API|interface)"
-    
-    load_documents:
-      - path: /doc/modules/MODULE_TYPE_CONTRACTS.yaml
-        priority: critical
-      - path: /doc/policies/quality_standards.md
-        priority: high
-    
-    # Guardrail配置
-    block_config:
-      message: |
-        ⚠️ BLOCKED - 契约变更检查
-        
-        📋 必须执行:
-        1. 运行: make contract_compat_check
-        2. 确认无破坏性变更或已规划兼容方案
-        3. 更新CHANGELOG.md记录变更
-        4. 更新版本号（如需要）
-        
-        契约变更影响下游模块，需要谨慎处理。
-      
-      skip_conditions:
-        make_commands_passed:
-          - "make contract_compat_check"
-        or_env_var: "SKIP_CONTRACT_CHECK"
-
-  # 规则10: 生产配置变更（Block）
+  # 规则9: 生产配置变更（Block）
   prod-config-changes:
     priority: critical
     enforcement: block
@@ -445,7 +393,6 @@ triggers:
         env_var: "ALLOW_PROD_CONFIG"
         or_user_role: "admin"
 
-  # 规则11: 根agent.md变更（Warn）
   root-agent-changes:
     priority: high
     enforcement: warn
@@ -487,7 +434,6 @@ triggers:
       require_confirmation: true
       confirmation_prompt: "(yes/no)"
 
-  # 规则12: 数据库迁移脚本（Block）
   database-migrations:
     priority: critical
     enforcement: block
@@ -534,7 +480,6 @@ triggers:
           - "make db_lint"
         and_confirmation: true
 
-  # 规则13: Registry变更（Warn）
   registry-changes:
     priority: high
     enforcement: warn
@@ -572,12 +517,85 @@ triggers:
       
       require_confirmation: true
 
+  workflow-pattern-suggestion:
+    priority: medium
+    enforcement: suggest
+    description: "根据操作推荐合适的工作流模式"
+    
+    prompt_triggers:
+      keywords:
+        - "我想"
+        - "如何"
+        - "怎么"
+        - "创建"
+        - "开发"
+        - "修复"
+        - "优化"
+        - "重构"
+        - "审计"
+      intent_patterns:
+        - "(创建|开发|添加).{0,10}(模块|功能|API)"
+        - "(修复|解决).{0,10}(bug|问题|错误)"
+        - "(重构|优化).{0,10}(代码|性能|架构)"
+        - "(create|develop|add).{0,10}(module|feature|api)"
+        - "(fix|solve).{0,10}(bug|issue|error)"
+        - "(refactor|optimi[zs]e).{0,10}(code|performance)"
+    
+    load_documents:
+      - path: /ai/workflow-patterns/README.md
+        priority: high
+        type: main
+      - path: /ai/workflow-patterns/catalog.yaml
+        priority: high
+        type: index
+
+  dataflow-analysis:
+    priority: medium
+    enforcement: suggest
+    description: "数据流分析与性能优化触发"
+    
+    file_triggers:
+      path_patterns:
+        - "doc/flows/**/*.yaml"
+        - "scripts/dataflow_*.py"
+        - "scripts/bottleneck_*.py"
+      content_patterns:
+        - "graph:"
+        - "nodes:"
+        - "edges:"
+    
+    prompt_triggers:
+      keywords:
+        - "数据流"
+        - "性能"
+        - "瓶颈"
+        - "优化"
+        - "调用链"
+        - "可视化"
+        - "流程图"
+      intent_patterns:
+        - "(分析|检查|优化).{0,10}(数据流|性能|瓶颈)"
+        - "(生成|创建).{0,10}(流程图|可视化)"
+        - "(dataflow|performance|bottleneck)"
+    
+    load_documents:
+      - path: /doc/templates/dataflow-summary.md
+        priority: high
+        type: main
+      - path: /scripts/bottleneck_rules.yaml
+        priority: medium
+        type: config
+      - path: /doc/process/DATAFLOW_ANALYSIS_GUIDE.md
+        priority: low
+        type: reference
+
 # 元数据
 meta:
   version: "1.0"
   created: "2025-11-08"
-  last_updated: "2025-11-08"
-  author: "AI-TEMPLATE Phase 10"
+  last_updated: "2025-11-09"
+  author: "AI-TEMPLATE Phase 10 + Phase 13"
+  total_rules: 14
   related_docs:
     - /doc/orchestration/routing.md
     - /doc/orchestration/triggers-guide.md

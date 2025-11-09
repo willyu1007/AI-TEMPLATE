@@ -191,9 +191,12 @@ def check_module_contract(agent_file: Path, contracts: dict, registry: dict) -> 
     # 验证IO契约
     all_pass = True
     
+    # 获取模块的io定义
+    module_io = yaml_data.get('io', {})
+    
     # 验证inputs
     pass_inputs, input_errors = validate_io_fields(
-        yaml_data, 
+        module_io, 
         type_contract.get('io_contract', {}), 
         'inputs'
     )
@@ -203,7 +206,7 @@ def check_module_contract(agent_file: Path, contracts: dict, registry: dict) -> 
     
     # 验证outputs
     pass_outputs, output_errors = validate_io_fields(
-        yaml_data, 
+        module_io, 
         type_contract.get('io_contract', {}), 
         'outputs'
     )

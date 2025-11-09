@@ -8,6 +8,12 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
+# Windows UTF-8 support
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 # 要检查的文件扩展名
 TEXT_EXTENSIONS = {
     '.md', '.py', '.js', '.ts', '.tsx', '.vue', '.go', '.java',

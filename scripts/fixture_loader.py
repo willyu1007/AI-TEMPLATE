@@ -29,6 +29,12 @@ import re
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+# Windows UTF-8 support
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 # 数据库连接（可选依赖）
 try:
     import psycopg2

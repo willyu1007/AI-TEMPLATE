@@ -7,6 +7,12 @@ import os
 import yaml
 import pathlib
 
+# Windows UTF-8 support
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 def load_yaml(path):
     """加载 YAML 文件"""
     try:

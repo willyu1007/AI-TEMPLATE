@@ -1,0 +1,218 @@
+# AI工作流模式：重构
+# 此文件为AI优化文档，轻量化设计（约170行）
+# 人类完整参考：../examples/refactoring-example.md
+
+pattern_id: "refactoring"
+version: "1.0"
+name: "重构标准工作流"
+description: "安全的代码重构流程（不改变外部行为）"
+complexity: "medium"
+estimated_time: "1-3小时"
+ai_optimized: true
+category: "maintenance"
+
+# 前置条件
+prerequisites:
+  - "明确重构目标（提高可读性/降低复杂度/消除重复）"
+  - "已有测试覆盖（覆盖率≥70%）"
+  - "了解当前代码结构"
+
+# 工作流步骤
+workflow:
+  - step: 1
+    name: "重构计划"
+    description: "制定重构策略和范围"
+    estimated_time: "15-20分钟"
+    
+    ai_prompt_template: |
+      重构目标：{refactoring_goal}
+      涉及模块：{modules}
+      当前问题：{current_issues}
+      请制定重构计划
+    
+    documents_to_load:
+      - path: /doc/process/AI_CODING_GUIDE.md
+        priority: high
+      - path: /doc/modules/{module}/core/
+        priority: high
+    
+    expected_output:
+      - "重构范围明确"
+      - "重构策略（小步快跑/大重构）"
+      - "风险评估"
+    
+    validation:
+      - "重构目标清晰"
+      - "范围可控（避免过大）"
+      - "有明确的成功标准"
+    
+    common_issues:
+      - issue: "重构范围过大"
+        solution: "分解为多个小重构，逐步进行"
+      - issue: "缺少测试覆盖"
+        solution: "先补充测试，再重构"
+
+  - step: 2
+    name: "保存当前状态"
+    description: "确保可回滚"
+    estimated_time: "5分钟"
+    
+    ai_prompt_template: |
+      保存重构前状态：
+      1. 运行所有测试（确保通过）
+      2. 提交当前代码
+      3. 创建重构分支
+    
+    expected_output:
+      - "所有测试通过"
+      - "代码已提交"
+      - "重构分支已创建"
+    
+    validation:
+      - "测试全部通过"
+      - "Git工作区干净"
+
+  - step: 3
+    name: "小步重构"
+    description: "逐步重构，每步保持可运行"
+    estimated_time: "30-120分钟"
+    
+    ai_prompt_template: |
+      执行重构：{refactoring_technique}
+      目标代码：{target_code}
+      保持：每次改动后运行测试
+    
+    documents_to_load:
+      - path: /doc/process/AI_CODING_GUIDE.md
+        priority: high
+    
+    expected_output:
+      - "代码结构改善"
+      - "功能不变"
+      - "每步测试通过"
+    
+    validation:
+      - "每次改动后测试通过"
+      - "外部行为不变"
+      - "代码更清晰"
+    
+    common_issues:
+      - issue: "改动过大导致测试失败"
+        solution: "回退，缩小改动范围"
+      - issue: "不知道下一步如何重构"
+        solution: "参考重构手册（提取方法/重命名/移动代码）"
+
+  - step: 4
+    name: "测试验证"
+    description: "完整测试套件验证"
+    estimated_time: "10-15分钟"
+    
+    ai_prompt_template: |
+      运行完整测试：
+      1. 单元测试
+      2. 集成测试
+      3. 覆盖率检查
+    
+    expected_output:
+      - "所有测试通过"
+      - "覆盖率未降低"
+    
+    validation:
+      - "测试通过率100%"
+      - "覆盖率≥重构前"
+    
+    common_issues:
+      - issue: "测试失败"
+        solution: "检查是否改变了外部行为，修复或回退"
+
+  - step: 5
+    name: "代码审查"
+    description: "自查或同行审查"
+    estimated_time: "15-20分钟"
+    
+    ai_prompt_template: |
+      审查重构代码：
+      1. 可读性是否提高
+      2. 复杂度是否降低
+      3. 是否引入新问题
+    
+    documents_to_load:
+      - path: /doc/process/pr_workflow.md
+        priority: medium
+    
+    expected_output:
+      - "代码更清晰"
+      - "无新问题"
+    
+    validation:
+      - "达到重构目标"
+      - "无明显问题"
+
+  - step: 6
+    name: "文档更新"
+    description: "更新相关文档"
+    estimated_time: "10分钟"
+    
+    ai_prompt_template: |
+      更新文档：
+      1. CHANGELOG.md（记录重构）
+      2. 代码注释（如结构改变）
+    
+    expected_output:
+      - "CHANGELOG.md已更新"
+      - "必要的注释已添加"
+
+# 常见陷阱
+pitfalls:
+  - issue: "重构时改变外部行为"
+    impact: "引入Bug"
+    solution: "每步运行测试，确保行为不变"
+    severity: "high"
+  
+  - issue: "测试覆盖不足就重构"
+    impact: "无法验证重构正确性"
+    solution: "先补充测试到70%+，再重构"
+    severity: "critical"
+  
+  - issue: "一次性重构过多"
+    impact: "难以定位问题，难以回滚"
+    solution: "小步快跑，每步提交"
+    severity: "medium"
+
+# 质量检查清单
+quality_checklist:
+  - "[ ] 重构前测试全部通过"
+  - "[ ] 重构计划明确"
+  - "[ ] 每步改动后测试通过"
+  - "[ ] 代码可读性提高"
+  - "[ ] 复杂度降低"
+  - "[ ] 无外部行为改变"
+  - "[ ] 覆盖率未降低"
+  - "[ ] 文档已更新"
+
+# 常用重构技巧
+refactoring_techniques:
+  - name: "提取方法"
+    when: "方法过长或有重复代码"
+  - name: "重命名"
+    when: "命名不清晰"
+  - name: "移动代码"
+    when: "代码放错位置"
+  - name: "简化条件"
+    when: "if-else过多"
+  - name: "引入参数对象"
+    when: "参数过多"
+
+# 参考资源
+references:
+  detailed_guide: "/ai/workflow-patterns/examples/refactoring-example.md"
+  related_patterns:
+    - "performance-optimization (如重构为优化性能)"
+
+# 成功标准
+success_criteria:
+  - "所有6个步骤完成"
+  - "所有质量检查清单项通过"
+  - "重构目标达成"
+  - "测试全部通过"
+

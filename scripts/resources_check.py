@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 resources_check.py - Resources文件完整性检查
 
@@ -13,13 +14,23 @@ resources_check.py - Resources文件完整性检查
     make resources_check
 
 Created: 2025-11-08 (Phase 10.5)
+Updated: 2025-11-09 (Phase 11 - Windows兼容性修复)
 """
 
 import os
 import sys
+import io
 import re
 from pathlib import Path
 from typing import List, Dict, Tuple
+
+# Windows兼容性：设置UTF-8输出编码
+if sys.platform == 'win32':
+    try:
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+    except AttributeError:
+        pass  # 如果已经是TextIOWrapper则忽略
 
 # ANSI颜色
 GREEN = '\033[0;32m'

@@ -344,9 +344,214 @@ example模块数据量小，使用Fixtures更简单清晰。Mock生成器适用�
 
 ---
 
+## Mock规则定义
+
+### 概述
+
+Mock规则用于自动生成大量测试数据，适用于性能测试和压力测试。
+
+**注意**: example模块是参考模板，以下Mock规则仅作示例。
+
+### Mock规则示例
+
+#### 场景1: 大量运行记录（性能测试）
+
+```yaml
+mock_rules:
+  runs:
+    count: 1000                # 生成1000条记录
+    seed: 42                   # 固定种子确保可重复
+    lifecycle: temporary       # 24小时后自动清理
+    fields:
+      id:
+        type: uuid
+        version: 4
+      
+      task_description:
+        type: string
+        faker: sentence
+        max_length: 200
+      
+      language:
+        type: enum
+        values: [python, javascript, go, typescript, rust]
+        weights: [0.4, 0.25, 0.15, 0.15, 0.05]  # Python占40%
+      
+      status:
+        type: enum
+        values: [success, error, running, timeout]
+        weights: [0.70, 0.15, 0.10, 0.05]       # 70%成功率
+      
+      result:
+        type: json
+        template:
+          output:
+            type: string
+            faker: text
+            max_length: 500
+          execution_time:
+            type: float
+            min: 0.1
+            max: 30.0
+            decimals: 2
+          memory_used:
+            type: int
+            min: 1024
+            max: 524288  # 1KB - 512KB
+      
+      created_at:
+        type: timestamp
+        start: "-90d"          # 90天前
+        end: "now"
+        distribution: weighted_recent
+        recent_weight: 0.6     # 最近数据权重更高
+        format: "iso8601"
+      
+      updated_at:
+        type: reference
+        source: created_at
+        offset: "+0s"
+        max_offset: "+300s"    # 最多5分钟后更新
+```
+
+**使用方法**:
+```bash
+# 生成数据
+make generate_mock MODULE=example COUNT=1000
+
+# 查看统计
+make mock_stats MODULE=example
+
+# 清理数据
+make cleanup_mocks MODULE=example
+```
+
+---
+
+#### 场景2: 关联数据示例（外键关系）
+
+假设有users表和runs表的关联关系：
+
+```yaml
+# Step 1: 先生成用户数据
+mock_rules:
+  users:
+    count: 50
+    seed: 100
+    lifecycle: temporary
+    fields:
+      id:
+        type: uuid
+      
+      username:
+        type: string
+        faker: user_name
+      
+      is_active:
+        type: bool
+        true_probability: 0.85  # 85%活跃用户
+
+# Step 2: 生成关联的运行记录
+mock_rules:
+  runs:
+    count: 500               # 每个用户平均10条记录
+    seed: 101
+    lifecycle: temporary
+    fields:
+      id:
+        type: uuid
+      
+      user_id:
+        type: foreign_key
+        table: users
+        field: id
+        strategy: weighted
+        conditions:
+          - filter: {is_active: true}
+            weight: 0.9      # 90%关联到活跃用户
+          - filter: {is_active: false}
+            weight: 0.1      # 10%关联到不活跃用户
+      
+      task_description:
+        type: string
+        faker: sentence
+      
+      language:
+        type: enum
+        values: [python, javascript, go]
+        weights: [0.5, 0.3, 0.2]
+      
+      status:
+        type: enum
+        values: [success, error]
+        weights: [0.8, 0.2]
+      
+      created_at:
+        type: timestamp
+        start: "-30d"
+        end: "now"
+        format: "iso8601"
+```
+
+---
+
+#### 场景3: 分布控制示例
+
+```yaml
+mock_rules:
+  runs:
+    count: 2000
+    seed: 200
+    lifecycle: temporary
+    fields:
+      id:
+        type: uuid
+      
+      task_description:
+        type: string
+        faker: sentence
+      
+      language:
+        type: enum
+        values: [python, javascript, go]
+        weights: [0.60, 0.30, 0.10]  # 真实世界分布
+      
+      status:
+        type: enum
+        values: [success, error, running, timeout]
+        weights: [0.75, 0.15, 0.05, 0.05]  # 生产环境分布
+      
+      execution_time:
+        type: float
+        min: 0.1
+        max: 60.0
+        decimals: 2
+        distribution: exponential  # 指数分布
+        lambda: 0.1
+      
+      created_at:
+        type: timestamp
+        start: "-60d"
+        end: "now"
+        distribution: weighted_recent
+        recent_weight: 0.7
+        format: "iso8601"
+```
+
+---
+
+### Mock规则参考
+
+完整的Mock规则语法和字段生成器说明，请参考：
+- [MOCK_RULES_GUIDE.md](../../../process/MOCK_RULES_GUIDE.md) - Mock规则编写指南
+- [TEST_DATA_STRATEGY.md](../../../process/TEST_DATA_STRATEGY.md) - 测试数据策略
+
+---
+
 ## 版本历史
 
 - 2025-11-07: v1.0 初始创建，作为参考示例
+- 2025-11-09: v1.1 补充Mock规则章节（Phase 11）
 
 ---
 

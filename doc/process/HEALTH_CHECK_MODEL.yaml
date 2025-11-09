@@ -1,0 +1,912 @@
+---
+# Health Check Model - Repository Health Assessment Framework
+# Version: 1.0
+# Created: 2025-11-09 (Phase 14.1)
+# Purpose: Define 5-dimensional scoring model for repository health evaluation
+
+spec_version: "1.0"
+model_id: "repo_health_v1"
+description: |
+  Comprehensive health check model for AI-TEMPLATE repository.
+  Evaluates repository quality across 5 dimensions with weighted scoring.
+  Target: 100/100 (Perfect State)
+
+# ==============================================================================
+# Overall Scoring System
+# ==============================================================================
+
+scoring:
+  total_points: 100
+  passing_threshold: 70  # Minimum passing score
+  target_score: 90       # Target score for production readiness
+  perfect_score: 100     # Perfect state goal
+
+  grade_levels:
+    excellent:
+      range: [90, 100]
+      label: "⭐⭐⭐⭐⭐ Excellent"
+      color: "green"
+    good:
+      range: [80, 89]
+      label: "⭐⭐⭐⭐ Good"
+      color: "blue"
+    passing:
+      range: [70, 79]
+      label: "⭐⭐⭐ Passing"
+      color: "yellow"
+    needs_improvement:
+      range: [0, 69]
+      label: "⚠️ Needs Improvement"
+      color: "red"
+
+# ==============================================================================
+# Dimension 1: Code Quality (25 points)
+# ==============================================================================
+
+dimensions:
+  code_quality:
+    weight: 0.25
+    max_points: 25
+    description: "Code quality, testing, and maintainability"
+    
+    metrics:
+      # Metric 1.1: Linter Pass Rate (8 points)
+      linter_pass_rate:
+        weight: 0.32
+        max_points: 8
+        description: "Percentage of files passing linter checks"
+        
+        calculation:
+          formula: "(passed_files / total_files) * 100"
+          unit: "percentage"
+        
+        scoring:
+          100: 8    # 100% pass rate
+          95: 7     # 95% pass rate
+          90: 6
+          80: 4
+          70: 2
+          0: 0      # 0% pass rate
+        
+        check_command: "make python_scripts_lint && make shell_scripts_lint && make config_lint"
+        data_source: "scripts/python_scripts_lint.py, scripts/shell_scripts_lint.sh, scripts/config_lint.py"
+      
+      # Metric 1.2: Test Coverage (7 points)
+      test_coverage:
+        weight: 0.28
+        max_points: 7
+        description: "Test coverage percentage across modules"
+        
+        calculation:
+          formula: "(covered_lines / total_lines) * 100"
+          unit: "percentage"
+        
+        scoring:
+          90: 7     # ≥90% coverage (target)
+          80: 6     # ≥80% coverage (minimum)
+          70: 4
+          60: 2
+          50: 1
+          0: 0      # <50% coverage
+        
+        check_command: "make test_status_check"
+        data_source: "scripts/test_status_check.py"
+        target: 80
+        stretch_goal: 90
+      
+      # Metric 1.3: Code Complexity (5 points)
+      code_complexity:
+        weight: 0.20
+        max_points: 5
+        description: "Cyclomatic complexity and maintainability"
+        
+        calculation:
+          formula: "average_complexity_score"
+          unit: "score"
+        
+        scoring:
+          10: 5     # Avg complexity ≤10 (excellent)
+          15: 4     # Avg complexity ≤15 (good)
+          20: 3     # Avg complexity ≤20 (acceptable)
+          25: 2
+          30: 1
+          999: 0    # Avg complexity >30 (poor)
+        
+        thresholds:
+          function_complexity: 10
+          file_lines: 500
+          class_lines: 300
+          function_lines: 50
+        
+        check_command: "make complexity_check"  # To be implemented in Phase 14.2
+        data_source: "scripts/complexity_check.py"
+      
+      # Metric 1.4: Type Safety (5 points)
+      type_safety:
+        weight: 0.20
+        max_points: 5
+        description: "Type annotations and contract adherence"
+        
+        calculation:
+          formula: "(typed_functions / total_functions) * 100"
+          unit: "percentage"
+        
+        scoring:
+          90: 5     # ≥90% typed
+          80: 4
+          70: 3
+          60: 2
+          50: 1
+          0: 0      # <50% typed
+        
+        check_command: "make type_contract_check"
+        data_source: "scripts/type_contract_check.py"
+
+# ==============================================================================
+# Dimension 2: Documentation (20 points)
+# ==============================================================================
+
+  documentation:
+    weight: 0.20
+    max_points: 20
+    description: "Documentation completeness, quality, and freshness"
+    
+    metrics:
+      # Metric 2.1: Module Documentation Coverage (6 points)
+      module_doc_coverage:
+        weight: 0.30
+        max_points: 6
+        description: "Percentage of modules with complete documentation (6 required docs)"
+        
+        calculation:
+          formula: "(modules_with_complete_docs / total_modules) * 100"
+          unit: "percentage"
+        
+        required_docs:
+          - "agent.md"
+          - "doc/CONTRACT.md"
+          - "doc/CHANGELOG.md"
+          - "doc/RUNBOOK.md"
+          - "doc/BUGS.md"
+          - "doc/PROGRESS.md"
+          - "doc/TEST_PLAN.md"
+        
+        scoring:
+          100: 6    # 100% modules complete
+          90: 5
+          80: 4
+          70: 3
+          60: 2
+          50: 1
+          0: 0      # <50% complete
+        
+        check_command: "make module_health_check"  # To be implemented in Phase 14.2
+        data_source: "scripts/module_health_check.py"
+      
+      # Metric 2.2: Documentation Freshness (5 points)
+      doc_freshness:
+        weight: 0.25
+        max_points: 5
+        description: "Documentation up-to-date ratio (no stale docs)"
+        
+        calculation:
+          formula: "(fresh_docs / total_docs) * 100"
+          unit: "percentage"
+          
+        freshness_criteria:
+          stale_threshold_days: 90  # Docs not updated in 90 days are stale
+          critical_docs:
+            - "README.md"
+            - "agent.md"
+            - "doc/modules/MODULE_INIT_GUIDE.md"
+            - "doc/process/AI_CODING_GUIDE.md"
+        
+        scoring:
+          95: 5     # ≥95% fresh
+          90: 4
+          85: 3
+          80: 2
+          70: 1
+          0: 0      # <70% fresh
+        
+        check_command: "make doc_freshness_check"  # To be implemented in Phase 14.2
+        data_source: "scripts/doc_freshness_check.py"
+      
+      # Metric 2.3: Documentation Quality (5 points)
+      doc_quality:
+        weight: 0.25
+        max_points: 5
+        description: "Documentation style and standards compliance"
+        
+        calculation:
+          formula: "quality_score"
+          unit: "score"
+        
+        quality_checks:
+          - "Has proper front matter (YAML)"
+          - "Follows DOC_WRITING_STANDARDS.md"
+          - "No broken internal links"
+          - "No mixed CN/EN in same doc"
+          - "No decorative emojis (status symbols OK)"
+          - "Proper heading hierarchy"
+          - "Code blocks have language tags"
+        
+        scoring:
+          7: 5      # All 7 checks pass
+          6: 4
+          5: 3
+          4: 2
+          3: 1
+          0: 0      # <3 checks pass
+        
+        check_command: "make doc_style_check"
+        data_source: "scripts/doc_style_check.py"
+      
+      # Metric 2.4: Documentation Sync (4 points)
+      doc_sync:
+        weight: 0.20
+        max_points: 4
+        description: "Documentation synchronized with code and scripts"
+        
+        calculation:
+          formula: "sync_rate"
+          unit: "percentage"
+        
+        sync_checks:
+          - "Commands in docs match Makefile"
+          - "Mentioned scripts exist"
+          - "CONTRACT.md matches contract.json"
+          - "Registry mentions match module instances"
+        
+        scoring:
+          100: 4    # 100% synced
+          90: 3
+          80: 2
+          70: 1
+          0: 0      # <70% synced
+        
+        check_command: "make doc_script_sync_check"
+        data_source: "scripts/doc_script_sync_check.py"
+
+# ==============================================================================
+# Dimension 3: Architecture (20 points)
+# ==============================================================================
+
+  architecture:
+    weight: 0.20
+    max_points: 20
+    description: "Architecture clarity, modularity, and contract stability"
+    
+    metrics:
+      # Metric 3.1: Dependency Clarity (6 points)
+      dependency_clarity:
+        weight: 0.30
+        max_points: 6
+        description: "Clear dependency declarations and DAG validity"
+        
+        calculation:
+          formula: "clarity_score"
+          unit: "score"
+        
+        checks:
+          - "DAG is valid (no cycles)"
+          - "All dependencies declared in agent.md"
+          - "No undeclared dependencies in code"
+          - "Dependency versions specified"
+          - "No circular module dependencies"
+        
+        scoring:
+          5: 6      # All 5 checks pass
+          4: 5
+          3: 3
+          2: 2
+          1: 1
+          0: 0      # 0 checks pass
+        
+        check_command: "make dag_check && make deps_check"
+        data_source: "scripts/dag_check.py, scripts/deps_manager.py"
+      
+      # Metric 3.2: Module Coupling (6 points)
+      module_coupling:
+        weight: 0.30
+        max_points: 6
+        description: "Low coupling between modules"
+        
+        calculation:
+          formula: "100 - (coupling_score * 10)"
+          unit: "score"
+          
+        coupling_levels:
+          low: [0, 3]      # 0-3 dependencies per module
+          medium: [4, 6]   # 4-6 dependencies per module
+          high: [7, 10]    # 7-10 dependencies per module
+          very_high: [11, 999]  # >10 dependencies per module
+        
+        scoring:
+          low: 6        # Low coupling (excellent)
+          medium: 4     # Medium coupling (acceptable)
+          high: 2       # High coupling (needs refactoring)
+          very_high: 0  # Very high coupling (critical issue)
+        
+        check_command: "make coupling_check"  # To be implemented in Phase 14.2
+        data_source: "scripts/coupling_check.py"
+      
+      # Metric 3.3: Contract Stability (5 points)
+      contract_stability:
+        weight: 0.25
+        max_points: 5
+        description: "Contract backward compatibility and stability"
+        
+        calculation:
+          formula: "(compatible_changes / total_changes) * 100"
+          unit: "percentage"
+        
+        stability_checks:
+          - "No breaking changes without major version bump"
+          - "Deprecated fields properly marked"
+          - "All contracts have baseline"
+          - "Contract versions follow semver"
+        
+        scoring:
+          100: 5    # 100% compatible changes
+          90: 4
+          80: 3
+          70: 2
+          60: 1
+          0: 0      # <60% compatible
+        
+        check_command: "make contract_compat_check"
+        data_source: "scripts/contract_compat_check.py"
+      
+      # Metric 3.4: Registry Consistency (3 points)
+      registry_consistency:
+        weight: 0.15
+        max_points: 3
+        description: "Module registry accuracy and completeness"
+        
+        calculation:
+          formula: "consistency_checks_passed"
+          unit: "count"
+        
+        consistency_checks:
+          - "All modules registered"
+          - "No duplicate IDs"
+          - "All agent.md paths valid"
+          - "Module types defined"
+          - "Dependencies valid"
+        
+        scoring:
+          5: 3      # All 5 checks pass
+          4: 2
+          3: 2
+          2: 1
+          0: 0      # <2 checks pass
+        
+        check_command: "make registry_check"
+        data_source: "scripts/registry_check.py"
+
+# ==============================================================================
+# Dimension 4: AI Friendliness (20 points) ⭐ NEW
+# ==============================================================================
+
+  ai_friendliness:
+    weight: 0.20
+    max_points: 20
+    description: "AI agent operational efficiency and cognitive load reduction"
+    
+    metrics:
+      # Metric 4.1: agent.md Lightweight (5 points)
+      agent_md_lightweight:
+        weight: 0.25
+        max_points: 5
+        description: "Root agent.md and always_read documents are lightweight"
+        
+        calculation:
+          formula: "lightweight_score"
+          unit: "score"
+        
+        thresholds:
+          root_agent_md_max_lines: 400
+          always_read_total_max_lines: 150  # AI_INDEX.md should be ≤150 lines
+          always_read_max_files: 1          # Only 1 file in always_read
+        
+        scoring:
+          all_pass: 5       # All 3 thresholds met
+          two_pass: 3       # 2 of 3 met
+          one_pass: 1       # 1 of 3 met
+          none_pass: 0      # 0 of 3 met
+        
+        check_command: "make ai_friendliness_check"  # To be implemented in Phase 14.2
+        data_source: "scripts/ai_friendliness_check.py"
+        
+        rationale: |
+          Lightweight agent.md reduces initial context loading time and 
+          token cost. AI agents can start working faster with less cognitive load.
+      
+      # Metric 4.2: Document Role Clarity (5 points)
+      doc_role_clarity:
+        weight: 0.25
+        max_points: 5
+        description: "Clear separation between AI docs and Human docs"
+        
+        calculation:
+          formula: "(docs_with_clear_role / total_docs) * 100"
+          unit: "percentage"
+        
+        clarity_criteria:
+          ai_doc_markers:
+            - "Header contains 'For AI Agents'"
+            - "English language"
+            - "≤150 lines (quickstart/guide)"
+            - "Command-focused"
+          human_doc_markers:
+            - "*_GUIDE.md naming"
+            - "CN/EN mixed OK"
+            - "Detailed examples"
+            - "≥300 lines (comprehensive)"
+        
+        scoring:
+          95: 5     # ≥95% docs have clear role
+          90: 4
+          85: 3
+          80: 2
+          70: 1
+          0: 0      # <70% clarity
+        
+        check_command: "make ai_friendliness_check"
+        data_source: "scripts/ai_friendliness_check.py"
+        
+        rationale: |
+          Clear AI/Human doc separation helps AI agents quickly identify
+          which documents to load for operational tasks vs learning.
+      
+      # Metric 4.3: Module Documentation Completeness (4 points)
+      module_doc_completeness:
+        weight: 0.20
+        max_points: 4
+        description: "Modules have agent.md and required documentation"
+        
+        calculation:
+          formula: "(complete_modules / total_modules) * 100"
+          unit: "percentage"
+        
+        completeness_checks:
+          - "Has agent.md with valid YAML front matter"
+          - "Has doc/CONTRACT.md"
+          - "Has doc/CHANGELOG.md"
+          - "agent.md has context_routes defined"
+        
+        scoring:
+          100: 4    # 100% modules complete
+          90: 3
+          80: 2
+          70: 1
+          0: 0      # <70% complete
+        
+        check_command: "make module_health_check"
+        data_source: "scripts/module_health_check.py"
+      
+      # Metric 4.4: Workflow AI-Friendliness (3 points)
+      workflow_ai_friendly:
+        weight: 0.15
+        max_points: 3
+        description: "Workflow patterns and triggers accuracy"
+        
+        calculation:
+          formula: "accuracy_score"
+          unit: "percentage"
+        
+        friendliness_checks:
+          - "All workflow patterns have examples"
+          - "Trigger rules cover common scenarios"
+          - "Workflow catalog is complete"
+          - "Trigger accuracy ≥90%"
+        
+        scoring:
+          100: 3    # All checks pass
+          75: 2     # 3 of 4 pass
+          50: 1     # 2 of 4 pass
+          0: 0      # <2 pass
+        
+        check_command: "make agent_trigger_test && make workflow_list"
+        data_source: "scripts/agent_trigger.py, ai/workflow-patterns/catalog.yaml"
+      
+      # Metric 4.5: Script Automation Coverage (3 points)
+      script_automation:
+        weight: 0.15
+        max_points: 3
+        description: "Automation coverage for common tasks"
+        
+        calculation:
+          formula: "(automated_checks / total_checks) * 100"
+          unit: "percentage"
+        
+        automation_targets:
+          dev_check_count: 21      # Target: 21 automated checks in dev_check
+          makefile_commands: 95     # Target: 95+ Makefile commands
+          trigger_coverage: 16      # Target: 16 trigger rules
+        
+        scoring:
+          all_targets_met: 3        # All 3 targets met
+          two_targets_met: 2        # 2 of 3 met
+          one_target_met: 1         # 1 of 3 met
+          no_targets_met: 0         # 0 of 3 met
+        
+        check_command: "make trigger_coverage && make makefile_check"
+        data_source: "scripts/trigger_manager.py, scripts/makefile_check.py"
+        
+        rationale: |
+          Higher automation coverage means AI agents can accomplish more
+          tasks through simple make commands without manual intervention.
+
+# ==============================================================================
+# Dimension 5: Operations (15 points)
+# ==============================================================================
+
+  operations:
+    weight: 0.15
+    max_points: 15
+    description: "Operational readiness, observability, and maintainability"
+    
+    metrics:
+      # Metric 5.1: Migration Completeness (5 points)
+      migration_completeness:
+        weight: 0.33
+        max_points: 5
+        description: "Database migrations are complete and reversible"
+        
+        calculation:
+          formula: "completeness_score"
+          unit: "score"
+        
+        completeness_checks:
+          - "All migrations have both up and down"
+          - "Migrations tested (make migrate_check)"
+          - "Migration order is correct"
+          - "No orphan migration files"
+          - "Rollback tested (make rollback_check)"
+        
+        scoring:
+          5: 5      # All 5 checks pass
+          4: 4
+          3: 3
+          2: 2
+          1: 1
+          0: 0      # 0 checks pass
+        
+        check_command: "make migrate_check && make rollback_check"
+        data_source: "scripts/migrate_check.py, scripts/rollback_check.sh"
+      
+      # Metric 5.2: Configuration Compliance (4 points)
+      config_compliance:
+        weight: 0.27
+        max_points: 4
+        description: "Configuration files follow standards and have validation"
+        
+        calculation:
+          formula: "(valid_configs / total_configs) * 100"
+          unit: "percentage"
+        
+        compliance_checks:
+          - "All YAML configs are valid"
+          - "All configs have schemas"
+          - "Runtime configs validated"
+          - "No hardcoded secrets"
+        
+        scoring:
+          100: 4    # All configs compliant
+          90: 3
+          80: 2
+          70: 1
+          0: 0      # <70% compliant
+        
+        check_command: "make runtime_config_check && make config_lint"
+        data_source: "scripts/runtime_config_check.py, scripts/config_lint.py"
+      
+      # Metric 5.3: Observability Coverage (4 points)
+      observability_coverage:
+        weight: 0.27
+        max_points: 4
+        description: "Logging, metrics, and tracing coverage"
+        
+        calculation:
+          formula: "coverage_score"
+          unit: "score"
+        
+        observability_checks:
+          - "All modules have logging configured"
+          - "Metrics collection points defined"
+          - "Distributed tracing enabled"
+          - "Alert rules configured"
+          - "Dashboard templates exist"
+        
+        scoring:
+          5: 4      # All 5 checks pass
+          4: 3
+          3: 2
+          2: 1
+          0: 0      # <2 checks pass
+        
+        check_command: "make observability_check"  # To be implemented in Phase 14.2
+        data_source: "scripts/observability_check.py"
+      
+      # Metric 5.4: Security Hygiene (2 points)
+      security_hygiene:
+        weight: 0.13
+        max_points: 2
+        description: "No secrets leaked, security scans pass"
+        
+        calculation:
+          formula: "security_score"
+          unit: "score"
+        
+        security_checks:
+          - "No secrets in code (make secret_scan)"
+          - "No secrets in configs"
+          - "No secrets in docs"
+          - ".env files gitignored"
+        
+        scoring:
+          4: 2      # All 4 checks pass
+          3: 1      # 3 of 4 pass
+          0: 0      # <3 checks pass
+        
+        check_command: "make secret_scan"  # To be implemented in Phase 14.2
+        data_source: "scripts/secret_scan.py"
+
+# ==============================================================================
+# Aggregation Rules
+# ==============================================================================
+
+aggregation:
+  method: "weighted_sum"
+  formula: |
+    total_score = Σ(dimension_score * dimension_weight)
+    
+    Where:
+      dimension_score = Σ(metric_score) for all metrics in dimension
+      metric_score = (actual_value / max_value) * metric_max_points
+  
+  rounding: "round_to_nearest_integer"
+  
+  minimum_dimension_scores:
+    # Enforce minimum scores per dimension to ensure balanced health
+    code_quality: 15      # At least 15/25 (60%)
+    documentation: 12     # At least 12/20 (60%)
+    architecture: 12      # At least 12/20 (60%)
+    ai_friendliness: 12   # At least 12/20 (60%)
+    operations: 9         # At least 9/15 (60%)
+
+# ==============================================================================
+# Reporting Configuration
+# ==============================================================================
+
+reporting:
+  output_formats:
+    - "console"       # Terminal output with colors
+    - "markdown"      # Markdown report
+    - "json"          # JSON for programmatic use
+    - "html"          # Interactive HTML dashboard
+  
+  report_sections:
+    - "summary"       # Overall score and grade
+    - "dimensions"    # Score per dimension
+    - "metrics"       # Detailed metric scores
+    - "trends"        # Historical trends (if available)
+    - "recommendations"  # Actionable recommendations
+  
+  console_output:
+    use_colors: true
+    use_emojis: true
+    show_progress_bars: true
+    show_sparklines: true
+  
+  markdown_output:
+    template: "doc/templates/health-summary.md"
+    include_charts: true
+    include_history: true
+  
+  html_output:
+    template: "doc/templates/health-dashboard.html"
+    interactive: true
+    auto_refresh: true
+    refresh_interval_seconds: 300
+  
+  json_output:
+    pretty_print: true
+    include_metadata: true
+    include_raw_data: false
+
+# ==============================================================================
+# Trend Analysis Configuration
+# ==============================================================================
+
+trend_analysis:
+  enabled: true
+  history_file: "ai/maintenance_reports/health-history.json"
+  retention_days: 365
+  
+  tracked_metrics:
+    - "total_score"
+    - "code_quality.linter_pass_rate"
+    - "code_quality.test_coverage"
+    - "documentation.module_doc_coverage"
+    - "ai_friendliness.agent_md_lightweight"
+    - "ai_friendliness.doc_role_clarity"
+  
+  alert_on_regression:
+    enabled: true
+    regression_threshold: -5  # Alert if score drops by 5+ points
+    alert_channels:
+      - "console"
+      - "file"  # Log to ai/maintenance_reports/alerts.log
+  
+  improvement_tracking:
+    calculate_velocity: true  # Points per week
+    show_projections: true    # Project when target will be reached
+
+# ==============================================================================
+# CI Integration Configuration
+# ==============================================================================
+
+ci_integration:
+  fail_on_threshold: 70       # Fail CI if score < 70
+  warn_on_threshold: 80       # Warn if score < 80
+  
+  gate_rules:
+    - metric: "code_quality.linter_pass_rate"
+      threshold: 90
+      blocking: true
+    - metric: "code_quality.test_coverage"
+      threshold: 80
+      blocking: true
+    - metric: "architecture.dependency_clarity"
+      threshold: 4  # At least 4 of 5 checks
+      blocking: true
+    - metric: "operations.security_hygiene"
+      threshold: 2  # Must be perfect (2/2)
+      blocking: true
+  
+  schedule:
+    daily_check:
+      enabled: true
+      time: "02:00"  # 2 AM daily
+      timezone: "UTC"
+    
+    pr_check:
+      enabled: true
+      on_events: ["pull_request", "push"]
+      target_branches: ["main", "develop"]
+    
+    weekly_report:
+      enabled: true
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+
+# ==============================================================================
+# Recommendations Engine
+# ==============================================================================
+
+recommendations:
+  enabled: true
+  
+  rules:
+    # Code Quality Recommendations
+    - condition: "code_quality.linter_pass_rate < 90"
+      priority: "high"
+      message: "Linter pass rate is below 90%. Run 'make python_scripts_lint' and fix issues."
+      actions:
+        - "Run: make python_scripts_lint"
+        - "Fix reported linter errors"
+        - "Ensure all scripts have UTF-8 support"
+    
+    - condition: "code_quality.test_coverage < 80"
+      priority: "high"
+      message: "Test coverage is below 80%. Add more tests or improve existing ones."
+      actions:
+        - "Identify uncovered code: make test_status_check"
+        - "Add unit tests for core logic"
+        - "Add integration tests for workflows"
+    
+    # Documentation Recommendations
+    - condition: "documentation.module_doc_coverage < 80"
+      priority: "medium"
+      message: "Module documentation is incomplete. Ensure all modules have required docs."
+      actions:
+        - "Check missing docs: make module_health_check"
+        - "Use templates: doc/modules/TEMPLATES/"
+        - "Run: make module_doc_gen"
+    
+    - condition: "documentation.doc_freshness < 90"
+      priority: "low"
+      message: "Some documentation is stale. Review and update outdated docs."
+      actions:
+        - "Identify stale docs: make doc_freshness_check"
+        - "Review and update outdated content"
+        - "Update CHANGELOG.md for recent changes"
+    
+    # Architecture Recommendations
+    - condition: "architecture.module_coupling == 0"
+      priority: "critical"
+      message: "Very high module coupling detected. Refactor to reduce dependencies."
+      actions:
+        - "Identify coupling: make coupling_check"
+        - "Extract shared logic to common module"
+        - "Review and simplify module dependencies"
+    
+    - condition: "architecture.dependency_clarity < 4"
+      priority: "high"
+      message: "Dependency declarations are unclear. Update DAG and agent.md files."
+      actions:
+        - "Run: make dag_check"
+        - "Update agent.md with correct dependencies"
+        - "Document all external dependencies"
+    
+    # AI Friendliness Recommendations
+    - condition: "ai_friendliness.agent_md_lightweight < 3"
+      priority: "high"
+      message: "agent.md is too heavy. Refactor to use progressive disclosure."
+      actions:
+        - "Move detailed content to resources/ subdocs"
+        - "Keep always_read to 1 file (AI_INDEX.md)"
+        - "Ensure AI_INDEX.md ≤150 lines"
+    
+    - condition: "ai_friendliness.doc_role_clarity < 85"
+      priority: "medium"
+      message: "AI/Human doc separation is unclear. Mark docs clearly."
+      actions:
+        - "Add 'For AI Agents' header to AI docs"
+        - "Ensure AI docs are English and ≤150 lines"
+        - "Rename human docs to *_GUIDE.md"
+    
+    - condition: "ai_friendliness.script_automation < 2"
+      priority: "medium"
+      message: "Automation coverage is low. Add more checks and triggers."
+      actions:
+        - "Add more checks to dev_check"
+        - "Create new trigger rules"
+        - "Add Makefile commands for common tasks"
+    
+    # Operations Recommendations
+    - condition: "operations.migration_completeness < 4"
+      priority: "high"
+      message: "Migrations are incomplete. Ensure all migrations are reversible."
+      actions:
+        - "Run: make migrate_check"
+        - "Add missing down migrations"
+        - "Test rollback: make rollback_check"
+    
+    - condition: "operations.security_hygiene < 2"
+      priority: "critical"
+      message: "Security issues detected! Fix immediately."
+      actions:
+        - "Run: make secret_scan"
+        - "Remove any leaked secrets"
+        - "Rotate compromised credentials"
+        - "Update .gitignore"
+
+# ==============================================================================
+# Version History
+# ==============================================================================
+
+version_history:
+  - version: "1.0"
+    date: "2025-11-09"
+    phase: "Phase 14.1"
+    changes:
+      - "Initial health check model creation"
+      - "Defined 5 dimensions with weighted scoring"
+      - "Added AI Friendliness dimension (new in v2.4)"
+      - "Configured 17 metrics across 5 dimensions"
+      - "Added CI integration and trend analysis"
+      - "Created recommendations engine"
+    authors: ["Project Team"]
+    notes: |
+      This model establishes the foundation for continuous repository
+      health monitoring. Target: 100/100 (Perfect State) by Phase 14.3.
+
+# ==============================================================================
+# End of Health Check Model
+# ==============================================================================
+

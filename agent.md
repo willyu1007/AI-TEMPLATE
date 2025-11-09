@@ -1,7 +1,7 @@
 ---
 spec_version: "1.0"
 agent_id: "repo"
-role: "AI-TEMPLATE仓库根编排配置，指导AI高效开发"
+role: "root level orchestrator, improve AI development efficiency"
 
 policies:
   goals_ref: /doc/policies/goals.md
@@ -12,42 +12,74 @@ merge_strategy: "child_overrides_parent"
 
 context_routes:
   always_read:
-    - /doc/policies/goals.md
-    - /doc/policies/safety.md
-    - /README.md
+    - /doc/policies/AI_INDEX.md
   on_demand:
-    - topic: "目录结构"
+    - topic: "Project Overview"
+      priority: high
+      paths:
+        - /README.md
+    - topic: "Full Objectives and Principles"
+      priority: high
+      paths:
+        - /doc/policies/goals.md
+        - /doc/policies/safety.md
+    - topic: "Documentation Roles and Responsibilities"
+      priority: high
+      paths:
+        - /doc/policies/DOC_ROLES.md
+    - topic: "Documentation Writing Standards"
+      priority: medium
+      paths:
+        - /doc/process/DOC_WRITING_STANDARDS.md
+    - topic: "Contract Management"
+      priority: medium
+      paths:
+        - /.contracts_baseline/README.md
+    - topic: "Directory Structure"
+      priority: medium
       paths:
         - /doc/architecture/directory.md
-    - topic: "安全详情"
+    - topic: "Security Details"
+      priority: medium
       paths:
         - /doc/policies/security_details.md
         - /doc/policies/quality_standards.md
-    - topic: "数据库操作"
+    - topic: "Common Module Usage"
+      priority: medium
+      paths:
+        - /modules/common/agent.md
+        - /modules/common/README.md
+        - /modules/common/doc/CONTRACT.md
+    - topic: "Database Operations"
+      priority: high
       paths:
         - /doc/db/DB_SPEC.yaml
         - /doc/db/SCHEMA_GUIDE.md
         - /db/engines/README.md
-    - topic: "数据库变更"
+    - topic: "Database Changes"
+      priority: high
       paths:
         - /doc/process/DB_CHANGE_GUIDE.md
         - /db/engines/postgres/schemas/tables/runs.yaml
         - /db/engines/postgres/docs/DB_SPEC.yaml
-    - topic: "数据库变更详细"
+    - topic: "Detailed Database Changes"
+      priority: medium
       paths:
         - /doc/process/resources/db-create-table.md
         - /doc/process/resources/db-alter-table.md
         - /doc/process/resources/db-migration-script.md
         - /doc/process/resources/db-test-data.md
-    - topic: "模块开发"
-      paths:
-        - /doc/modules/MODULE_INIT_GUIDE.md
+    - topic: "Module Development"
+      priority: high
+      paths:    
         - /doc/modules/MODULE_TYPES.md
         - /doc/modules/MODULE_TYPE_CONTRACTS.yaml
         - /doc/modules/MODULE_INSTANCES.md
         - /doc/modules/example/README.md
-    - topic: "模块开发详细"
+    - topic: "Detailed Module Development"
+      priority: medium
       paths:
+        - /doc/modules/MODULE_INIT_GUIDE.md
         - /doc/modules/resources/init-planning.md
         - /doc/modules/resources/init-directory.md
         - /doc/modules/resources/init-documents.md
@@ -56,46 +88,80 @@ context_routes:
         - /doc/modules/resources/init-database.md
         - /doc/modules/resources/init-testdata.md
         - /doc/modules/resources/init-context.md
-    - topic: "项目初始化"
+    - topic: "Project Initialization"
+      priority: low
       paths:
         - /doc/init/PROJECT_INIT_GUIDE.md
-    - topic: "配置管理"
+    - topic: "Configuration Management"
+      priority: high
       paths:
-        - /config/README.md
+        - /config/AI_GUIDE.md
         - /doc/process/CONFIG_GUIDE.md
-    - topic: "命令参考"
+    - topic: "Command Reference"
+      priority: medium
       paths:
         - /doc/reference/commands.md
-    - topic: "测试规范"
+    - topic: "Testing Standards"
+      priority: medium
       paths:
         - /doc/process/testing.md
-    - topic: "提交与PR"
+    - topic: "Commit and PR Workflow"
+      priority: medium
       paths:
         - /doc/process/pr_workflow.md
-    - topic: "文档路由使用"
+    - topic: "Documentation Routing Usage"
+      priority: low
       paths:
         - /doc/orchestration/routing.md
-    - topic: "智能触发系统"
+    - topic: "Intelligent Trigger System"
+      priority: medium
       paths:
         - /doc/orchestration/agent-triggers.yaml
         - /doc/orchestration/triggers-guide.md
-    - topic: "Workdocs任务管理"
+    - topic: "Workdocs Task Management"
+      priority: high
       paths:
-        - /ai/workdocs/README.md
+        - /doc/process/workdocs-quickstart.md
         - /doc/process/WORKDOCS_GUIDE.md
-        - /doc/templates/workdoc-plan.md
-        - /doc/templates/workdoc-context.md
-        - /doc/templates/workdoc-tasks.md
-    - topic: "Guardrail防护机制"
+    - topic: "Guardrail Protection Mechanism"
+      priority: high
       paths:
+        - /doc/process/guardrail-quickstart.md
         - /doc/process/GUARDRAIL_GUIDE.md
-        - /doc/orchestration/agent-triggers.yaml
+    - topic: "Mock Data Generation"
+      priority: medium
+      paths:
+        - /doc/process/MOCK_RULES_GUIDE.md
+        - /doc/process/TEST_DATA_STRATEGY.md
+        - /doc/modules/example/doc/TEST_DATA.md
+    - topic: "AI Coding Standards"
+      priority: high
+      paths:
+        - /doc/process/AI_CODING_GUIDE.md
+    - topic: "Comprehensive Development Standards"
+      priority: low
+      paths:
+        - /doc/process/CONVENTIONS.md
+    - topic: "Workflow Patterns"
+      priority: high
+      paths:
+        - /ai/workflow-patterns/README.md
+        - /ai/workflow-patterns/catalog.yaml
+    - topic: "Dataflow Analysis"
+      priority: high
+      paths:
+        - /doc/process/dataflow-quickstart.md
+        - /doc/process/DATAFLOW_ANALYSIS_GUIDE.md
+    - topic: "Repository Health Check"
+      priority: medium
+      paths:
+        - /doc/process/HEALTH_CHECK_MODEL.yaml
   by_scope:
-    - scope: "模块开发"
+    - scope: "Module Development"
       read:
         - /doc/modules/MODULE_INIT_GUIDE.md
         - /doc/modules/TEMPLATES/
-    - scope: "编排管理"
+    - scope: "Orchestration Management"
       read:
         - /doc/orchestration/registry.yaml
         - /doc/orchestration/routing.md
@@ -103,196 +169,223 @@ context_routes:
 
 # agent.md
 
-> 本规程面向**让模型高效工作**、**降低重复思考**，并确保在每次任务中模型能**完整理解当前项目状态**。
+> **Purpose**: Enable AI agents to work efficiently with reduced cognitive load, ensuring complete understanding of project state in every session.
 
 ---
 
-## 重要提醒
+## Important Reminders
 
-在开始任何任务前，模型必须：
+Before starting any task, AI agents must:
 
-1. **阅读文档格式规范**：见§3，遵守语言一致性和结构化要求
-2. **遵循工作流程**：见§0，按照S0-S6步骤执行
-3. **理解职责边界**：参见`doc/policies/roles.md`
-4. **遵循文档路由**：根据任务类型按需加载相关文档
+1. **Follow Workflow**: See Section 0, execute steps S0-S6 in sequence
+2. **Understand Role Boundaries**: Refer to `doc/policies/roles.md`
+3. **Follow Document Routing**: Load relevant docs based on task type (Section 1)
+4. **Check Documentation Standards**: Load DOC_WRITING_STANDARDS.md when creating/editing docs
 
 ---
 
-## 0. 工作流程（6步法）
+## 0. Workflow (6-Step Process)
 
-**适用：所有任务**。模型每次执行任务都遵循下列步骤：
+**Applies to**: All tasks. AI agents follow these steps for every task execution:
 
-### S0 - 刷新上下文（分层加载）
+### S0 - Refresh Context (Layered Loading)
 
-按优先级分层读取：
+Load by priority tiers:
 
-- **Tier-0（必须）**：`/.aicontext/snapshot.json`、`/.aicontext/module_index.json`
-- **Tier-1（强烈建议）**：`/doc/flows/dag.yaml`、相关`tools/*/contract.json`、目标模块`plan.md`/`README.md`
-- **Tier-2（建议）**：`/doc/db/DB_SPEC.yaml`、`/doc/process/ENV_SPEC.yaml`、`/config/*.yaml`
-- **Tier-3（按需）**：`TEST_PLAN.md`、`RUNBOOK.md`、`PROGRESS.md`、`BUGS.md`
+- **Tier-0 (Required)**: `/.aicontext/snapshot.json`, `/.aicontext/module_index.json`
+- **Tier-1 (Strongly Recommended)**: `/doc/flows/dag.yaml`, relevant `tools/*/contract.json`, target module `plan.md`/`README.md`
+- **Tier-2 (Recommended)**: `/doc/db/DB_SPEC.yaml`, `/doc/process/ENV_SPEC.yaml`, `/config/*.yaml`
+- **Tier-3 (As Needed)**: `TEST_PLAN.md`, `RUNBOOK.md`, `PROGRESS.md`, `BUGS.md`
 
-> 若`snapshot_hash`变化，必须先运行`make docgen`生成最新索引。
+> If `snapshot_hash` changed, run `make docgen` first to generate latest index.
 
-### S1 - 任务建模
+### S1 - Task Modeling
 
-更新`/modules/<name>/plan.md`，明确：
-- 范围与切片
-- 接口影响
-- 数据变更
-- 风险评估
-- 验证命令
-- 回滚方案
+Update `/modules/<name>/plan.md`, specify:
+- Scope and slicing
+- Interface impact
+- Data changes
+- Risk assessment
+- Verification commands
+- Rollback plan
 
-> **边界**: `plan.md`=未来计划，`PROGRESS.md`=历史记录（不可混用）
+> **Boundary**: `plan.md` = future plans, `PROGRESS.md` = historical records (don't mix)
 
-**新增模块**: 运行`make ai_begin MODULE=<name>`或参考`doc/modules/MODULE_INIT_GUIDE.md`
+**New Module**: Run `make ai_begin MODULE=<name>` or refer to `doc/modules/MODULE_INIT_GUIDE.md`
 
-### S2 - 方案预审（AI-SR: Plan）
+### S2 - Plan Review (AI-SR: Plan)
 
-生成`/ai/sessions/<date>_<name>/AI-SR-plan.md`：
-- 意图说明
-- 影响面分析
-- DAG/契约/DB变更点
-- 测试计划
-- 回滚方案
+Generate `/ai/sessions/<date>_<name>/AI-SR-plan.md`:
+- Intent description
+- Impact analysis
+- DAG/Contract/DB change points
+- Test plan
+- Rollback plan
 
-### S3 - 实现与验证
+### S3 - Implementation & Verification
 
-- 仅修改计划范围内的代码
-- 保持向后兼容
-- 更新或新增测试（覆盖率≥80%）
-- 运行`make dev_check`（CI门禁）
+- Modify only planned scope
+- Maintain backward compatibility
+- Update or add tests (coverage ≥80%)
+- Run `make dev_check` (CI gate)
 
-**测试要求**: 参见`doc/process/testing.md`
+**Test Requirements**: See `doc/process/testing.md`
 
-### S4 - 文档更新
+### S4 - Documentation Update
 
-同步更新：
+Synchronize updates:
 - `CONTRACT.md` / `contract.json`
 - `TEST_PLAN.md`
 - `RUNBOOK.md`
 - `PROGRESS.md`
 - `CHANGELOG.md`
-- `doc/flows/dag.yaml`（如涉及）
+- `doc/flows/dag.yaml` (if applicable)
 
-运行`make docgen`刷新索引。
+Run `make docgen` to refresh index.
 
-### S5 - 自审与PR
+### S5 - Self-Review & PR
 
-生成`/ai/sessions/<date>_<name>/AI-SR-impl.md`，提交PR附上plan和AI-SR。
+Generate `/ai/sessions/<date>_<name>/AI-SR-impl.md`, submit PR with plan and AI-SR.
 
-**PR流程**: 参见`doc/process/pr_workflow.md`
+**PR Process**: See `doc/process/pr_workflow.md`
 
-**CI门禁**: 
-- `make dev_check`（必须通过）
-- 测试覆盖率≥80%
-- 高风险需`make rollback_check`
+**CI Gates**: 
+- `make dev_check` (must pass)
+- Test coverage ≥80%
+- High-risk changes need `make rollback_check`
 
-### S6 - 自动维护
+### S6 - Auto Maintenance
 
-运行`make ai_maintenance`确保仓库状态良好。
-
----
-
-## 1. 文档路由与上下文管理
-
-### 按需加载（Context Routes）
-
-根agent.md的YAML Front Matter定义了文档路由规则：
-
-- **always_read**: 每次必读的策略文档（goals.md, safety.md）
-- **on_demand**: 按主题按需读取，包括10个主题：
-  - 目录结构、数据库操作、模块开发、项目初始化、配置管理
-  - 命令参考、测试规范、提交与PR、文档路由使用
-- **by_scope**: 按工作范围读取（如特定模块）
-
-**工作原理**: 
-1. AI启动时自动读取`always_read`文档
-2. 根据任务类型（如"数据库操作"），AI读取对应的`on_demand`文档
-3. 进入特定模块工作时，读取`by_scope`配置的模块文档
-
-**详见**: `doc/orchestration/routing.md`
-
-### 记忆机制
-
-1. **AI Ledger**: `/ai/LEDGER.md`记录每次任务
-2. **Sessions**: `/ai/sessions/<date>_<mod>/`保留AI-SR
-3. **索引**: `/.aicontext/`自动生成索引
+Run `make ai_maintenance` to ensure repo health.
 
 ---
 
-## 2. 质量检查清单
+## 1. Document Routing & Context Management
 
-### 变更前检查
+### 1.1 Document Selection Guide
 
-- [ ] 是否更新了`plan.md`？
-- [ ] 是否明确了影响范围？
-- [ ] 是否评估了回滚方案？
-- [ ] 是否准备了测试用例？
+**AI Documents vs Human Documents**:
 
-### 实现中检查
+| Type | Identifier | Format | When to Use |
+|------|-----------|--------|-------------|
+| **AI Docs** | "For AI Agents" in header | English, ~100 lines, commands | Quick operations, reference |
+| **Human Docs** | Full guides (*_GUIDE.md) | CN/EN, 300+ lines, detailed | Deep learning, troubleshooting |
 
-- [ ] 代码改动最小化？
-- [ ] 保持向后兼容？
-- [ ] 测试是否覆盖？
-- [ ] 是否有适当的日志？
+**Loading Priority**:
+1. **For Operations**: Load AI quickstart (*-quickstart.md, AI_*.md)
+2. **For Learning**: Load human complete guide (*_GUIDE.md, CONVENTIONS.md)
+3. **Check Priority**: Refer to `priority` field in context_routes (high/medium/low)
 
-### 提交前检查
+**Examples**:
+- Need guardrail info? → Load `guardrail-quickstart.md` (120 lines) first
+- Need deep understanding? → Load `GUARDRAIL_GUIDE.md` (782 lines) second
+- Need coding rules? → Load `AI_CODING_GUIDE.md` (150 lines), not `CONVENTIONS.md` (611 lines)
 
-- [ ] 所有文档已更新？
-- [ ] `make dev_check`通过？
-- [ ] 生成了AI-SR？
-- [ ] 清理了临时文件？
+### 1.2 Context Loading Rules ⚠️ Critical
 
----
+**Rule 1: DO NOT auto-load referenced documents**
+- `always_read` loads ONLY AI_INDEX.md (self-contained)
+- DO NOT follow "See also" or "Details: xxx.md" references
+- Those are on-demand documents, load explicitly only when needed
 
-## 3. 文档编写规范
+**Rule 2: Maximum depth = 1 level**
+- Load explicitly listed documents only
+- Do not recursively follow references
+- Example: AI_INDEX.md mentions goals.md → Do NOT auto-load goals.md
 
-**语言一致性**: 同一文档统一语言（中文简体或英文，不混用）  
-**结构化输出**: 使用标题、列表、表格、代码块组织内容  
-**禁用颜文字**: 仅允许状态标记（✅ ❌ ⚠️ ⏳）  
-**版本追踪**: 文档头部注明版本和日期，变更记录入CHANGELOG.md
+**Rule 3: On-demand loading**
+- Check `context_routes` for task-specific topics
+- Load based on `priority` field (high → medium → low)
+- Stop after loading listed files, no further recursion
 
-**详见**: `doc/process/CONVENTIONS.md`
+### 1.3 On-Demand Loading (Context Routes)
 
----
+Root agent.md's YAML Front Matter defines document routing rules:
 
-## 4. 核心参考文档
+- **always_read**: AI_INDEX.md only (self-contained, ~130 tokens)
+- **on_demand**: 19 topics with priority (load based on task type)
+  - High: Project overview, goals, database, modules, workflows, config, guardrails
+  - Medium: Testing, triggers, common module, coding standards, dataflow
+  - Low: Directory, routing usage, conventions, project init
+- **by_scope**: Module-specific (load when working in that module)
 
-### 编排与策略
-- **全局目标**: `doc/policies/goals.md`
-- **安全规范**: `doc/policies/safety.md`
-- **角色与门禁**: `doc/policies/roles.md`
-- **文档路由**: `doc/orchestration/routing.md`
-- **模块注册表**: `doc/orchestration/registry.yaml`
+**How It Works**: 
+1. AI loads `always_read` on startup (AI_INDEX.md → self-contained quick reference)
+2. Based on task type (e.g., "database ops"), AI loads corresponding `on_demand` docs
+3. When entering specific module, load `by_scope` configured module docs
+4. **STOP** - Do not recursively follow references in loaded docs
 
-### 初始化指南
-- **项目初始化**: `doc/init/PROJECT_INIT_GUIDE.md`
-- **模块初始化**: `doc/modules/MODULE_INIT_GUIDE.md`
-- **模块类型**: `doc/modules/MODULE_TYPES.md`
-- **文档模板**: `doc/modules/TEMPLATES/`
+**Details**: `doc/orchestration/routing.md`
 
-### 架构与参考
-- **目录结构**: `doc/architecture/directory.md`
-- **命令速查**: `doc/reference/commands.md`
-- **数据库规范**: `db/engines/README.md`
-- **Schema定义**: `schemas/`
+### Memory Mechanism
 
-### 过程文档
-- **测试准则**: `doc/process/testing.md`
-- **提交与PR**: `doc/process/pr_workflow.md`
-- **开发约定**: `doc/process/CONVENTIONS.md`
-- **配置指南**: `doc/process/CONFIG_GUIDE.md`
-- **环境规范**: `doc/process/ENV_SPEC.yaml`
-
----
-
-**版本**: 2.0  
-**最后更新**: 2025-11-07  
-**维护**: 项目团队
+1. **AI Ledger**: `/ai/LEDGER.md` records all tasks
+2. **Sessions**: `/ai/sessions/<date>_<mod>/` preserves AI-SR files
+3. **Index**: `/.aicontext/` auto-generated index
 
 ---
 
-> **📖 给AI编排系统**:  
-> 本文档定义工作流程和文档路由规则。详细的规范、指南、命令参考请通过`context_routes`按需加载。  
-> 模块级配置参见各模块的`modules/<entity>/agent.md`。
+## 2. Quality Checklist
+
+### Pre-Change Checks
+
+- Updated `plan.md`?
+- Clarified impact scope?
+- Assessed rollback plan?
+- Prepared test cases?
+
+### During Implementation
+
+- Code changes minimized?
+- Backward compatibility maintained?
+- Tests cover changes?
+- Appropriate logging added?
+
+### Pre-Commit Checks
+
+- All docs updated?
+- `make dev_check` passed?
+- AI-SR generated?
+- Temp files cleaned?
+
+---
+
+## 3. Core Reference Documents
+
+### Orchestration & Policies
+- **Global Goals**: `doc/policies/goals.md`
+- **Safety Rules**: `doc/policies/safety.md`
+- **Roles & Gates**: `doc/policies/roles.md`
+- **Document Routing**: `doc/orchestration/routing.md`
+- **Module Registry**: `doc/orchestration/registry.yaml`
+
+### Initialization Guides
+- **Project Init**: `doc/init/PROJECT_INIT_GUIDE.md`
+- **Module Init**: `doc/modules/MODULE_INIT_GUIDE.md`
+- **Module Types**: `doc/modules/MODULE_TYPES.md`
+- **Doc Templates**: `doc/modules/TEMPLATES/`
+
+### Architecture & Reference
+- **Directory Structure**: `doc/architecture/directory.md`
+- **Command Quick Reference**: `doc/reference/commands.md`
+- **Database Specs**: `db/engines/README.md`
+- **Schema Definitions**: `schemas/`
+
+### Process Documents
+- **Testing Standards**: `doc/process/testing.md`
+- **PR Workflow**: `doc/process/pr_workflow.md`
+- **Coding Conventions**: `doc/process/CONVENTIONS.md`
+- **Config Guide**: `doc/process/CONFIG_GUIDE.md`
+- **Environment Spec**: `doc/process/ENV_SPEC.yaml`
+
+---
+
+**Version**: 2.1  
+**Last Updated**: 2025-11-09 (Phase 14.0.3)  
+**Maintained by**: Project Team
+
+---
+
+> **📖 For AI Orchestration Systems**:  
+> This document defines workflow and document routing rules. For detailed specs, guides, and command references, load via `context_routes` on-demand.  
+> For module-level config, see each module's `modules/<entity>/agent.md`.

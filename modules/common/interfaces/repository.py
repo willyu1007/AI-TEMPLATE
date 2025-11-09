@@ -6,7 +6,7 @@
 
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar, Optional, List, Dict, Any
-from common.models.common import PaginationParams, PaginationResult
+from modules.common.models.common import PaginationParams, PaginationResult
 
 T = TypeVar('T')
 ID = TypeVar('ID')

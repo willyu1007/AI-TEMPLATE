@@ -1,4 +1,12 @@
 {
-  "modules": {},
-  "generated_at": "2025-11-08T08:36:57.869115"
+  "modules": {
+    "common": {
+      "readme": "modules/common/README.md",
+      "plan": "modules/common/plan.md",
+      "contract": "modules/common/CONTRACT.md",
+      "test_plan": "modules/common/TEST_PLAN.md",
+      "tests": "tests/common/"
+    }
+  },
+  "generated_at": "2025-11-09T15:08:56.339860"
 }

@@ -1,0 +1,98 @@
+# AI工作流模式目录索引（自动生成）
+version: "1.0"
+generated_at: "2025-11-09"
+total_patterns: 8
+
+patterns:
+  # P0: 高优先级模式（必须实施）
+  module-creation:
+    name: "模块创建标准工作流"
+    category: "development"
+    complexity: "medium"
+    estimated_time: "2-4 hours"
+    priority: "P0"
+    file: "patterns/module-creation.yaml"
+    tags: ["module", "创建", "初始化"]
+  
+  database-migration:
+    name: "数据库变更标准工作流"
+    category: "maintenance"
+    complexity: "medium"
+    estimated_time: "30-60 minutes"
+    priority: "P0"
+    file: "patterns/database-migration.yaml"
+    tags: ["database", "migration", "数据库"]
+  
+  api-development:
+    name: "API开发标准工作流"
+    category: "development"
+    complexity: "low"
+    estimated_time: "1-2 hours"
+    priority: "P0"
+    file: "patterns/api-development.yaml"
+    tags: ["api", "rest", "接口"]
+  
+  bug-fix:
+    name: "Bug修复标准工作流"
+    category: "debugging"
+    complexity: "low"
+    estimated_time: "30-90 minutes"
+    priority: "P0"
+    file: "patterns/bug-fix.yaml"
+    tags: ["bug", "修复", "调试"]
+  
+  # P1: 建议实施模式
+  refactoring:
+    name: "重构标准工作流"
+    category: "maintenance"
+    complexity: "medium"
+    estimated_time: "1-3 hours"
+    priority: "P1"
+    file: "patterns/refactoring.yaml"
+    tags: ["refactor", "重构", "代码质量"]
+  
+  feature-development:
+    name: "功能开发标准工作流"
+    category: "development"
+    complexity: "medium"
+    estimated_time: "4-8 hours"
+    priority: "P1"
+    file: "patterns/feature-development.yaml"
+    tags: ["feature", "功能", "开发"]
+  
+  performance-optimization:
+    name: "性能优化标准工作流"
+    category: "optimization"
+    complexity: "medium"
+    estimated_time: "2-4 hours"
+    priority: "P1"
+    file: "patterns/performance-optimization.yaml"
+    tags: ["performance", "优化", "性能"]
+  
+  security-audit:
+    name: "安全审计标准工作流"
+    category: "maintenance"
+    complexity: "medium"
+    estimated_time: "2-3 hours"
+    priority: "P1"
+    file: "patterns/security-audit.yaml"
+    tags: ["security", "安全", "审计"]
+
+# 按类别分组
+categories:
+  development: ["module-creation", "api-development", "feature-development"]
+  maintenance: ["database-migration", "refactoring", "security-audit"]
+  debugging: ["bug-fix"]
+  optimization: ["performance-optimization"]
+
+# 快速查找表
+quick_lookup:
+  "创建模块": "module-creation"
+  "数据库变更": "database-migration"
+  "开发API": "api-development"
+  "修复Bug": "bug-fix"
+  "代码重构": "refactoring"
+  "开发功能": "feature-development"
+  "性能优化": "performance-optimization"
+  "安全审计": "security-audit"
+

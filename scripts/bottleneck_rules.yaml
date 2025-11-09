@@ -1,0 +1,237 @@
+# 数据流性能瓶颈检测规则配置
+# Phase 13: 数据流可视化增强
+
+version: "1.0"
+description: "数据流性能瓶颈检测规则，用于自动化识别性能问题"
+
+# 检测规则列表
+rules:
+  - id: "circular-dependency"
+    name: "循环依赖检测"
+    severity: critical
+    category: "architecture"
+    pattern: "循环依赖"
+    description: "检测图中的循环依赖，循环依赖会导致死锁或无限递归"
+    detector: "DataflowAnalyzer.detect_circular_dependencies()"
+    impact:
+      performance: "可能导致死锁"
+      maintainability: "代码难以理解和维护"
+      scalability: "无法有效扩展"
+    suggestion:
+      - "重构模块解耦，打破循环依赖"
+      - "引入中介者模式或事件驱动架构"
+      - "使用依赖注入反转依赖方向"
+    fix_priority: 1
+    estimated_fix_time: "2-4小时"
+  
+  - id: "deep-call-chain"
+    name: "调用链深度过深"
+    severity: high
+    category: "performance"
+    pattern: "调用链深度>5层"
+    description: "调用链过深增加调试难度，增加性能开销"
+    detector: "DataflowAnalyzer.analyze_call_chain_depth(max_depth=5)"
+    threshold:
+      max_depth: 5
+      warning_depth: 4
+    impact:
+      performance: "增加函数调用开销"
+      debugging: "难以追踪和调试"
+      error_handling: "错误传播链过长"
+    suggestion:
+      - "考虑引入facade模式简化接口"
+      - "使用消息队列解耦复杂调用链"
+      - "重构为更扁平的架构"
+    fix_priority: 2
+    estimated_fix_time: "1-3小时"
+  
+  - id: "n-plus-one-query"
+    name: "N+1查询问题"
+    severity: high
+    category: "database"
+    pattern: "循环内数据库查询"
+    description: "在循环中执行数据库查询，导致查询次数呈线性增长"
+    detector: "DataflowAnalyzer.detect_n_plus_one_queries()"
+    impact:
+      performance: "严重性能瓶颈，响应时间随数据量线性增长"
+      database: "数据库连接池耗尽"
+      scalability: "无法处理大数据量"
+    suggestion:
+      - "使用批量查询或JOIN替代循环查询"
+      - "使用ORM的eager loading（预加载）"
+      - "考虑使用DataLoader模式"
+    examples:
+      bad: |
+        for user in users:
+            orders = db.query(Order).filter(user_id=user.id).all()
+      good: |
+        user_ids = [user.id for user in users]
+        orders = db.query(Order).filter(Order.user_id.in_(user_ids)).all()
+    fix_priority: 2
+    estimated_fix_time: "30分钟-1小时"
+  
+  - id: "missing-index"
+    name: "大表JOIN缺少索引"
+    severity: medium
+    category: "database"
+    pattern: "大表JOIN无索引"
+    description: "大表执行JOIN操作但JOIN列缺少索引"
+    detector: "DataflowAnalyzer.detect_missing_indexes()"
+    threshold:
+      table_size: "large"  # large: >100万行, very_large: >1000万行
+    impact:
+      performance: "查询响应时间显著增加"
+      resource: "CPU和内存消耗增加"
+      scalability: "数据量增长时性能急剧下降"
+    suggestion:
+      - "在JOIN列添加索引: CREATE INDEX idx_name ON table(column)"
+      - "考虑复合索引以优化多列JOIN"
+      - "分析查询执行计划: EXPLAIN ANALYZE"
+    fix_priority: 3
+    estimated_fix_time: "15-30分钟"
+  
+  - id: "serial-calls"
+    name: "可并行但串行执行"
+    severity: medium
+    category: "performance"
+    pattern: "独立任务串行执行"
+    description: "多个独立的任务串行执行，可以改为并行以提升性能"
+    detector: "BottleneckDetector.detect_serial_vs_parallel()"
+    impact:
+      performance: "总响应时间为各任务时间之和"
+      throughput: "系统吞吐量未充分利用"
+      user_experience: "用户等待时间长"
+    suggestion:
+      - "使用asyncio或concurrent.futures并行执行"
+      - "使用消息队列异步处理"
+      - "考虑使用Promise.all()或Promise.race()"
+    examples:
+      bad: |
+        result1 = fetch_data_from_api1()  # 1秒
+        result2 = fetch_data_from_api2()  # 1秒
+        # 总耗时: 2秒
+      good: |
+        results = await asyncio.gather(
+            fetch_data_from_api1(),
+            fetch_data_from_api2()
+        )
+        # 总耗时: 1秒
+    fix_priority: 3
+    estimated_fix_time: "30分钟-2小时"
+  
+  - id: "no-cache"
+    name: "高频调用未缓存"
+    severity: low
+    category: "performance"
+    pattern: "重复计算可缓存数据"
+    description: "相同的计算或查询被多次执行，结果应该被缓存"
+    detector: "BottleneckDetector.recommend_caching()"
+    threshold:
+      call_count: 3  # 调用次数超过3次
+    impact:
+      performance: "重复计算浪费CPU资源"
+      response_time: "响应时间可优化"
+      cost: "增加不必要的成本"
+    suggestion:
+      - "使用Redis或Memcached添加缓存层"
+      - "使用Python的@lru_cache装饰器"
+      - "实现应用级缓存（如functools.cache）"
+    cache_strategies:
+      - name: "LRU缓存"
+        适用: "固定数据集，访问有热点"
+      - name: "TTL缓存"
+        适用: "数据会过期，需要定期刷新"
+      - name: "分布式缓存"
+        适用: "多实例部署，需要共享缓存"
+    fix_priority: 4
+    estimated_fix_time: "30分钟-1小时"
+  
+  - id: "redundant-computation"
+    name: "重复计算检测"
+    severity: low
+    category: "performance"
+    pattern: "相同计算重复执行"
+    description: "相同的计算逻辑在多处重复，应该提取为共享函数"
+    detector: "BottleneckDetector.detect_redundant_computations()"
+    impact:
+      maintainability: "代码重复，维护成本高"
+      performance: "轻微性能影响"
+      consistency: "多处实现可能不一致"
+    suggestion:
+      - "提取共享函数或工具类"
+      - "使用DRY原则（Don't Repeat Yourself）"
+      - "考虑使用单例模式"
+    fix_priority: 5
+    estimated_fix_time: "15-30分钟"
+
+# 严重性级别定义
+severity_levels:
+  critical:
+    priority: 1
+    color: "#d32f2f"
+    icon: "🔴"
+    action: "立即修复"
+    description: "严重问题，可能导致系统故障或数据损坏"
+  
+  high:
+    priority: 2
+    color: "#f57c00"
+    icon: "🟠"
+    action: "高优先级修复"
+    description: "重要问题，显著影响性能或用户体验"
+  
+  medium:
+    priority: 3
+    color: "#fbc02d"
+    icon: "🟡"
+    action: "计划修复"
+    description: "中等问题，有优化空间但不紧急"
+  
+  low:
+    priority: 4
+    color: "#388e3c"
+    icon: "🟢"
+    action: "建议优化"
+    description: "轻微问题，优化建议"
+
+# 分类定义
+categories:
+  architecture:
+    name: "架构问题"
+    description: "系统架构层面的问题"
+  
+  performance:
+    name: "性能问题"
+    description: "影响系统性能的问题"
+  
+  database:
+    name: "数据库问题"
+    description: "数据库查询和设计问题"
+  
+  scalability:
+    name: "扩展性问题"
+    description: "影响系统扩展能力的问题"
+
+# 优化建议优先级矩阵
+priority_matrix:
+  # severity x impact -> priority
+  critical_high: 1    # 立即修复
+  critical_medium: 1  # 立即修复
+  critical_low: 2     # 今天修复
+  high_high: 2        # 本周修复
+  high_medium: 3      # 本月修复
+  high_low: 3         # 本月修复
+  medium_high: 3      # 本月修复
+  medium_medium: 4    # 季度修复
+  medium_low: 4       # 季度修复
+  low_high: 4         # 按需修复
+  low_medium: 5       # 按需修复
+  low_low: 5          # 按需修复
+
+# 元数据
+metadata:
+  created_at: "2025-11-09"
+  updated_at: "2025-11-09"
+  version: "1.0"
+  author: "AI-TEMPLATE Phase 13"
+

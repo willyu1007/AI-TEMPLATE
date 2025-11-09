@@ -1,7 +1,14 @@
 # 可观测性配置
 
+> **Template Status**: Optional reference configuration  
+> **Usage**: Copy and customize for your project  
+> **Delete if**: Not using these monitoring tools  
+> **Last Updated**: 2025-11-09
+
 ## 目标
 提供开箱即用的监控、日志、追踪配置，帮助项目快速建立可观测性体系。
+
+**注意**: 这是**模板示例配置**，实际项目根据需求选择性使用。
 
 ## 适用场景
 - 需要监控应用性能和健康状态
@@ -12,6 +19,14 @@
 ## 前置条件
 - 已确定监控需求
 - 已选择监控工具栈（Prometheus/Grafana/ELK/Jaeger等）
+
+## 如何使用
+1. **评估需求**: 确定需要哪些可观测性工具
+2. **选择配置**: 从相应子目录复制配置文件
+3. **自定义**: 根据项目修改配置
+4. **删除不用的**: 删除不使用的子目录和配置
+
+**如不需要可观测性配置**: 可直接删除整个observability/目录
 
 ---
 

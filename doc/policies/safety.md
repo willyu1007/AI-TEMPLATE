@@ -1,53 +1,53 @@
-# 安全规范与质量门槛
+# Safety & Quality Standards
 
-> **用途**: 定义安全约束和质量要求（核心原则）  
-> **版本**: 2.0  
-> **创建时间**: 2025-11-07  
-> **最后更新**: 2025-11-08
-
----
-
-## 快速参考
-
-### 安全约束速查
-
-| 类别 | 原则 | 详细说明 |
-|------|------|---------|
-| **路径访问** | 读context_routes，写ownership范围 | security_details.md § 1 |
-| **工具调用** | 白名单机制，默认禁止 | security_details.md § 2 |
-| **数据库操作** | 半自动化，人工审核 | security_details.md § 3 |
-| **网络访问** | 默认禁止，显式声明 | security_details.md § 4 |
-
-### 质量门槛速查
-
-| 类别 | 要求 | 详细说明 |
-|------|------|---------|
-| **测试覆盖** | ≥80% | quality_standards.md § 1 |
-| **文档完整** | 6个标准文档 | quality_standards.md § 2 |
-| **兼容性** | 向后兼容 | quality_standards.md § 3 |
-| **代码规范** | 命名+风格+复杂度 | quality_standards.md § 4 |
+> **Purpose**: Define safety constraints and quality requirements (core principles)  
+> **Version**: 2.1  
+> **Created**: 2025-11-07  
+> **Last Updated**: 2025-11-09 (Phase 14.0.3)
 
 ---
 
-## 1. 安全约束
+## Quick Reference
 
-### 1.1 路径访问控制
-- ✅ 读权限: context_routes + 当前模块 + 公共文档
-- ✅ 写权限: 仅限ownership.code_paths声明的路径
-- ❌ 禁止越权: 未声明路径默认拒绝
+### Safety Constraints Quick Lookup
 
-**详见**: `doc/policies/security_details.md` § 1
+| Category | Principle | Details |
+|----------|-----------|---------|
+| **Path Access** | Read: context_routes, Write: ownership scope | security_details.md § 1 |
+| **Tool Calls** | Whitelist mechanism, default deny | security_details.md § 2 |
+| **Database Ops** | Semi-automated, human review | security_details.md § 3 |
+| **Network Access** | Default deny, explicit declaration | security_details.md § 4 |
 
-### 1.2 工具与API调用限制
-- ✅ 白名单机制: 仅允许tools_allowed中声明的工具
-- ❌ 默认禁止: 未声明的工具调用被拦截
-- ⚠️ 外部API需审核: 访问外部网络需安全团队批准
+### Quality Standards Quick Lookup
 
-**详见**: `doc/policies/security_details.md` § 2
+| Category | Requirement | Details |
+|----------|-------------|---------|
+| **Test Coverage** | ≥80% | quality_standards.md § 1 |
+| **Doc Completeness** | 6 standard docs | quality_standards.md § 2 |
+| **Compatibility** | Backward compatible | quality_standards.md § 3 |
+| **Code Standards** | Naming + style + complexity | quality_standards.md § 4 |
 
-### 1.3 数据库安全
-- ✅ 半自动化: AI生成 + 人工审核 + 人工执行
-- ❌ 禁止直接DDL: 不允许AI直接执行CREATE/ALTER/DROP
+---
+
+## 1. Safety Constraints
+
+### 1.1 Path Access Control
+- ✅ Read Permission: context_routes + current module + public docs
+- ✅ Write Permission: Only paths declared in ownership.code_paths
+- ❌ No Unauthorized Access: Undeclared paths are denied by default
+
+**Details**: `doc/policies/security_details.md` § 1
+
+### 1.2 Tool & API Call Restrictions
+- ✅ Whitelist Mechanism: Only tools declared in tools_allowed are permitted
+- ❌ Default Deny: Undeclared tool calls are intercepted
+- ⚠️ External API Requires Approval: External network access needs security team approval
+
+**Details**: `doc/policies/security_details.md` § 2
+
+### 1.3 Database Safety
+- ✅ Semi-Automated: AI generates + human reviews + human executes
+- ❌ No Direct DDL: AI cannot directly execute CREATE/ALTER/DROP
 - ⚠️ 迁移脚本成对: 每个up必须有对应的down
 
 **详见**: `doc/policies/security_details.md` § 3

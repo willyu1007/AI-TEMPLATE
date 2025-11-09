@@ -6,6 +6,12 @@ import sys
 import pathlib
 import argparse
 
+# Windows UTF-8 support
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 def create_test_structure(module_name):
     """创建测试目录结构"""
     test_dir = pathlib.Path(f'tests/{module_name}')

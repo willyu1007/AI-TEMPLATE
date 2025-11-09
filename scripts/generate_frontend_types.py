@@ -12,6 +12,12 @@ import pathlib
 import sys
 from typing import Dict, Any, Optional, List
 
+# Windows UTF-8 support
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 
 def openapi_type_to_ts(openapi_type: str, format: Optional[str] = None) -> str:
     """将 OpenAPI 类型转换为 TypeScript 类型"""

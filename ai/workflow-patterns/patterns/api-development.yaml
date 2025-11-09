@@ -1,0 +1,282 @@
+# AI工作流模式：API开发
+# 此文件为AI优化文档，轻量化设计（约200行）
+# 人类完整参考：../examples/api-development-example.md
+
+pattern_id: "api-development"
+version: "1.0"
+name: "API开发标准工作流"
+description: "RESTful API或GraphQL接口开发流程"
+complexity: "low"
+estimated_time: "1-2小时"
+ai_optimized: true
+category: "development"
+
+# 前置条件
+prerequisites:
+  - "明确API功能需求（资源类型、操作类型）"
+  - "已确定API风格（REST/GraphQL）"
+  - "了解认证和授权策略"
+
+# 工作流步骤
+workflow:
+  - step: 1
+    name: "API设计"
+    description: "定义API契约（路径、方法、参数、响应）"
+    estimated_time: "15-20分钟"
+    
+    ai_prompt_template: |
+      API功能：{api_function}
+      资源：{resource}
+      操作：{operations}
+      请设计API契约（OpenAPI格式）
+    
+    documents_to_load:
+      - path: /doc/modules/example/doc/CONTRACT.md
+        priority: high
+        description: "API契约示例"
+      - path: /doc/process/AI_CODING_GUIDE.md
+        priority: medium
+    
+    expected_output:
+      - "API路径和方法定义"
+      - "请求参数Schema"
+      - "响应格式Schema"
+      - "错误码定义"
+    
+    validation:
+      - "符合RESTful规范（如适用）"
+      - "请求/响应格式清晰"
+      - "包含所有错误场景"
+    
+    common_issues:
+      - issue: "不知道如何设计RESTful路径"
+        solution: "使用资源名词复数，避免动词（如/users而非/getUsers）"
+      - issue: "错误码定义不清"
+        solution: "使用标准HTTP状态码+自定义错误码"
+
+  - step: 2
+    name: "路由和处理器实现"
+    description: "实现API路由和请求处理逻辑"
+    estimated_time: "30-45分钟"
+    
+    ai_prompt_template: |
+      基于API契约实现：
+      模块：{module_name}
+      端点：{endpoints}
+      技术栈：{framework}
+    
+    documents_to_load:
+      - path: /doc/process/AI_CODING_GUIDE.md
+        priority: critical
+      - path: /common/middleware/
+        priority: high
+        description: "认证、日志、限流中间件"
+    
+    expected_output:
+      - "modules/{module}/api/routes.py|.ts|.go"
+      - "modules/{module}/api/handlers.py|.ts|.go"
+      - "路由注册和中间件配置"
+    
+    validation:
+      - "路由路径符合设计"
+      - "参数验证正确"
+      - "错误处理完善"
+      - "包含认证检查（如需要）"
+    
+    common_issues:
+      - issue: "参数验证不全面"
+        solution: "使用Schema验证库（如Pydantic/Joi/validate）"
+      - issue: "错误处理不一致"
+        solution: "使用统一的错误处理中间件"
+
+  - step: 3
+    name: "业务逻辑实现"
+    description: "实现核心业务逻辑"
+    estimated_time: "30-45分钟"
+    
+    ai_prompt_template: |
+      实现{endpoint}的业务逻辑
+      涉及模块：{modules}
+      数据库操作：{db_operations}
+    
+    documents_to_load:
+      - path: /doc/modules/example/core/
+        priority: high
+      - path: /doc/process/AI_CODING_GUIDE.md
+        priority: high
+    
+    expected_output:
+      - "modules/{module}/core/service.py|.ts|.go"
+      - "数据访问层（如需要）"
+    
+    validation:
+      - "逻辑正确实现需求"
+      - "数据库事务处理正确"
+      - "异常处理完善"
+      - "性能考虑（如批量操作）"
+    
+    common_issues:
+      - issue: "数据库操作未使用事务"
+        solution: "多个写操作需要事务保证原子性"
+      - issue: "N+1查询问题"
+        solution: "使用JOIN或批量查询优化"
+
+  - step: 4
+    name: "编写测试"
+    description: "单元测试和集成测试"
+    estimated_time: "20-30分钟"
+    
+    ai_prompt_template: |
+      为{endpoint}编写测试：
+      1. 正常流程测试
+      2. 边界条件测试
+      3. 错误场景测试
+      4. 认证测试（如适用）
+    
+    documents_to_load:
+      - path: /doc/process/testing.md
+        priority: critical
+      - path: /tests/example/
+        priority: high
+    
+    expected_output:
+      - "tests/{module}/test_api.py|.ts|.go"
+      - "测试覆盖率≥75%"
+    
+    validation:
+      - "所有端点有测试"
+      - "正常和异常场景都覆盖"
+      - "测试通过"
+    
+    common_issues:
+      - issue: "不知道如何测试认证"
+        solution: "Mock认证中间件或使用测试token"
+      - issue: "测试覆盖率不足"
+        solution: "补充边界条件和错误场景"
+
+  - step: 5
+    name: "文档更新"
+    description: "更新CONTRACT.md和OpenAPI文档"
+    estimated_time: "10-15分钟"
+    
+    ai_prompt_template: |
+      更新API文档：
+      1. CONTRACT.md（Markdown格式）
+      2. OpenAPI Spec（YAML/JSON）
+    
+    documents_to_load:
+      - path: /doc/modules/example/doc/CONTRACT.md
+        priority: high
+      - path: /tools/openapi.json
+        priority: medium
+    
+    expected_output:
+      - "modules/{module}/doc/CONTRACT.md (更新)"
+      - "tools/openapi.json (更新，如有)"
+    
+    validation:
+      - "文档与实现一致"
+      - "包含所有端点说明"
+      - "示例请求/响应完整"
+    
+    common_issues:
+      - issue: "文档与实现不同步"
+        solution: "开发完成后立即更新文档"
+
+  - step: 6
+    name: "集成测试"
+    description: "完整流程测试"
+    estimated_time: "10-15分钟"
+    
+    ai_prompt_template: |
+      测试完整API流程：
+      1. 启动服务
+      2. 发送测试请求
+      3. 验证响应
+      4. 检查日志
+    
+    expected_output:
+      - "所有端点可访问"
+      - "响应格式正确"
+      - "性能可接受"
+    
+    validation:
+      - "API可正常调用"
+      - "响应时间<500ms（如适用）"
+      - "错误处理正确"
+
+# 常见陷阱
+pitfalls:
+  - issue: "参数验证不足"
+    impact: "安全风险，恶意输入导致问题"
+    solution: "使用Schema验证所有输入参数"
+    severity: "high"
+  
+  - issue: "忘记添加认证"
+    impact: "未授权访问，数据泄露"
+    solution: "所有非公开API添加认证中间件"
+    severity: "critical"
+  
+  - issue: "错误信息泄露敏感信息"
+    impact: "安全风险"
+    solution: "生产环境返回通用错误，详细错误记录日志"
+    severity: "high"
+  
+  - issue: "未考虑限流"
+    impact: "服务被滥用，性能下降"
+    solution: "添加rate_limit中间件"
+    severity: "medium"
+
+# 质量检查清单
+quality_checklist:
+  - "[ ] API契约明确定义"
+  - "[ ] 路由和处理器实现完成"
+  - "[ ] 业务逻辑正确"
+  - "[ ] 参数验证完善"
+  - "[ ] 错误处理一致"
+  - "[ ] 测试覆盖率≥75%"
+  - "[ ] 所有测试通过"
+  - "[ ] CONTRACT.md已更新"
+  - "[ ] 认证和授权正确（如需要）"
+  - "[ ] 包含限流保护（如需要）"
+  - "[ ] 响应时间可接受"
+  - "[ ] 日志记录完善"
+
+# 估时参考
+time_breakdown:
+  design: "15-20分钟"
+  routes_handlers: "30-45分钟"
+  business_logic: "30-45分钟"
+  tests: "20-30分钟"
+  documentation: "10-15分钟"
+  integration_test: "10-15分钟"
+  total: "1.5-2.5小时"
+
+# API风格参考
+api_styles:
+  rest:
+    principles: ["资源导向", "HTTP动词", "状态码", "无状态"]
+    paths: ["/users", "/users/{id}", "/users/{id}/posts"]
+  graphql:
+    principles: ["查询语言", "类型系统", "单端点"]
+    schema: "GraphQL Schema定义"
+
+# 参考资源
+references:
+  detailed_guide: "/ai/workflow-patterns/examples/api-development-example.md"
+  related_patterns:
+    - "module-creation (如新建API模块)"
+    - "database-migration (如需要新表)"
+  middleware:
+    - "/common/middleware/auth.py"
+    - "/common/middleware/rate_limit.py"
+    - "/common/middleware/logging.py"
+
+# 成功标准
+success_criteria:
+  - "所有6个步骤完成"
+  - "所有质量检查清单项通过"
+  - "API可正常调用"
+  - "测试通过"
+  - "文档完整"
+

@@ -8,7 +8,11 @@
         generate_openapi generate_frontend_types frontend_types_check \
         agent_lint registry_check doc_route_check registry_gen module_doc_gen \
         type_contract_check doc_script_sync_check validate db_lint \
-        load_fixture cleanup_fixture db_env list_modules list_fixtures
+        load_fixture cleanup_fixture db_env list_modules list_fixtures \
+        dataflow_trace dataflow_visualize dataflow_analyze bottleneck_detect dataflow_report \
+        makefile_check python_scripts_lint shell_scripts_lint config_lint \
+        trigger_show trigger_check trigger_coverage trigger_matrix \
+        health_check health_report health_trend module_health_check ai_friendliness_check
 
 help:
 	@echo "可用命令："
@@ -56,6 +60,33 @@ help:
 	@echo "  make load_fixture MODULE=<name> FIXTURE=<scenario> - 加载模块Fixtures"
 	@echo "  make cleanup_fixture MODULE=<name>                 - 清理模块测试数据"
 	@echo "  make db_env ENV=<env>                              - 切换数据库环境（dev/test/demo）"
+	@echo ""
+	@echo "数据流分析（Phase 13新增）："
+	@echo "  make dataflow_trace          - 数据流追踪检查"
+	@echo "  make dataflow_visualize      - 生成可视化（默认Mermaid）"
+	@echo "  make dataflow_visualize FORMAT=html - 生成交互式HTML"
+	@echo "  make dataflow_analyze        - 完整分析（追踪+可视化+瓶颈检测）"
+	@echo "  make bottleneck_detect       - 性能瓶颈检测"
+	@echo "  make dataflow_report         - 生成完整报告（JSON+Markdown+HTML）"
+	@echo ""
+	@echo "质量检查工具（Phase 14.0新增）："
+	@echo "  make makefile_check          - 校验Makefile语法和依赖"
+	@echo "  make python_scripts_lint     - Python脚本质量检查"
+	@echo "  make shell_scripts_lint      - Shell脚本质量检查"
+	@echo "  make config_lint             - 配置文件校验"
+	@echo ""
+	@echo "触发机制管理（Phase 14.0新增）："
+	@echo "  make trigger_show            - 显示所有触发配置"
+	@echo "  make trigger_check           - 验证触发配置"
+	@echo "  make trigger_coverage        - 显示自动化覆盖率"
+	@echo "  make trigger_matrix          - 生成触发矩阵"
+	@echo ""
+	@echo "仓库健康度检查（Phase 14.1规划）："
+	@echo "  make health_check            - 运行健康度检查"
+	@echo "  make health_report           - 生成完整健康度报告"
+	@echo "  make health_trend            - 显示健康度趋势"
+	@echo "  make module_health_check     - 检查模块健康度"
+	@echo "  make ai_friendliness_check   - 检查AI友好度"
 
 # 完整开发检查（CI 门禁）
 # Phase 7更新：整合Phase 1-5新增的校验命令
@@ -413,3 +444,146 @@ guardrail_coverage:
 # 检查resources文件完整性
 resources_check:
 	@python scripts/resources_check.py
+
+# ============================================================
+# 工作流模式库（Phase 12）
+# ============================================================
+
+# 列出所有工作流模式
+workflow_list:
+	@python scripts/workflow_suggest.py --analyze-context
+
+# 推荐合适的模式
+workflow_suggest:
+	@python scripts/workflow_suggest.py --context "$(PROMPT)"
+
+# 显示模式详情
+workflow_show:
+	@python scripts/workflow_suggest.py --show $(PATTERN)
+
+# 应用模式（生成checklist）
+workflow_apply:
+	@python scripts/workflow_suggest.py --generate-checklist $(PATTERN)
+
+# 校验所有模式文件
+workflow_validate:
+	@echo "校验工作流模式文件..."
+	@for file in ai/workflow-patterns/patterns/*.yaml; do \
+		echo "检查 $$file..."; \
+		python -c "import yaml; yaml.safe_load(open('$$file', encoding='utf-8'))" || exit 1; \
+	done
+	@echo "✅ 所有模式文件格式正确"
+
+# ============================================================
+# 数据流分析（Phase 13）
+# ============================================================
+
+# 数据流追踪检查
+dataflow_trace:
+	@echo "🔍 数据流追踪检查..."
+	@python scripts/dataflow_trace.py
+
+# 生成可视化（默认Mermaid）
+dataflow_visualize:
+	@if [ -z "$(FORMAT)" ]; then \
+		FORMAT=mermaid; \
+	else \
+		FORMAT=$(FORMAT); \
+	fi; \
+	echo "🎨 生成数据流可视化（格式: $$FORMAT）..."; \
+	python scripts/dataflow_visualizer.py --format $$FORMAT
+
+# 完整数据流分析
+dataflow_analyze:
+	@echo "📊 运行完整数据流分析..."
+	@echo ""
+	@echo "1️⃣ 数据流追踪检查..."
+	@python scripts/dataflow_trace.py
+	@echo ""
+	@echo "2️⃣ 生成Mermaid可视化..."
+	@python scripts/dataflow_visualizer.py --format mermaid --output doc/templates/dataflow.mermaid
+	@echo ""
+	@echo "3️⃣ 生成HTML交互式可视化..."
+	@python scripts/dataflow_visualizer.py --format html --output doc/templates/dataflow-report.html
+	@echo ""
+	@echo "✅ 数据流分析完成"
+	@echo "   - Mermaid: doc/templates/dataflow.mermaid"
+	@echo "   - HTML报告: doc/templates/dataflow-report.html"
+
+# 性能瓶颈检测
+bottleneck_detect:
+	@echo "🔍 性能瓶颈检测..."
+	@echo "💡 瓶颈检测已集成到dataflow_trace.py中"
+	@python scripts/dataflow_trace.py
+
+# 生成完整报告（JSON+Markdown+HTML）
+dataflow_report:
+	@echo "📝 生成完整数据流报告..."
+	@mkdir -p ai/dataflow_reports
+	@echo "  生成HTML报告..."
+	@python scripts/dataflow_visualizer.py --format html --output ai/dataflow_reports/report_$$(date +%Y%m%d_%H%M%S).html
+	@echo "✅ 报告已生成到 ai/dataflow_reports/"
+	@ls -lh ai/dataflow_reports/ | tail -5
+# Quality Check Tools (Phase 14.0)
+makefile_check:
+	@echo "🔍 Checking Makefile..."
+	@python scripts/makefile_check.py
+
+python_scripts_lint:
+	@echo "🔍 Linting Python scripts..."
+	@python scripts/python_scripts_lint.py
+
+shell_scripts_lint:
+	@echo "🔍 Linting shell scripts..."
+	@bash scripts/shell_scripts_lint.sh
+
+config_lint:
+	@echo "🔍 Linting config files..."
+	@python scripts/config_lint.py
+
+# Trigger Management (Phase 14.0)
+trigger_show:
+	@echo "📋 Displaying trigger configuration..."
+	@python scripts/trigger_manager.py show
+
+trigger_check:
+	@echo "🔍 Validating trigger configuration..."
+	@python scripts/trigger_manager.py check
+
+trigger_coverage:
+	@echo "📊 Displaying automation coverage..."
+	@python scripts/trigger_manager.py coverage
+
+trigger_matrix:
+	@echo "📊 Generating trigger matrix..."
+	@python scripts/trigger_visualizer.py matrix
+
+# ==============================================================================
+# Repository Health Check (Phase 14.1+)
+# ==============================================================================
+
+health_check:
+	@echo "运行健康度检查..."
+	@echo "⚠️  健康度检查工具将在 Phase 14.2 实现"
+	@echo "📋 参考: doc/process/HEALTH_CHECK_MODEL.yaml"
+	@python scripts/health_check.py || echo "脚本尚未实现，请等待 Phase 14.2"
+
+health_report:
+	@echo "生成健康度报告..."
+	@echo "⚠️  健康度报告工具将在 Phase 14.2 实现"
+	@python scripts/health_check.py --report || echo "脚本尚未实现，请等待 Phase 14.2"
+
+health_trend:
+	@echo "显示健康度趋势..."
+	@echo "⚠️  健康度趋势分析将在 Phase 14.2 实现"
+	@python scripts/health_trend_analyzer.py || echo "脚本尚未实现，请等待 Phase 14.2"
+
+module_health_check:
+	@echo "检查模块健康度..."
+	@echo "⚠️  模块健康度检查将在 Phase 14.2 实现"
+	@python scripts/module_health_check.py || echo "脚本尚未实现，请等待 Phase 14.2"
+
+ai_friendliness_check:
+	@echo "检查 AI 友好度..."
+	@echo "⚠️  AI 友好度检查将在 Phase 14.2 实现"
+	@python scripts/ai_friendliness_check.py || echo "脚本尚未实现，请等待 Phase 14.2"

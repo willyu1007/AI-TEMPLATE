@@ -66,6 +66,67 @@ make dev_check
 make rollback_check PREV_REF=main
 ```
 
+---
+
+## 智能特性快速体验
+
+### 智能触发器测试
+
+```bash
+# 测试智能触发器（自动推荐文档）
+python scripts/agent_trigger.py --prompt "创建新模块" --dry-run
+
+# 预期输出：
+# ✅ 匹配规则: module-development
+# 🔴 MODULE_INIT_GUIDE.md (主文件)
+# 🟠 MODULE_TYPES.md
+# 🟠 MODULE_TYPE_CONTRACTS.yaml
+```
+
+### Work Docs（工作文档）快速使用
+
+```bash
+# 创建工作文档（用于任务追踪）
+make workdoc_create TASK=my-feature
+
+# 查看活跃任务
+make workdoc_list
+
+# 更新进度（自动从git log提取）
+make workdoc_update
+
+# 归档完成的任务
+make workdoc_archive TASK=my-feature
+```
+
+### Guardrail防护测试
+
+```bash
+# 测试Guardrail（防止破坏性操作）
+# 尝试修改CONTRACT.md但未运行兼容性检查
+# Guardrail会自动阻止并提示先运行 make contract_compat_check
+
+# 查看Guardrail统计
+make guardrail_stats
+
+# 查看Guardrail覆盖率
+make guardrail_coverage
+```
+
+### Resources检查
+
+```bash
+# 检查渐进式披露的resources完整性
+make resources_check
+
+# 预期输出：
+# ✅ MODULE_INIT_GUIDE: 主文件285行 + 8个resources
+# ✅ DB_CHANGE_GUIDE: 主文件273行 + 4个resources
+# ✅ 所有resources文件存在且有效
+```
+
+---
+
 ## 常用命令速查
 
 ### 开发检查

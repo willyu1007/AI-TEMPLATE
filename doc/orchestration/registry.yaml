@@ -1,29 +1,67 @@
-# 模块注册表
-# 版本: 1.0
-# 说明: 此文件维护所有模块类型、实例及其依赖关系
-# 维护方式: 半自动化（自动生成草案 + 人工审核）
+# Module Registry
+# Version: 1.1
+# Purpose: Maintains all module types, instances, and dependencies
+# Maintenance: Semi-automated (auto-generate draft + manual review)
 
-version: '1.0'
-generated_at: '2025-11-07'
-description: 模块类型、实例、依赖关系注册表
+version: '1.1'
+generated_at: '2025-11-09'
+description: Module types, instances, and dependency registry
+last_updated_by: Phase 14.0.4 - English conversion
 
-# 模块类型定义
-# 参见: doc/modules/MODULE_TYPES.md
+# Module Type Definitions
+# Reference: doc/modules/MODULE_TYPES.md
 module_types:
-  - id: 1_example
-    name: 示例模块类型
+  - id: 0_infrastructure_common
+    name: Infrastructure - Common Utilities
     level: 1
-    description: 一级基础模块，用于演示模块结构和规范
-    io_contract: 标准HTTP请求/响应，详见modules/example/doc/CONTRACT.md
+    description: Level-1 infrastructure module providing shared utilities (functions, models, middleware, constants)
+    io_contract: Function calls, see modules/common/doc/CONTRACT.md
 
-# 模块实例
-# 每个实例是某个类型的具体实现
+  - id: 1_example
+    name: Example Module Type
+    level: 1
+    description: Level-1 base module for demonstrating module structure and standards
+    io_contract: Standard HTTP request/response, see modules/example/doc/CONTRACT.md
+
+# Module Instances
+# Each instance is a concrete implementation of a module type
 # 
-# 说明：example模块已移至doc/modules/example/作为参考文档
-# 它不是业务模块，仅在模块初始化时作为参考
-module_instances: []
-  # 当有真实业务模块时，在此注册
-  # 示例格式：
+# Note: example module moved to doc/modules/example/ as reference documentation
+# It is not a business module, only for reference during module initialization
+module_instances:
+  - id: common.v1
+    type: 0_infrastructure_common
+    path: modules/common
+    level: 1
+    status: active
+    agent_md: modules/common/agent.md
+    readme: modules/common/README.md
+    dependencies:
+      imports: []  # 基础设施模块，无依赖
+      exports_to: ["*"]  # 所有模块都可以使用
+    description: >
+      提供跨模块共享的通用代码，包括字符串工具、日期时间工具、数据验证、
+      加密解密、数据模型（分页、API响应）、中间件（认证、限流、日志）、
+      常量（错误码、状态）、仓储接口等。零业务逻辑，纯技术基础设施。
+    created_at: "2025-11-09"
+    created_by: Phase 14.0.1
+    notes: |
+      从 /common/ 移动到 /modules/common/ (Phase 14.0.1)
+      导入路径更新: from common.* -> from modules.common.*
+      
+      核心原则：
+      1. 零业务逻辑，仅技术能力
+      2. 至少2个模块使用才放入common
+      3. 向后兼容，破坏性变更需要@deprecated
+      4. 测试覆盖率 ≥90%
+      
+      使用指南：
+      - Python: from modules.common.utils import validate_email
+      - 快速参考: modules/common/README.md
+      - API文档: modules/common/doc/CONTRACT.md
+  
+  # When real business modules exist, continue registration here
+  # Example format:
   # - id: user_auth.v1
   #   type: 1_Assign
   #   path: modules/user_auth
@@ -31,35 +69,35 @@ module_instances: []
   #   status: dev
   #   ...
 
-# 参考文档（不参与运行时编排）
+# Reference Modules (not involved in runtime orchestration)
 reference_modules:
   - id: example.reference
     type: 1_example
-    path: doc/modules/example  # 移至文档目录
-    purpose: 模块初始化参考模板
-    description: 完整的模块结构示例，包含agent.md、README.md、doc/等所有必需文件
-    usage: 创建新模块时参考此结构和内容
+    path: doc/modules/example  # Moved to doc directory
+    purpose: Module initialization reference template
+    description: Complete module structure example with agent.md, README.md, doc/, and all required files
+    usage: Reference this structure and content when creating new modules
     agent_md: doc/modules/example/agent.md
     readme: doc/modules/example/README.md
     created_by: Phase 4
     notes: |
-      此模块仅用于参考，不参与实际业务逻辑。
-      位于doc/modules/下，避免被模块扫描工具误认为业务模块。
+      This module is for reference only, not involved in actual business logic.
+      Located under doc/modules/ to avoid being mistaken as a business module by scanning tools.
       
-      参考内容：
-      - agent.md: 完整的YAML Front Matter示例
-      - README.md: 模块文档结构
-      - doc/: 6个标准文档（BUGS, CHANGELOG, CONTRACT, PROGRESS, RUNBOOK, TEST_PLAN）
+      Reference content:
+      - agent.md: Complete YAML Front Matter example
+      - README.md: Module documentation structure
+      - doc/: 6 standard documents (BUGS, CHANGELOG, CONTRACT, PROGRESS, RUNBOOK, TEST_PLAN)
       
-      使用方式：
-      创建新模块时，参考doc/modules/MODULE_INIT_GUIDE.md，
-      并查看doc/modules/example/的实际实现。
+      Usage:
+      When creating a new module, refer to doc/modules/MODULE_INIT_GUIDE.md
+      and check the actual implementation in doc/modules/example/.
 
-# 维护说明
-# 1. 添加新模块时，运行: make registry_gen
-# 2. 审核生成的registry.yaml.draft
-# 3. 补充TODO标记的内容
-# 4. 合并到本文件或重命名
-# 5. 运行: make registry_check 验证
-# 6. 运行: make module_doc_gen 生成MODULE_INSTANCES.md
+# Maintenance Instructions
+# 1. When adding new module, run: make registry_gen
+# 2. Review generated registry.yaml.draft
+# 3. Fill in TODO-marked content
+# 4. Merge to this file or rename
+# 5. Run: make registry_check for validation
+# 6. Run: make module_doc_gen to generate MODULE_INSTANCES.md
 
