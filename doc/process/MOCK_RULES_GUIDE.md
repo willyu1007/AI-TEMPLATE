@@ -1,3 +1,9 @@
+---
+audience: human
+language: zh
+version: complete
+purpose: Documentation for MOCK_RULES_GUIDE
+---
 # Mock规则编写指南
 
 > **用途**: 指导开发者编写Mock数据生成规则  

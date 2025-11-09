@@ -1,3 +1,9 @@
+---
+audience: ai
+language: en
+version: summary
+purpose: Documentation for README
+---
 # AI工作流模式库
 
 > **AI优化文档** - 轻量化设计，约150行  

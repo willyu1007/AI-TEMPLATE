@@ -1,0 +1,220 @@
+name: Repository Health Check
+
+on:
+  # 每日自动运行（凌晨2点UTC）
+  schedule:
+    - cron: '0 2 * * *'
+  
+  # 手动触发
+  workflow_dispatch:
+  
+  # Push到main分支时运行
+  push:
+    branches:
+      - main
+      - master
+  
+  # Pull Request时运行
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  health-check:
+    name: Health Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整历史用于趋势分析
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run health check
+        id: health_check
+        run: |
+          echo "Running repository health check..."
+          make health_check > health_check_output.txt 2>&1 || true
+          
+          # Extract score from output (assuming format: "Overall Score: XX/100")
+          SCORE=$(grep -oP 'Overall Score: \K\d+' health_check_output.txt || echo "0")
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          
+          cat health_check_output.txt
+      
+      - name: Generate detailed report
+        run: |
+          echo "Generating detailed health report..."
+          make health_report_detailed || true
+      
+      - name: Analyze issues
+        run: |
+          echo "Analyzing issue patterns..."
+          make health_analyze_issues || true
+      
+      - name: Check health threshold
+        run: |
+          SCORE=${{ steps.health_check.outputs.score }}
+          THRESHOLD=80
+          
+          echo "Current Score: $SCORE"
+          echo "Threshold: $THRESHOLD"
+          
+          if [ "$SCORE" -lt "$THRESHOLD" ]; then
+            echo "⚠️ Health score ($SCORE) is below threshold ($THRESHOLD)"
+            echo "::warning::Repository health score is below threshold: $SCORE < $THRESHOLD"
+            # Don't fail the build, just warn
+          else
+            echo "✅ Health score ($SCORE) meets threshold ($THRESHOLD)"
+          fi
+      
+      - name: Upload health reports
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: health-reports
+          path: |
+            ai/maintenance_reports/health-*.json
+            ai/maintenance_reports/health-*.md
+            temp/health-*.md
+          retention-days: 90
+      
+      - name: Commit health report (main branch only)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Add generated reports
+          git add ai/maintenance_reports/health-*.json || true
+          git add ai/maintenance_reports/health-*.md || true
+          
+          # Commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update health reports [skip ci]"
+            git push
+          fi
+
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    needs: health-check
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run test coverage
+        run: |
+          echo "Running test coverage analysis..."
+          make test_coverage || true
+      
+      - name: Run code complexity check
+        run: |
+          echo "Analyzing code complexity..."
+          make code_complexity || true
+      
+      - name: Run type check
+        run: |
+          echo "Running static type check..."
+          make type_check || true
+      
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: |
+            htmlcov/
+            coverage.json
+          retention-days: 30
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: health-check
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run secret scan
+        run: |
+          echo "Scanning for secrets..."
+          make secret_scan || true
+      
+      - name: Run observability check
+        run: |
+          echo "Checking observability coverage..."
+          make observability_check || true
+
+  notify:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: [health-check, code-quality, security-scan]
+    if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    
+    steps:
+      - name: Prepare notification
+        run: |
+          SCORE=${{ needs.health-check.outputs.score || '0' }}
+          
+          if [ "$SCORE" -lt "60" ]; then
+            STATUS="🔴 Critical"
+          elif [ "$SCORE" -lt "80" ]; then
+            STATUS="🟡 Warning"
+          else
+            STATUS="✅ Healthy"
+          fi
+          
+          echo "Health Status: $STATUS"
+          echo "Score: $SCORE/100"
+          echo "View detailed report in artifacts"
+      
+      # Add notification steps here (Slack, email, etc.)
+      # Example: Send to Slack webhook
+      # - name: Notify Slack
+      #   uses: slackapi/slack-github-action@v1
+      #   with:
+      #     payload: |
+      #       {
+      #         "text": "Health Check: ${{ env.STATUS }} - Score: ${{ needs.health-check.outputs.score }}/100"
+      #       }
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+

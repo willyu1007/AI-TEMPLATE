@@ -1,3 +1,9 @@
+---
+audience: ai
+language: zh
+version: summary
+purpose: ⚠️ To be translated to English
+---
 # Document Roles - AI vs Human Documentation
 
 > **Purpose**: Define document roles and responsibilities (AI-facing vs Human-facing)  

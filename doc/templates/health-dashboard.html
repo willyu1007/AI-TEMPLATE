@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repository Health Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .meta {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .score-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .score-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .overall-score {
+            font-size: 5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .grade {
+            font-size: 1.5em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .trend {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .trend.up {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .trend.down {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .trend.stable {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .dimensions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dimension-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .dimension-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .dimension-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .dimension-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .dimension-score {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-badge.excellent {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.good {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-badge.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.critical {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .checks-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+
+        .check-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .check-item:last-child {
+            border-bottom: none;
+        }
+
+        .check-name {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .check-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .issues-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .issue-card {
+            background: #f8f9fa;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .issue-card.critical {
+            border-left-color: #dc3545;
+        }
+
+        .issue-card.warning {
+            border-left-color: #ffc107;
+        }
+
+        .issue-card.suggestion {
+            border-left-color: #17a2b8;
+        }
+
+        .issue-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .issue-description {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .issue-location {
+            font-size: 0.85em;
+            color: #999;
+            font-family: 'Courier New', monospace;
+        }
+
+        .quick-wins {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .quick-wins .section-title {
+            color: white;
+            border-bottom-color: rgba(255,255,255,0.3);
+        }
+
+        .quick-win-item {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .quick-win-item:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .quick-win-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .quick-win-impact {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .roadmap {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .roadmap-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .roadmap-timeline {
+            font-size: 0.9em;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .roadmap-items {
+            list-style: none;
+        }
+
+        .roadmap-item {
+            padding: 10px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .roadmap-item::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            font-size: 0.9em;
+        }
+
+        .commands-box {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .command {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 10px;
+            border-left: 3px solid #667eea;
+        }
+
+        .command:hover {
+            background: #e9ecef;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .overall-score {
+                font-size: 3.5em;
+            }
+
+            .dimensions-grid,
+            .roadmap {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏥 Repository Health Dashboard</h1>
+            <div class="meta">
+                <strong>Last Update:</strong> <span id="lastUpdate">2025-11-09 21:00:00</span> |
+                <strong>Model:</strong> HEALTH_CHECK_MODEL.yaml v1.0
+            </div>
+        </header>
+
+        <div class="score-card">
+            <div class="overall-score" id="overallScore">45</div>
+            <div class="grade" id="grade">⚠️ Needs Improvement</div>
+            <div class="trend stable" id="trend">➡️ Stable</div>
+        </div>
+
+        <div class="dimensions-grid" id="dimensionsGrid">
+            <!-- Dimensions will be populated by JavaScript -->
+        </div>
+
+        <div class="quick-wins">
+            <h2 class="section-title">🚀 Quick Wins (< 1 day effort)</h2>
+            <div id="quickWinsList">
+                <div class="quick-win-item">
+                    <div class="quick-win-title">📚 Supplement common module documentation</div>
+                    <div class="quick-win-impact">Impact: +6 points (Documentation)</div>
+                </div>
+                <div class="quick-win-item">
+                    <div class="quick-win-title">🔧 Configure test coverage tools</div>
+                    <div class="quick-win-impact">Impact: +10 points (Code Quality)</div>
+                </div>
+                <div class="quick-win-item">
+                    <div class="quick-win-title">🤖 Increase automation checks to 21</div>
+                    <div class="quick-win-impact">Impact: +3 points (AI Friendliness)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="issues-section">
+            <h2 class="section-title">⚠️ Issues by Priority</h2>
+            <div id="issuesList">
+                <div class="issue-card critical">
+                    <div class="issue-title">🔴 BLOCKER: Low Test Coverage</div>
+                    <div class="issue-description">
+                        Test coverage is below the required threshold of 80%.
+                    </div>
+                    <div class="issue-location">Priority: P0 | Impact: High</div>
+                </div>
+                <div class="issue-card warning">
+                    <div class="issue-title">🟡 WARNING: Module Documentation Incomplete</div>
+                    <div class="issue-description">
+                        common module is missing 4 required documentation files.
+                    </div>
+                    <div class="issue-location">Priority: P1 | Files: RUNBOOK.md, BUGS.md, PROGRESS.md, TEST_PLAN.md</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title" style="color: white; margin-bottom: 20px;">📈 Improvement Roadmap</h2>
+        <div class="roadmap">
+            <div class="roadmap-card">
+                <div class="roadmap-timeline">⚡ Immediate (< 1 day)</div>
+                <ul class="roadmap-items">
+                    <li class="roadmap-item">Complete common module documentation</li>
+                    <li class="roadmap-item">Fix secret scan false positives</li>
+                    <li class="roadmap-item">Update dev_check to include 21 checks</li>
+                </ul>
+            </div>
+            <div class="roadmap-card">
+                <div class="roadmap-timeline">📅 Short-term (1-7 days)</div>
+                <ul class="roadmap-items">
+                    <li class="roadmap-item">Configure pytest-cov and radon</li>
+                    <li class="roadmap-item">Implement code complexity checks</li>
+                    <li class="roadmap-item">Add type checking with mypy</li>
+                </ul>
+            </div>
+            <div class="roadmap-card">
+                <div class="roadmap-timeline">📆 Medium-term (1-4 weeks)</div>
+                <ul class="roadmap-items">
+                    <li class="roadmap-item">Increase test coverage to 80%+</li>
+                    <li class="roadmap-item">Refactor high complexity modules</li>
+                    <li class="roadmap-item">Complete CI integration</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="commands-box">
+            <h2 class="section-title">🚀 Useful Commands</h2>
+            <div class="command">make health_check</div>
+            <div class="command">make health_report_detailed</div>
+            <div class="command">make health_analyze_issues</div>
+            <div class="command">make health_show_quick_wins</div>
+            <div class="command">make health_trend</div>
+        </div>
+
+        <footer>
+            <p>Repository Health Dashboard | Powered by AI-TEMPLATE v2.4</p>
+        </footer>
+    </div>
+
+    <script>
+        // Sample data - will be replaced by actual health check results
+        const healthData = {
+            overall: 45,
+            grade: "⚠️ Needs Improvement",
+            trend: "stable",
+            dimensions: [
+                {
+                    name: "Code Quality",
+                    score: 15,
+                    max: 25,
+                    percentage: 60,
+                    status: "warning",
+                    checks: [
+                        { name: "Linter Pass Rate", value: "95%" },
+                        { name: "Test Coverage", value: "0%" },
+                        { name: "Code Complexity", value: "N/A" },
+                        { name: "Type Safety", value: "60%" }
+                    ]
+                },
+                {
+                    name: "Documentation",
+                    score: 6,
+                    max: 20,
+                    percentage: 30,
+                    status: "warning",
+                    checks: [
+                        { name: "Module Doc Coverage", value: "50%" },
+                        { name: "Doc Freshness", value: "60%" },
+                        { name: "Doc Quality", value: "80%" },
+                        { name: "Doc Sync", value: "Pass" }
+                    ]
+                },
+                {
+                    name: "Architecture",
+                    score: 16,
+                    max: 20,
+                    percentage: 80,
+                    status: "excellent",
+                    checks: [
+                        { name: "Dependency Clarity", value: "95%" },
+                        { name: "Module Coupling", value: "Low" },
+                        { name: "Contract Stability", value: "Pass" },
+                        { name: "Registry Consistency", value: "Pass" }
+                    ]
+                },
+                {
+                    name: "AI Friendliness",
+                    score: 2,
+                    max: 20,
+                    percentage: 10,
+                    status: "critical",
+                    checks: [
+                        { name: "agent.md Size", value: "399 lines" },
+                        { name: "Doc Role Clarity", value: "85%" },
+                        { name: "Module Doc Complete", value: "50%" },
+                        { name: "Workflow Friendly", value: "Pass" },
+                        { name: "Script Automation", value: "16/21" }
+                    ]
+                },
+                {
+                    name: "Operations",
+                    score: 6,
+                    max: 15,
+                    percentage: 40,
+                    status: "warning",
+                    checks: [
+                        { name: "Migration Complete", value: "100%" },
+                        { name: "Config Compliance", value: "Pass" },
+                        { name: "Observability", value: "100%" },
+                        { name: "Security Hygiene", value: "Fail" }
+                    ]
+                }
+            ]
+        };
+
+        // Populate dimensions
+        const dimensionsGrid = document.getElementById('dimensionsGrid');
+        healthData.dimensions.forEach(dim => {
+            const card = document.createElement('div');
+            card.className = 'dimension-card';
+            
+            let checksList = '';
+            dim.checks.forEach(check => {
+                checksList += `
+                    <li class="check-item">
+                        <span class="check-name">${check.name}</span>
+                        <span class="check-value">${check.value}</span>
+                    </li>
+                `;
+            });
+            
+            card.innerHTML = `
+                <div class="dimension-header">
+                    <div class="dimension-name">${dim.name}</div>
+                    <div class="dimension-score">${dim.score}/${dim.max}</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${dim.percentage}%"></div>
+                </div>
+                <span class="status-badge ${dim.status}">${dim.percentage}%</span>
+                <ul class="checks-list">
+                    ${checksList}
+                </ul>
+            `;
+            
+            dimensionsGrid.appendChild(card);
+        });
+
+        // Update timestamp
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+    </script>
+</body>
+</html>
+

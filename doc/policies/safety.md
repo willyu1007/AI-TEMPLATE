@@ -1,3 +1,9 @@
+---
+audience: ai
+language: zh
+version: summary
+purpose: ⚠️ To be translated to English
+---
 # Safety & Quality Standards
 
 > **Purpose**: Define safety constraints and quality requirements (core principles)  

@@ -1,3 +1,9 @@
+---
+audience: human
+language: zh
+version: complete
+purpose: Documentation for security_details
+---
 # 安全规范详细说明
 
 > **用途**: 安全约束和工具限制的详细说明  

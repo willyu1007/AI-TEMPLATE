@@ -1,3 +1,9 @@
+---
+audience: ai
+language: en
+version: config
+purpose: Documentation for agent-triggers
+---
 version: "1.0"
 description: "AI智能体自动触发规则 - 基于文件路径和prompt自动加载相关文档"
 
@@ -589,13 +595,83 @@ triggers:
         priority: low
         type: reference
 
+  # 规则16: 仓库健康度检查触发 ⭐ NEW (Phase 14.2)
+  repository-health-check:
+    priority: high
+    enforcement: suggest
+    description: "仓库健康度评估和质量检查"
+    
+    # 文件触发
+    file_triggers:
+      path_patterns:
+        - "doc/process/HEALTH_CHECK_MODEL.yaml"
+        - "ai/maintenance_reports/**/*.json"
+        - "ai/maintenance_reports/**/*.md"
+      content_patterns:
+        - "health_check"
+        - "ai_friendliness"
+        - "coupling"
+    
+    # Prompt触发
+    prompt_triggers:
+      keywords:
+        - "健康度"
+        - "health"
+        - "质量检查"
+        - "quality check"
+        - "仓库评分"
+        - "repo score"
+        - "AI友好度"
+        - "ai friendliness"
+        - "耦合度"
+        - "coupling"
+        - "文档时效"
+        - "doc freshness"
+        - "密钥扫描"
+        - "secret scan"
+        - "可观测性"
+        - "observability"
+      intent_patterns:
+        - "(仓库|repo|repository).{0,10}(健康度|质量|评分|检查)"
+        - "(健康度|health).{0,10}(检查|评估|分析|报告)"
+        - "(质量|quality).{0,10}(检查|评估|分析)"
+        - "检查.{0,5}(仓库|repo).{0,5}(健康|质量)"
+        - "(评估|assess|evaluate).{0,10}(代码|文档|架构).{0,5}质量"
+        - "(AI|ai).{0,5}友好度"
+        - "(模块|module).{0,5}耦合"
+    
+    # 推荐文档
+    recommended_docs:
+      - /doc/process/HEALTH_CHECK_MODEL.yaml
+      - /ai/maintenance_reports/README.md
+    
+    # 推荐命令
+    recommended_commands:
+      - make health_check
+      - make health_report
+      - make health_trend
+      - make ai_friendliness_check
+      - make module_health_check
+      - make doc_freshness_check
+      - make coupling_check
+      - make observability_check
+      - make secret_scan
+    
+    load_documents:
+      - path: /doc/process/HEALTH_CHECK_MODEL.yaml
+        priority: high
+        type: main
+      - path: /ai/maintenance_reports/README.md
+        priority: medium
+        type: reference
+
 # 元数据
 meta:
-  version: "1.0"
+  version: "1.1"
   created: "2025-11-08"
   last_updated: "2025-11-09"
-  author: "AI-TEMPLATE Phase 10 + Phase 13"
-  total_rules: 14
+  author: "AI-TEMPLATE Phase 10 + Phase 13 + Phase 14.2"
+  total_rules: 16
   related_docs:
     - /doc/orchestration/routing.md
     - /doc/orchestration/triggers-guide.md

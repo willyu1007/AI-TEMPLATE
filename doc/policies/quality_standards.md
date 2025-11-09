@@ -1,3 +1,9 @@
+---
+audience: human
+language: zh
+version: complete
+purpose: Documentation for quality_standards
+---
 # 质量门槛标准
 
 > **用途**: 定义代码和文档的质量要求  

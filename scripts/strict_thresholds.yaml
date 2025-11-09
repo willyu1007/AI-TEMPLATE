@@ -1,0 +1,246 @@
+---
+# Strict Thresholds Configuration
+# Version: 1.0
+# Created: 2025-11-09 (Phase 14.2+)
+# Purpose: Define strict/blocker-level checks for production readiness
+
+strict_mode:
+  enabled: true
+  description: "Strict thresholds for production-ready repository"
+  version: "1.0"
+
+# ==============================================================================
+# Blocker Checks - Zero Tolerance (Must fix to pass)
+# ==============================================================================
+
+blocker_checks:
+  - rule: "BLOCKER-001"
+    name: "Secret Leakage Detection"
+    severity: critical
+    tolerance: 0  # Zero tolerance
+    action: "block"
+    description: "Any secret/password/key detected → score = 0, blocks release"
+    patterns:
+      # AWS
+      - "AKIA[0-9A-Z]{16}"  # AWS Access Key ID
+      - "aws_secret_access_key.*=.*['\"][^'\"]{20,}['\"]"
+      # Private Keys
+      - "-----BEGIN.*PRIVATE KEY-----"
+      - "private_key.*=.*['\"][^'\"]{20,}['\"]"
+      # Passwords
+      - "password.*=.*['\"][^'\"]{8,}['\"]"
+      - "passwd.*=.*['\"][^'\"]{8,}['\"]"
+      # Tokens
+      - "token.*=.*['\"][^'\"]{20,}['\"]"
+      - "api_key.*=.*['\"][^'\"]{20,}['\"]"
+      # Database URLs with credentials
+      - "postgres://.*:.*@"
+      - "mysql://.*:.*@"
+    excludes:
+      # Example patterns (safe to have these)
+      - "password.*=.*'example'"
+      - "password.*=.*'test'"
+      - "password.*=.*'xxx'"
+      - "password.*=.*'<'"  # Template placeholders
+      - "SECRET_KEY.*{{"  # Template variables
+  
+  - rule: "BLOCKER-002"
+    name: "Circular Dependency"
+    severity: critical
+    tolerance: 0
+    action: "block"
+    description: "Circular dependencies between modules block release"
+    check_command: "make dag_check"
+  
+  - rule: "BLOCKER-003"
+    name: "Missing Critical Documentation"
+    severity: critical
+    tolerance: 0
+    action: "block"
+    description: "Critical documentation files must exist"
+    required_docs:
+      repo_level:
+        - "README.md"
+        - "agent.md"
+        - "LICENSE"
+      module_level:
+        - "agent.md"
+        - "doc/CONTRACT.md"
+        - "README.md"
+  
+  - rule: "BLOCKER-004"
+    name: "License Violation"
+    severity: critical
+    tolerance: 0
+    action: "block"
+    description: "Incompatible or missing license"
+    allowed_licenses:
+      - "MIT"
+      - "Apache-2.0"
+      - "BSD-3-Clause"
+      - "ISC"
+
+# ==============================================================================
+# Strict Thresholds - Higher standards than default
+# ==============================================================================
+
+strict_thresholds:
+  # Code Quality
+  test_coverage:
+    default: 80
+    strict: 90
+    explanation: "90%+ coverage for production readiness"
+    priority: high
+  
+  linter_pass_rate:
+    default: 95
+    strict: 100
+    explanation: "All files must pass linter (zero tolerance)"
+    priority: critical
+  
+  code_complexity:
+    default: 15  # Average cyclomatic complexity
+    strict: 10
+    explanation: "Lower complexity improves maintainability"
+    priority: medium
+  
+  type_safety:
+    default: 70
+    strict: 85
+    explanation: "85%+ functions with type annotations"
+    priority: medium
+  
+  # Documentation
+  doc_completeness:
+    default: 85
+    strict: 95
+    explanation: "95%+ modules with complete documentation"
+    priority: high
+  
+  doc_freshness:
+    default: 30  # Days since last update
+    strict: 14
+    explanation: "Documents updated within 2 weeks"
+    priority: low
+  
+  api_doc_sync:
+    default: 90
+    strict: 100
+    explanation: "100% API documentation synchronized"
+    priority: high
+  
+  # Architecture
+  dependency_depth:
+    default: 5
+    strict: 3
+    explanation: "Max 3 levels of dependency depth"
+    priority: medium
+  
+  module_coupling:
+    default: 3  # Max dependencies per module
+    strict: 2
+    explanation: "Max 2 dependencies per module (loose coupling)"
+    priority: medium
+  
+  # AI Friendliness
+  agent_md_lines:
+    default: 400
+    strict: 350
+    explanation: "Lighter agent.md for better AI efficiency"
+    priority: high
+  
+  always_read_lines:
+    default: 150
+    strict: 100
+    explanation: "Minimal always_read context"
+    priority: high
+  
+  doc_role_clarity:
+    default: 80
+    strict: 95
+    explanation: "95%+ docs with clear AI/Human role markers"
+    priority: medium
+  
+  # Operations
+  migration_completeness:
+    default: 95
+    strict: 100
+    explanation: "100% migrations paired (up/down)"
+    priority: critical
+  
+  observability_coverage:
+    default: 80
+    strict: 95
+    explanation: "95%+ critical paths with logging/monitoring"
+    priority: high
+  
+  secret_scan_pass:
+    default: "warnings_allowed"
+    strict: "zero_findings"
+    explanation: "No secrets or hardcoded credentials"
+    priority: critical
+
+# ==============================================================================
+# Additional Strict Rules
+# ==============================================================================
+
+additional_checks:
+  # Code smells
+  - rule: "STRICT-001"
+    name: "God Class Detection"
+    threshold: 500  # lines
+    description: "Classes over 500 lines should be refactored"
+    severity: warning
+  
+  - rule: "STRICT-002"
+    name: "Dead Code Detection"
+    description: "Unused functions/imports must be removed"
+    severity: warning
+  
+  - rule: "STRICT-003"
+    name: "Duplicate Code"
+    threshold: 10  # lines
+    description: "Code blocks duplicated more than 10 lines"
+    severity: info
+  
+  # Documentation issues
+  - rule: "STRICT-004"
+    name: "Broken Links"
+    description: "All documentation links must be valid"
+    severity: error
+  
+  - rule: "STRICT-005"
+    name: "Missing Diagrams"
+    description: "Complex modules should have architecture diagrams"
+    severity: info
+  
+  # Operations issues
+  - rule: "STRICT-006"
+    name: "Hardcoded Configuration"
+    description: "No hardcoded config values (use env vars)"
+    severity: warning
+  
+  - rule: "STRICT-007"
+    name: "Missing Error Handling"
+    description: "All network/IO operations need error handling"
+    severity: error
+
+# ==============================================================================
+# Enforcement Levels
+# ==============================================================================
+
+enforcement:
+  blocker:
+    action: "fail_immediately"
+    exit_code: 1
+    message: "🔥 BLOCKER ISSUES FOUND - Cannot proceed"
+  
+  strict:
+    action: "score_reduction"
+    penalty_per_violation: 5  # Points deducted per violation
+    message: "⚠️ STRICT MODE VIOLATIONS - Higher standards not met"
+  
+  additional:
+    action: "warning_only"
+    message: "ℹ️ Code quality suggestions available"
+

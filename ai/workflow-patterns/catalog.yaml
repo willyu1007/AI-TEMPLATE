@@ -1,3 +1,9 @@
+---
+audience: ai
+language: en
+version: config
+purpose: Documentation for catalog
+---
 # AI工作流模式目录索引（自动生成）
 version: "1.0"
 generated_at: "2025-11-09"

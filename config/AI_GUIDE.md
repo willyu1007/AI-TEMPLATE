@@ -1,3 +1,9 @@
+---
+audience: ai
+language: en
+version: summary
+purpose: Documentation for AI_GUIDE
+---
 # Config Management - AI Quick Guide
 
 > **For AI Agents** - Quick reference (~80 lines)  

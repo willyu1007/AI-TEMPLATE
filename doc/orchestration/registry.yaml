@@ -1,3 +1,9 @@
+---
+audience: ai
+language: en
+version: config
+purpose: Documentation for registry
+---
 # Module Registry
 # Version: 1.1
 # Purpose: Maintains all module types, instances, and dependencies

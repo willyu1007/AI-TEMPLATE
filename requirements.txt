@@ -10,6 +10,8 @@ pytest-cov>=4.0.0
 # 代码质量（可选）
 # pylint>=2.0.0
 # black>=22.0.0
+radon>=6.0.1  # 代码复杂度分析
+mypy>=1.0.0   # 静态类型检查
 
 # Schema校验（用于agent_lint等工具）
 jsonschema>=4.0.0

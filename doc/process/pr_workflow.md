@@ -1,3 +1,9 @@
+---
+audience: ai
+language: zh
+version: summary
+purpose: ⚠️ To be translated to English
+---
 # 提交与PR工作流
 
 > **用途**: 定义代码提交和Pull Request流程

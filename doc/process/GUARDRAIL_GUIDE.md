@@ -1,3 +1,9 @@
+---
+audience: human
+language: zh
+version: complete
+purpose: Documentation for GUARDRAIL_GUIDE
+---
 # Guardrail使用指南
 
 > **用途**: 详细说明Guardrail防护机制  

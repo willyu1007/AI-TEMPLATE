@@ -1,3 +1,9 @@
+---
+audience: both
+language: zh
+version: summary
+purpose: Documentation for README
+---
 # Agent Repo - AI 辅助开发项目模板
 
 > 为 AI Agent 优化的项目骨架，支持模块化开发、自动化质量门禁、完整的文档体系。

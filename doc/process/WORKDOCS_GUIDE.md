@@ -1,3 +1,9 @@
+---
+audience: human
+language: zh
+version: complete
+purpose: Documentation for WORKDOCS_GUIDE
+---
 # Workdocs使用指南
 
 > **用途**: 详细说明如何使用ai/workdocs/机制  

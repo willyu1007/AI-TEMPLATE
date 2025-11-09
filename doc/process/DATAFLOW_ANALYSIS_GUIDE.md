@@ -1,3 +1,9 @@
+---
+audience: human
+language: zh
+version: complete
+purpose: Documentation for DATAFLOW_ANALYSIS_GUIDE
+---
 # 数据流分析指南
 
 > **人类完整文档** - 详细说明和最佳实践  

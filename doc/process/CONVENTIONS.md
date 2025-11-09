@@ -1,3 +1,9 @@
+---
+audience: human
+language: zh
+version: complete
+purpose: Documentation for CONVENTIONS
+---
 # 开发约定
 
 ## 目标

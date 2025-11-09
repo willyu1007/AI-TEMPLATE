@@ -1,3 +1,9 @@
+---
+audience: ai
+language: zh
+version: summary
+purpose: ⚠️ To be translated to English
+---
 # 测试准则
 
 > **用途**: 定义项目的测试策略和规范

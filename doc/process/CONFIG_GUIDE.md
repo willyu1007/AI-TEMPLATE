@@ -1,3 +1,9 @@
+---
+audience: ai
+language: zh
+version: summary
+purpose: ⚠️ To be translated to English
+---
 # 配置管理指南（Configuration Guide）
 
 ## 目标

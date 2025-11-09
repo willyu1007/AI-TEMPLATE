@@ -1,3 +1,9 @@
+---
+audience: ai
+language: zh
+version: summary
+purpose: ⚠️ To be translated to English
+---
 # 数据库变更指南
 
 > **用途**: 指导数据库变更的完整流程  

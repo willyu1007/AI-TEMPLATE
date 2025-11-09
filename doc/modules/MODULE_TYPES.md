@@ -1,3 +1,9 @@
+---
+audience: ai
+language: zh
+version: summary
+purpose: ⚠️ To be translated to English
+---
 # 模块类型说明
 
 > **用途**: 定义模块的分类标准和命名规范

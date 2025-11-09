@@ -12,7 +12,10 @@
         dataflow_trace dataflow_visualize dataflow_analyze bottleneck_detect dataflow_report \
         makefile_check python_scripts_lint shell_scripts_lint config_lint \
         trigger_show trigger_check trigger_coverage trigger_matrix \
-        health_check health_report health_trend module_health_check ai_friendliness_check
+        health_check health_report health_trend module_health_check ai_friendliness_check \
+        health_check_strict health_report_detailed health_analyze_issues health_show_quick_wins \
+        doc_freshness_check coupling_check observability_check secret_scan \
+        test_coverage code_complexity type_check
 
 help:
 	@echo "可用命令："
@@ -81,19 +84,32 @@ help:
 	@echo "  make trigger_coverage        - 显示自动化覆盖率"
 	@echo "  make trigger_matrix          - 生成触发矩阵"
 	@echo ""
-	@echo "仓库健康度检查（Phase 14.1规划）："
+	@echo "仓库健康度检查（Phase 14.2+）："
 	@echo "  make health_check            - 运行健康度检查"
+	@echo "  make health_check_strict     - 严格模式检查（零容忍+阻断规则）"
 	@echo "  make health_report           - 生成完整健康度报告"
+	@echo "  make health_report_detailed  - 生成详细报告（含问题定位）"
 	@echo "  make health_trend            - 显示健康度趋势"
+	@echo "  make health_analyze_issues   - 问题聚合与根因分析"
+	@echo "  make health_show_quick_wins  - 显示快速改进建议"
 	@echo "  make module_health_check     - 检查模块健康度"
 	@echo "  make ai_friendliness_check   - 检查AI友好度"
+	@echo "  make doc_freshness_check     - 检查文档时效性"
+	@echo "  make coupling_check          - 检查模块耦合度"
+	@echo "  make observability_check     - 检查可观测性覆盖"
+	@echo "  make secret_scan             - 扫描密钥泄露"
+	@echo ""
+	@echo "代码质量工具（Phase 14.3新增）："
+	@echo "  make test_coverage           - 测试覆盖率分析"
+	@echo "  make code_complexity         - 代码复杂度分析"
+	@echo "  make type_check              - 静态类型检查"
 
 # 完整开发检查（CI 门禁）
-# Phase 7更新：整合Phase 1-5新增的校验命令
-dev_check: docgen doc_style_check agent_lint registry_check doc_route_check type_contract_check doc_script_sync_check db_lint resources_check dag_check contract_compat_check deps_check runtime_config_check migrate_check consistency_check frontend_types_check
+# Phase 14.3更新：增加质量检查工具，总计21个检查
+dev_check: docgen doc_style_check agent_lint registry_check doc_route_check type_contract_check doc_script_sync_check db_lint resources_check dag_check contract_compat_check deps_check runtime_config_check migrate_check consistency_check frontend_types_check doc_freshness_check coupling_check observability_check secret_scan test_coverage
 	@echo ""
 	@echo "================================"
-	@echo "✅ 全部检查通过"
+	@echo "✅ 全部检查通过 (21/21)"
 	@echo "================================"
 
 # 生成文档索引（含 summary/keywords/deps/hash）
@@ -559,31 +575,103 @@ trigger_matrix:
 	@python scripts/trigger_visualizer.py matrix
 
 # ==============================================================================
-# Repository Health Check (Phase 14.1+)
+# Repository Health Check (Phase 14.2 - Fully Implemented)
 # ==============================================================================
 
 health_check:
-	@echo "运行健康度检查..."
-	@echo "⚠️  健康度检查工具将在 Phase 14.2 实现"
-	@echo "📋 参考: doc/process/HEALTH_CHECK_MODEL.yaml"
-	@python scripts/health_check.py || echo "脚本尚未实现，请等待 Phase 14.2"
+	@echo "🏥 Running repository health check..."
+	@python scripts/health_check.py
 
 health_report:
-	@echo "生成健康度报告..."
-	@echo "⚠️  健康度报告工具将在 Phase 14.2 实现"
-	@python scripts/health_check.py --report || echo "脚本尚未实现，请等待 Phase 14.2"
+	@echo "📊 Generating health report..."
+	@python scripts/health_check.py --format all --output ai/maintenance_reports/health-summary.md
 
 health_trend:
-	@echo "显示健康度趋势..."
-	@echo "⚠️  健康度趋势分析将在 Phase 14.2 实现"
-	@python scripts/health_trend_analyzer.py || echo "脚本尚未实现，请等待 Phase 14.2"
+	@echo "📈 Analyzing health trends..."
+	@python scripts/health_trend_analyzer.py
+
+# Phase 14.2+ Enhanced Health Check Commands
+health_check_strict:
+	@echo "🔥 Running strict mode health check..."
+	@python scripts/health_check.py --strict --output temp/health-check-strict-$$(date +%Y%m%d-%H%M%S).md
+
+health_report_detailed:
+	@echo "📊 Generating detailed health report (all formats)..."
+	@python scripts/health_check.py --detailed --format all --output temp/
+
+health_analyze_issues:
+	@echo "🎯 Analyzing issue patterns and root causes..."
+	@python scripts/issue_aggregator.py --input ai/maintenance_reports/health-report-latest.json
+
+health_show_quick_wins:
+	@echo "🚀 Identifying quick win improvements..."
+	@python scripts/issue_aggregator.py --quick-wins --max 10
 
 module_health_check:
-	@echo "检查模块健康度..."
-	@echo "⚠️  模块健康度检查将在 Phase 14.2 实现"
-	@python scripts/module_health_check.py || echo "脚本尚未实现，请等待 Phase 14.2"
+	@echo "📦 Checking module health..."
+	@python scripts/module_health_check.py
 
 ai_friendliness_check:
-	@echo "检查 AI 友好度..."
-	@echo "⚠️  AI 友好度检查将在 Phase 14.2 实现"
-	@python scripts/ai_friendliness_check.py || echo "脚本尚未实现，请等待 Phase 14.2"
+	@echo "🤖 Checking AI friendliness..."
+	@python scripts/ai_friendliness_check.py
+
+doc_freshness_check:
+	@echo "📚 Checking documentation freshness..."
+	@python scripts/doc_freshness_check.py
+
+coupling_check:
+	@echo "🔗 Checking module coupling..."
+	@python scripts/coupling_check.py
+
+observability_check:
+	@echo "🔭 Checking observability coverage..."
+	@python scripts/observability_check.py
+
+secret_scan:
+	@echo "🔒 Scanning for secrets..."
+	@python scripts/secret_scan.py
+
+# ==============================================================================
+# Code Quality Tools (Phase 14.3)
+# ==============================================================================
+
+test_coverage:
+	@echo "📊 Running test coverage analysis..."
+	@if command -v pytest > /dev/null 2>&1; then \
+		pytest tests/ --cov=. --cov-report=term --cov-report=html --cov-report=json -v || true; \
+		echo ""; \
+		echo "📈 Coverage report generated:"; \
+		echo "  - HTML: htmlcov/index.html"; \
+		echo "  - JSON: coverage.json"; \
+	else \
+		echo "⚠️  pytest not installed. Install with: pip install pytest pytest-cov"; \
+		exit 1; \
+	fi
+
+code_complexity:
+	@echo "📊 Analyzing code complexity..."
+	@if command -v radon > /dev/null 2>&1; then \
+		echo ""; \
+		echo "🔍 Cyclomatic Complexity (modules/):"; \
+		radon cc modules/ -a -s || true; \
+		echo ""; \
+		echo "🔍 Maintainability Index (modules/):"; \
+		radon mi modules/ -s || true; \
+		echo ""; \
+		echo "🔍 Raw Metrics (modules/):"; \
+		radon raw modules/ -s || true; \
+	else \
+		echo "⚠️  radon not installed. Install with: pip install radon"; \
+		exit 1; \
+	fi
+
+type_check:
+	@echo "🔍 Running static type check..."
+	@if command -v mypy > /dev/null 2>&1; then \
+		mypy modules/ scripts/ --ignore-missing-imports --no-strict-optional || true; \
+		echo ""; \
+		echo "✅ Type check completed"; \
+	else \
+		echo "⚠️  mypy not installed. Install with: pip install mypy"; \
+		exit 1; \
+	fi

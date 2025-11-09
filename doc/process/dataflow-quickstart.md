@@ -1,3 +1,9 @@
+---
+audience: ai
+language: en
+version: summary
+purpose: Documentation for dataflow-quickstart
+---
 # Dataflow Analysis - AI Quick Start
 
 > **For AI Agents** - Quick reference (~100 lines)  

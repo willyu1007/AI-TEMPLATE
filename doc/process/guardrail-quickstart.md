@@ -1,3 +1,9 @@
+---
+audience: ai
+language: en
+version: summary
+purpose: Documentation for guardrail-quickstart
+---
 # Guardrail - AI Quick Start
 
 > **For AI Agents** - Quick reference (~120 lines)  

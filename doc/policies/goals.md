@@ -1,3 +1,9 @@
+---
+audience: ai
+language: zh
+version: summary
+purpose: ⚠️ To be translated to English
+---
 # 全局目标与设计原则
 
 > **用途**: 定义AI-TEMPLATE项目的核心目标和设计原则

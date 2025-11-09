@@ -21,12 +21,12 @@ context_routes:
     - topic: "Full Objectives and Principles"
       priority: high
       paths:
-        - /doc/policies/goals.md
-        - /doc/policies/safety.md
+        - /doc/policies/goals-en.md
+        - /doc/policies/safety-en.md
     - topic: "Documentation Roles and Responsibilities"
       priority: high
       paths:
-        - /doc/policies/DOC_ROLES.md
+        - /doc/policies/DOC_ROLES-en.md
     - topic: "Documentation Writing Standards"
       priority: medium
       paths:
@@ -39,17 +39,16 @@ context_routes:
       priority: medium
       paths:
         - /doc/architecture/directory.md
-    - topic: "Security Details"
+    - topic: "Security and Quality Standards"
       priority: medium
       paths:
-        - /doc/policies/security_details.md
-        - /doc/policies/quality_standards.md
+        - /doc/policies/security.md
+        - /doc/policies/quality.md
     - topic: "Common Module Usage"
-      priority: medium
+      priority: high
       paths:
+        - /modules/common/USAGE.md
         - /modules/common/agent.md
-        - /modules/common/README.md
-        - /modules/common/doc/CONTRACT.md
     - topic: "Database Operations"
       priority: high
       paths:
@@ -62,57 +61,28 @@ context_routes:
         - /doc/process/DB_CHANGE_GUIDE.md
         - /db/engines/postgres/schemas/tables/runs.yaml
         - /db/engines/postgres/docs/DB_SPEC.yaml
-    - topic: "Detailed Database Changes"
-      priority: medium
-      paths:
-        - /doc/process/resources/db-create-table.md
-        - /doc/process/resources/db-alter-table.md
-        - /doc/process/resources/db-migration-script.md
-        - /doc/process/resources/db-test-data.md
     - topic: "Module Development"
       priority: high
       paths:    
         - /doc/modules/MODULE_TYPES.md
         - /doc/modules/MODULE_TYPE_CONTRACTS.yaml
         - /doc/modules/MODULE_INSTANCES.md
-        - /doc/modules/example/README.md
-    - topic: "Detailed Module Development"
-      priority: medium
-      paths:
         - /doc/modules/MODULE_INIT_GUIDE.md
-        - /doc/modules/resources/init-planning.md
-        - /doc/modules/resources/init-directory.md
-        - /doc/modules/resources/init-documents.md
-        - /doc/modules/resources/init-registration.md
-        - /doc/modules/resources/init-validation.md
-        - /doc/modules/resources/init-database.md
-        - /doc/modules/resources/init-testdata.md
-        - /doc/modules/resources/init-context.md
-    - topic: "Project Initialization"
-      priority: low
-      paths:
-        - /doc/init/PROJECT_INIT_GUIDE.md
+        - /doc/modules/example/README.md
     - topic: "Configuration Management"
       priority: high
       paths:
         - /config/AI_GUIDE.md
         - /doc/process/CONFIG_GUIDE.md
-    - topic: "Command Reference"
-      priority: medium
-      paths:
-        - /doc/reference/commands.md
     - topic: "Testing Standards"
       priority: medium
       paths:
         - /doc/process/testing.md
     - topic: "Commit and PR Workflow"
-      priority: medium
+      priority: low
+      audience: human
       paths:
         - /doc/process/pr_workflow.md
-    - topic: "Documentation Routing Usage"
-      priority: low
-      paths:
-        - /doc/orchestration/routing.md
     - topic: "Intelligent Trigger System"
       priority: medium
       paths:
@@ -122,24 +92,23 @@ context_routes:
       priority: high
       paths:
         - /doc/process/workdocs-quickstart.md
-        - /doc/process/WORKDOCS_GUIDE.md
     - topic: "Guardrail Protection Mechanism"
       priority: high
       paths:
         - /doc/process/guardrail-quickstart.md
-        - /doc/process/GUARDRAIL_GUIDE.md
     - topic: "Mock Data Generation"
       priority: medium
       paths:
-        - /doc/process/MOCK_RULES_GUIDE.md
+        - /doc/process/MOCK_RULES.md
         - /doc/process/TEST_DATA_STRATEGY.md
-        - /doc/modules/example/doc/TEST_DATA.md
     - topic: "AI Coding Standards"
       priority: high
       paths:
         - /doc/process/AI_CODING_GUIDE.md
     - topic: "Comprehensive Development Standards"
       priority: low
+      audience: human
+      skip_for_ai: true
       paths:
         - /doc/process/CONVENTIONS.md
     - topic: "Workflow Patterns"
@@ -151,11 +120,22 @@ context_routes:
       priority: high
       paths:
         - /doc/process/dataflow-quickstart.md
-        - /doc/process/DATAFLOW_ANALYSIS_GUIDE.md
     - topic: "Repository Health Check"
       priority: medium
       paths:
+        - /ai/maintenance_reports/health-summary.md
         - /doc/process/HEALTH_CHECK_MODEL.yaml
+      commands:
+        - "make health_check"
+        - "make health_check_strict"
+        - "make health_report_detailed"
+        - "make health_trend"
+        - "make ai_friendliness_check"
+        - "make module_health_check"
+        - "make test_coverage"
+        - "make code_complexity"
+        - "make health_analyze_issues"
+        - "make health_show_quick_wins"
   by_scope:
     - scope: "Module Development"
       read:
@@ -292,6 +272,47 @@ Run `make ai_maintenance` to ensure repo health.
 - Load explicitly listed documents only
 - Do not recursively follow references
 - Example: AI_INDEX.md mentions goals.md → Do NOT auto-load goals.md
+
+**Rule 3: Respect audience field** ⭐ NEW
+- Check YAML front matter `audience` field in documents
+- **Skip if `audience: human`** (unless explicitly requested by user)
+- **Skip if `skip_for_ai: true`** field is present
+- **Load if `audience: ai`** or `audience: both`
+- If no audience field, assume `both` (load conditionally)
+
+**Rule 4: Language preference** ⭐ NEW
+- **AI docs MUST be English** (`language: en`)
+- **Prefer English docs** when available (e.g., goals-en.md over goals.md)
+- **Chinese docs acceptable** only for:
+  - README.md (project overview)
+  - Human-only docs (`audience: human`)
+  - When no English version exists (temporary)
+- **When updating docs**: Keep AI docs in English, human docs can be Chinese
+
+**Rule 5: Priority-based loading** ⭐ NEW
+- **priority: high** → Load when task is highly relevant
+- **priority: medium** → Load only when explicitly mentioned in prompt
+- **priority: low** → Load only if user explicitly requests
+- **No priority field** → Treat as medium
+
+**Loading Decision Tree**:
+```
+1. Check `audience` field
+   ├─ human? → Skip (unless user requests)
+   ├─ ai? → Continue to step 2
+   └─ both? → Continue to step 2
+
+2. Check `language` field
+   ├─ en? → Continue to step 3
+   ├─ zh? → Skip if English version exists
+   └─ no field? → Continue to step 3
+
+3. Check `priority` field
+   ├─ high? → Load if task relevant
+   ├─ medium? → Load if mentioned
+   ├─ low? → Skip (unless requested)
+   └─ Load conditionally
+```
 
 **Rule 3: On-demand loading**
 - Check `context_routes` for task-specific topics
