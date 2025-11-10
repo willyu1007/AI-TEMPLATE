@@ -15,17 +15,23 @@ context_routes:
     - /doc_agent/index/AI_INDEX.md
   on_demand:
     - topic: "S0 Orientation - Explain TemplateAI"
+      priority: high
+      audience: both
       when: "Need an elevator pitch, onboarding summary, or cross-team briefing."
       load_policy: default
       paths:
         - /README.md
     - topic: "S0 Orientation - Kick off a new project"
+      priority: high
+      audience: both
       when: "First-time setup or migration planning."
       load_policy: default
       paths:
         - /doc_agent/init/project-init.md
         - /doc_human/guides/PROJECT_INIT_GUIDE.md
     - topic: "Governance - Goals, safety, and roles"
+      priority: high
+      audience: ai
       when: "Clarify objectives, risk posture, or responsibilities."
       load_policy: default
       paths:
@@ -33,34 +39,48 @@ context_routes:
         - /doc_agent/policies/safety.md
         - /doc_agent/policies/DOC_ROLES.md
     - topic: "Docs - writing standards and directory map"
+      priority: medium
+      audience: human
       when: "Need to assign docs or confirm style expectations."
-      load_policy: task_specific
+      load_policy: human_only
+      skip_for_ai: true
       paths:
         - /doc_human/guides/DOC_WRITING_STANDARDS.md
         - /doc_human/architecture/directory.md
     - topic: "Contract management"
+      priority: medium
+      audience: ai
       when: "Manage `.contracts_baseline/` snapshots or interface reviews."
       load_policy: task_specific
       paths:
         - /.contracts_baseline/README.md
     - topic: "Security & quality policies"
+      priority: high
+      audience: ai
       when: "Security reviews or enforcing repo-wide quality bars."
       load_policy: task_specific
       paths:
         - /doc_agent/policies/security.md
         - /doc_agent/policies/quality.md
     - topic: "Temporary file guardrails"
+      priority: medium
+      audience: human
       when: "Need retention rules for generated logs/reports."
-      load_policy: default
+      load_policy: human_only
+      skip_for_ai: true
       paths:
         - /doc_human/policies/TEMP_FILES_POLICY.md
     - topic: "Common module usage"
+      priority: medium
+      audience: ai
       when: "Sharing or extending `modules/common` utilities."
       load_policy: default
       paths:
         - /modules/common/USAGE.md
         - /modules/common/agent.md
     - topic: "Database - operate existing engines"
+      priority: medium
+      audience: both
       when: "Querying or troubleshooting DB assets."
       load_policy: default
       paths:
@@ -68,6 +88,8 @@ context_routes:
         - /doc_human/guides/SCHEMA_GUIDE.md
         - /db/engines/README.md
     - topic: "Database - plan schema or migration changes"
+      priority: medium
+      audience: both
       when: "Authoring migrations, reviewing table specs, or ensuring rollback plans."
       load_policy: default
       paths:
@@ -75,6 +97,8 @@ context_routes:
         - /db/engines/postgres/schemas/tables/runs.yaml
         - /db/engines/postgres/docs/DB_SPEC.yaml
     - topic: "Module development - classify or scaffold"
+      priority: high
+      audience: both
       when: "Selecting module type, scaffolding instances, or reviewing examples."
       load_policy: default
       paths:
@@ -85,12 +109,16 @@ context_routes:
         - /doc_human/guides/MODULE_INSTANCES.md
         - /doc_human/examples/module-example/README.md
     - topic: "Configuration management"
+      priority: medium
+      audience: both
       when: "Modify config schema, defaults, or environment overrides."
       load_policy: default
       paths:
         - /config/AI_GUIDE.md
         - /doc_human/guides/CONFIG_GUIDE.md
     - topic: "Testing & fixtures"
+      priority: medium
+      audience: both
       when: "Define coverage gates, fixture etiquette, or mock strategy."
       load_policy: default
       paths:
@@ -98,61 +126,80 @@ context_routes:
         - /doc_agent/coding/MOCK_RULES.md
         - /doc_human/guides/TEST_DATA_STRATEGY.md
     - topic: "Commit & PR workflow"
+      priority: medium
+      audience: human
       when: "Human contributors ask for approval or PR policy."
       load_policy: human_only
-      audience: human
+      skip_for_ai: true
       paths:
         - /doc_human/reference/pr_workflow.md
     - topic: "Trigger system & orchestration hooks"
+      priority: medium
+      audience: both
       when: "Configure or debug intelligent triggers."
       load_policy: task_specific
       paths:
         - /doc_agent/orchestration/agent-triggers.yaml
         - /doc_human/guides/triggers-guide.md
     - topic: "Workdocs task management"
+      priority: medium
+      audience: ai
       when: "Create, update, or recover active workdocs."
       load_policy: default
       paths:
         - /doc_agent/quickstart/workdocs-quickstart.md
     - topic: "Guardrail quickstart"
+      priority: medium
+      audience: ai
       when: "Need guardrail bootstrapping or reminder of allowed operations."
       load_policy: default
       paths:
         - /doc_agent/quickstart/guardrail-quickstart.md
     - topic: "AI coding standards"
+      priority: medium
+      audience: ai
       when: "Ensure AI-written code stays inside repo conventions."
       load_policy: default
       paths:
         - /doc_agent/coding/AI_CODING_GUIDE.md
     - topic: "Human conventions (deep dive)"
+      priority: low
+      audience: human
       when: "Human reviewers request the comprehensive standards."
       load_policy: human_only
-      audience: human
       skip_for_ai: true
       paths:
         - /doc_human/guides/CONVENTIONS.md
     - topic: "Workflow patterns"
+      priority: medium
+      audience: ai
       when: "Need a reusable checklist for a standard task."
       load_policy: default
       paths:
         - /ai/workflow-patterns/README.md
         - /ai/workflow-patterns/catalog.yaml
     - topic: "Lifecycle orchestration"
+      priority: medium
+      audience: ai
       when: "Clarify end-to-end stages or handoffs between agents."
       load_policy: default
       paths:
         - /doc_agent/flows/repo-lifecycle.md
     - topic: "Dataflow analysis"
+      priority: medium
+      audience: ai
       when: "Model UX/feature flows or run the quickstart."
       load_policy: default
       paths:
         - /doc_agent/quickstart/dataflow-quickstart.md
     - topic: "Repository health & maintenance"
+      priority: high
+      audience: ai
       when: "Produce health summaries or investigate quality drift."
       load_policy: task_specific
       paths:
         - /doc_agent/flows/maintenance-loop.md
-        - /ai/maintenance_reports/health-summary.md
+        - /ai/maintenance_reports/README.md
         - /doc_agent/specs/HEALTH_CHECK_MODEL.yaml
       commands:
         - "make health_check"
@@ -165,7 +212,17 @@ context_routes:
         - "make code_complexity"
         - "make health_analyze_issues"
         - "make health_show_quick_wins"
+    - topic: "Context routing optimization"
+      priority: medium
+      audience: ai
+      when: "Optimizing context loading strategies and understanding routing principles."
+      load_policy: task_specific
+      paths:
+        - /doc_agent/optimization/CONTEXT_ROUTING_PRINCIPLES.md
+        - /doc_agent/optimization/CORRECT_OPTIMIZATION_APPROACH.md
     - topic: "Evaluation baselines"
+      priority: low
+      audience: ai
       when: "Refresh or compare baseline JSON before a release."
       load_policy: task_specific
       paths:
@@ -181,7 +238,6 @@ context_routes:
       read:
         - /doc_agent/init/module-init.md
         - /doc_human/guides/MODULE_INIT_GUIDE.md
-        - /doc_human/templates/module-templates/
     - scope: "Maintenance & Health"
       read:
         - /doc_agent/flows/maintenance-loop.md
@@ -212,10 +268,9 @@ context_routes:
 6. **Provenance**: never auto-load "See also" links; treat them as manual options.
 
 ## Module Instance Definition (must know)
-- A **module instance** is a concrete implementation stored under `modules/<name>/` that follows a module type contract (see `/doc_agent/specs/MODULE_TYPES.md`).
-- Each instance ships with: `agent.md`, `doc/CONTRACT.md`, runbooks, tests, and registry entry references.
-- Instances inherit guardrails from the template plus their local `agent.md`.
-- Register new instances in `/doc_human/guides/MODULE_INSTANCES.md` and the module registry after running `make ai_begin MODULE=<name>`.
+- Use `/doc_human/guides/MODULE_INSTANCES.md` as the single source of truth after running `make ai_begin MODULE=<name>`.
+- Instances conform to one type contract (`/doc_agent/specs/MODULE_TYPES.md` + `MODULE_TYPE_CONTRACTS.yaml`) and inherit guardrails from both the template and their local `agent.md`.
+- Register ownership + escalation details in the guide and `/doc_agent/orchestration/registry.yaml` immediately after scaffolding.
 
 ## Workflow Hooks
 | Stage | What to do | References |

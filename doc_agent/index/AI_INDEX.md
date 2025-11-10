@@ -167,7 +167,7 @@ make coupling_check                  # Module coupling analysis
 - **Full Goals**: goals.md (171 lines)
 - **Full Safety**: safety.md (233 lines)
 - **Complete Workflows**: agent.md (350 lines)
-- **Module Development**: MODULE_INIT_GUIDE.md (1049 lines, split into resources/)
+- **Module Development**: MODULE_INIT_GUIDE.md (~25 lines + linked templates)
 - **Initialization Protocols**: init/project-init.md & init/module-init.md (load before scaffolding)
 - **Maintenance Loop**: flows/maintenance-loop.md (post-release cadence)
 - **Database Changes**: DB_CHANGE_GUIDE.md (split into resources/)

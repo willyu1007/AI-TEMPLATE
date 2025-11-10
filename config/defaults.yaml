@@ -1,3 +1,4 @@
 app: { name: app, env: dev }
 limits: { max_tokens: 2048 }
+telemetry: { route_usage_logging: false }
 

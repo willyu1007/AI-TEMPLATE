@@ -7,7 +7,7 @@ purpose: Document existing module instances
 # Module Instances Guide
 
 ## Purpose
-Track every module built from the template and describe its contracts, ownership, and health.
+Track every module built from the template and describe its contracts, ownership, and health. This guide is referenced by `README.md`, `agent.md`, and `doc_agent/specs/MODULE_TYPES.md`, so treat it as the canonical checklist.
 
 ## Definition
 - A **module instance** is a concrete implementation created from a module type (see `doc_agent/specs/MODULE_TYPES.md`) and kept under `modules/<name>/`.

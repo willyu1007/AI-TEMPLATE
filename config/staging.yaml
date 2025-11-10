@@ -1,2 +1,3 @@
 app: { env: staging }
+telemetry: { route_usage_logging: false }
 

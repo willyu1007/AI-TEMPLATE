@@ -1,8 +1,4 @@
-"""
-
-
-API 
-"""
+"""Common pagination and response models shared by APIs."""
 
 from typing import Generic, TypeVar, Optional, List, Any
 from dataclasses import dataclass
@@ -12,27 +8,13 @@ T = TypeVar('T')
 
 @dataclass
 class PaginationParams:
-    """
-    
-    
-    Attributes:
-        page: 1
-        page_size: 
-        max_page_size: 100
-        
-    Examples:
-        >>> params = PaginationParams(page=1, page_size=20)
-        >>> params.page
-        1
-        >>> params.get_offset()
-        0
-    """
+    """Pagination parameters with guards for page/page_size/max limits."""
     page: int = 1
     page_size: int = 20
     max_page_size: int = 100
     
     def __post_init__(self):
-        """"""
+        """Clamp page/page_size so they stay within valid ranges."""
         if self.page < 1:
             self.page = 1
         if self.page_size < 1:
@@ -41,43 +23,17 @@ class PaginationParams:
             self.page_size = self.max_page_size
     
     def get_offset(self) -> int:
-        """
-        
-        
-        Returns:
-            
-        """
+        """Return the zero-based offset for queries."""
         return (self.page - 1) * self.page_size
     
     def get_limit(self) -> int:
-        """
-        
-        
-        Returns:
-            
-        """
+        """Return the page_size to be used in queries."""
         return self.page_size
 
 
 @dataclass
 class PaginationResult(Generic[T]):
-    """
-    
-    
-    Attributes:
-        items: 
-        total: 
-        page: 
-        page_size: 
-        total_pages: 
-        
-    Examples:
-        >>> result = PaginationResult(items=[1, 2, 3], total=10, page=1, page_size=3)
-        >>> result.total_pages
-        4
-        >>> result.has_next()
-        True
-    """
+    """Wrapper for paginated results with helper methods."""
     items: List[T]
     total: int
     page: int
@@ -85,39 +41,23 @@ class PaginationResult(Generic[T]):
     
     @property
     def total_pages(self) -> int:
-        """"""
+        """Return how many pages are available."""
         if self.total == 0:
             return 0
         return (self.total + self.page_size - 1) // self.page_size
     
     def has_next(self) -> bool:
-        """"""
+        """Return True when there is a next page."""
         return self.page < self.total_pages
     
     def has_prev(self) -> bool:
-        """"""
+        """Return True when there is a previous page."""
         return self.page > 1
 
 
 @dataclass
 class ApiResponse:
-    """
-    API 
-    
-    Attributes:
-        success: 
-        data: 
-        message: 
-        code: 
-        
-    Examples:
-        >>> response = ApiResponse(success=True, data={"id": "123"})
-        >>> response.success
-        True
-        >>> response = ApiResponse(success=False, message="Error", code=400)
-        >>> response.success
-        False
-    """
+    """Simple API response envelope."""
     success: bool
     data: Optional[Any] = None
     message: Optional[str] = None
@@ -125,11 +65,11 @@ class ApiResponse:
     
     @classmethod
     def success_response(cls, data: Any = None, message: str = ""):
-        """"""
+        """Factory for a successful response."""
         return cls(success=True, data=data, message=message)
     
     @classmethod
     def error_response(cls, message: str, code: int = 400):
-        """"""
+        """Factory for an error response."""
         return cls(success=False, message=message, code=code)
 

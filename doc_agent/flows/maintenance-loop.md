@@ -68,4 +68,16 @@ Always log the cadence in `/ai/maintenance_reports/health-summary.md` or the rel
 
 Use this loop to keep the repository in a “near-ready” state and to provide predictable signals for future automation or human interventions.
 
+---
 
+## 5. Context Usage Telemetry
+
+- `python scripts/context_usage_tracker.py log --topic "<route topic>" --path /doc_agent/index/AI_INDEX.md`  
+  记录一次文档加载事件（可在 orchestrator hook 中调用）。
+- `python scripts/context_usage_tracker.py report --limit 10`  
+  查看最常被读取的文档 / topic，辅助判断哪些路由应保留或压缩。
+- `python scripts/context_usage_tracker.py optimize --agent agent.md --limit 5`  
+  基于实际使用频率建议重新排序 `context_routes`，优先展示高频、移除长期未使用的路径。
+- 通过 `config/*.yaml` 中的 `telemetry.route_usage_logging` 全局开关控制是否允许自动记录（默认关闭，置为 `true` 后再调用 `maybe-log`）。
+
+将运行结果附在 `ai/maintenance_reports/` 中，便于后续审计或复盘。

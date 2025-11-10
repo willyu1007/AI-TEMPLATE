@@ -25,3 +25,6 @@ jsonschema>=4.0.0
 # Redis health checks
 redis>=5.0.0
 
+# Auth/security helpers
+pyjwt>=2.8.0
+cryptography>=42.0.0

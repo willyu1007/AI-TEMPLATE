@@ -1,19 +1,10 @@
-"""
-
-
-
-"""
+"""Enumerations for standard API error codes."""
 
 from enum import Enum
 
 
 class ErrorCode(Enum):
-    """
-    
-    
-    HTTP + 2
-    40001 = 400Bad Request + 01
-    """
+    """HTTP-style error codes (status + suffix, e.g. 40001 = 400 + 01)."""
     
     # 400xx
     INVALID_PARAMETER = 40001
@@ -44,33 +35,25 @@ class ErrorCode(Enum):
     EXTERNAL_SERVICE_ERROR = 50003
     
     def get_message(self, language: str = 'zh') -> str:
-        """
-        
-        
-        Args:
-            language:  'zh'
-            
-        Returns:
-            
-        """
+        """Return a localized, human-friendly error message."""
         messages = {
             'zh': {
-                ErrorCode.INVALID_PARAMETER: '',
-                ErrorCode.MISSING_PARAMETER: '',
-                ErrorCode.INVALID_FORMAT: '',
-                ErrorCode.UNAUTHORIZED: '',
-                ErrorCode.INVALID_TOKEN: 'Token ',
-                ErrorCode.TOKEN_EXPIRED: 'Token ',
-                ErrorCode.INVALID_CREDENTIALS: '',
-                ErrorCode.FORBIDDEN: '',
-                ErrorCode.INSUFFICIENT_PERMISSIONS: '',
-                ErrorCode.NOT_FOUND: '',
-                ErrorCode.RESOURCE_NOT_FOUND: '',
-                ErrorCode.CONFLICT: '',
-                ErrorCode.DUPLICATE_ENTRY: '',
-                ErrorCode.INTERNAL_ERROR: '',
-                ErrorCode.DATABASE_ERROR: '',
-                ErrorCode.EXTERNAL_SERVICE_ERROR: '',
+                ErrorCode.INVALID_PARAMETER: '参数无效',
+                ErrorCode.MISSING_PARAMETER: '缺少必要参数',
+                ErrorCode.INVALID_FORMAT: '格式错误',
+                ErrorCode.UNAUTHORIZED: '未授权访问',
+                ErrorCode.INVALID_TOKEN: 'Token 无效',
+                ErrorCode.TOKEN_EXPIRED: 'Token 已过期',
+                ErrorCode.INVALID_CREDENTIALS: '凭证错误',
+                ErrorCode.FORBIDDEN: '没有权限',
+                ErrorCode.INSUFFICIENT_PERMISSIONS: '权限不足',
+                ErrorCode.NOT_FOUND: '资源不存在',
+                ErrorCode.RESOURCE_NOT_FOUND: '资源不存在',
+                ErrorCode.CONFLICT: '冲突错误',
+                ErrorCode.DUPLICATE_ENTRY: '重复数据',
+                ErrorCode.INTERNAL_ERROR: '服务器内部错误',
+                ErrorCode.DATABASE_ERROR: '数据库错误',
+                ErrorCode.EXTERNAL_SERVICE_ERROR: '外部服务错误',
             },
             'en': {
                 ErrorCode.INVALID_PARAMETER: 'Invalid parameter',

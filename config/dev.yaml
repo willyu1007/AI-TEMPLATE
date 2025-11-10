@@ -1,2 +1,3 @@
 app: { env: dev }
+telemetry: { route_usage_logging: false }
 

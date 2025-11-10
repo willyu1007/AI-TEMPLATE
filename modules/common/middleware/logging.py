@@ -1,8 +1,4 @@
-"""
-
-
-/
-"""
+"""Logging helpers for consistent request/response instrumentation."""
 
 import logging
 import sys
@@ -15,21 +11,7 @@ def setup_logging(
     format_string: Optional[str] = None,
     log_file: Optional[str] = None
 ) -> logging.Logger:
-    """
-    
-    
-    Args:
-        level: DEBUG, INFO, WARNING, ERROR, CRITICAL
-        format_string: 
-        log_file: 
-        
-    Returns:
-         logger 
-        
-    Examples:
-        >>> logger = setup_logging(level="DEBUG")
-        >>> logger.info("Test message")
-    """
+    """Configure the root logger with optional console/file handlers."""
     if format_string is None:
         format_string = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     
@@ -63,19 +45,7 @@ def log_request(
     params: Optional[Dict[str, Any]] = None,
     logger: Optional[logging.Logger] = None
 ):
-    """
-    
-    
-    Args:
-        method: HTTP GET, POST 
-        path: 
-        headers: 
-        params: 
-        logger: logger  logger
-        
-    Examples:
-        >>> log_request("GET", "/api/users", params={"page": 1})
-    """
+    """Log an HTTP-style request line with parameters and timestamp."""
     if logger is None:
         logger = logging.getLogger()
     
@@ -92,18 +62,7 @@ def log_response(
     duration_ms: float,
     logger: Optional[logging.Logger] = None
 ):
-    """
-    
-    
-    Args:
-        status_code: HTTP 
-        path: 
-        duration_ms: 
-        logger: logger  logger
-        
-    Examples:
-        >>> log_response(200, "/api/users", 150.5)
-    """
+    """Log response information and choose INFO/ERROR level based on status code."""
     if logger is None:
         logger = logging.getLogger()
     

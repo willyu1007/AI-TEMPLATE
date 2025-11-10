@@ -1,115 +1,121 @@
 """
-
-
-
- bcryptargon2
+Utility functions related to security
+Providing password hashing and symmetric encryption/decryption capabilities
+Default implementation is based on PBKDF2 (for password hashing) and Fernet (AES-128 GCM)
 """
 
-import hashlib
+from __future__ import annotations
+
 import base64
+import os
+import secrets
+import hashlib
+from dataclasses import dataclass
 from typing import Optional
 
+from cryptography.fernet import Fernet, InvalidToken
 
-def hash_password(password: str, salt: Optional[str] = None) -> str:
+# PBKDF2 默认配置
+PBKDF2_ALGORITHM = "sha256"
+PBKDF2_ITERATIONS = 600_000
+PBKDF2_SALT_BYTES = 16
+
+
+def _encode_bytes(data: bytes) -> str:
+    """将字节序列做 url-safe 的 base64 编码。"""
+    return base64.urlsafe_b64encode(data).decode("utf-8")
+
+
+def _decode_bytes(data: str) -> bytes:
+    """与 `_encode_bytes` 相反的动作。"""
+    return base64.urlsafe_b64decode(data.encode("utf-8"))
+
+
+def hash_password(password: str, *, salt: Optional[bytes] = None, iterations: int = PBKDF2_ITERATIONS) -> str:
     """
-     SHA-256
-    
-     bcrypt  argon2
-    
-    Args:
-        password: 
-        salt: 
-        
-    Returns:
-        
-        
-    Examples:
-        >>> hashed = hash_password("password123")
-        >>> isinstance(hashed, str)
-        True
-        >>> len(hashed) > 0
-        True
+    使用 PBKDF2-SHA256 为密码生成强哈希，返回格式:
+    `pbkdf2_sha256$<iterations>$<salt>$<hash>`
     """
+    if not isinstance(password, str) or not password:
+        raise ValueError("Password must be a non-empty string")
+    
     if salt is None:
-        salt = "default_salt_change_in_production"
+        salt = secrets.token_bytes(PBKDF2_SALT_BYTES)
+    elif isinstance(salt, str):
+        salt = _decode_bytes(salt)
     
-    #  SHA-256 
-    hash_obj = hashlib.sha256()
-    hash_obj.update((password + salt).encode('utf-8'))
-    return base64.b64encode(hash_obj.digest()).decode('utf-8')
+    dk = hashlib.pbkdf2_hmac(
+        PBKDF2_ALGORITHM,
+        password.encode("utf-8"),
+        salt,
+        iterations,
+    )
+    return f"pbkdf2_sha256${iterations}${_encode_bytes(salt)}${_encode_bytes(dk)}"
 
 
-def verify_password(password: str, hashed_password: str, salt: Optional[str] = None) -> bool:
-    """
-    
-    
-    Args:
-        password: 
-        hashed_password: 
-        salt:  hash_password 
-        
-    Returns:
-         True False
-        
-    Examples:
-        >>> hashed = hash_password("password123")
-        >>> verify_password("password123", hashed)
-        True
-        >>> verify_password("wrong_password", hashed)
-        False
-    """
-    return hash_password(password, salt) == hashed_password
-
-
-def encrypt_data(data: str, key: Optional[str] = None) -> str:
-    """
-     AES 
-    
-     cryptography
-    
-    Args:
-        data: 
-        key: 
-        
-    Returns:
-         base64 
-        
-    Examples:
-        >>> encrypted = encrypt_data("sensitive_data")
-        >>> isinstance(encrypted, str)
-        True
-    """
-    if key is None:
-        key = "default_key_change_in_production"
-    
-    #  XOR 
-    encrypted = ''.join(chr(ord(c) ^ ord(key[i % len(key)])) for i, c in enumerate(data))
-    return base64.b64encode(encrypted.encode('utf-8')).decode('utf-8')
-
-
-def decrypt_data(encrypted_data: str, key: Optional[str] = None) -> str:
-    """
-    
-    
-    Args:
-        encrypted_data:  base64 
-        key: 
-        
-    Returns:
-        
-        
-    Examples:
-        >>> encrypted = encrypt_data("sensitive_data")
-        >>> decrypt_data(encrypted)
-        'sensitive_data'
-    """
-    if key is None:
-        key = "default_key_change_in_production"
+def verify_password(password: str, hashed_password: str) -> bool:
+    """验证密码是否与 PBKDF2 哈希匹配。"""
+    if not hashed_password:
+        return False
     
     try:
-        decoded = base64.b64decode(encrypted_data).decode('utf-8')
-        decrypted = ''.join(chr(ord(c) ^ ord(key[i % len(key)])) for i, c in enumerate(decoded))
-        return decrypted
-    except Exception:
-        return ""
+        scheme, iterations, salt, digest = hashed_password.split("$")
+        if scheme != "pbkdf2_sha256":
+            raise ValueError("Unsupported scheme")
+        recalculated = hash_password(password, salt=salt, iterations=int(iterations))
+        return secrets.compare_digest(recalculated, hashed_password)
+    except (ValueError, TypeError):
+        return False
+
+
+@dataclass
+class EncryptionContext:
+    """包装 Fernet key 的 helper，避免重复推导。"""
+    key: bytes
+
+    @classmethod
+    def from_secret(cls, secret: Optional[str] = None) -> "EncryptionContext":
+        # 尝试从环境变量读取
+        secret = secret or os.environ.get("TEMPLATEAI_ENCRYPTION_KEY")
+        if secret is None:
+            raise ValueError("Missing encryption key. Set TEMPLATEAI_ENCRYPTION_KEY or pass `secret`.")
+        
+        try:
+            key_bytes = _decode_bytes(secret)
+        except Exception:
+            # 兼容直接传入明文，使用 sha256 归一化后转成 Fernet key
+            key_bytes = hashlib.sha256(secret.encode("utf-8")).digest()
+            key_bytes = base64.urlsafe_b64encode(key_bytes)
+        return cls(key=key_bytes)
+
+    def cipher(self) -> Fernet:
+        return Fernet(self.key)
+
+
+def encrypt_data(data: str, *, secret: Optional[str] = None) -> str:
+    """
+    使用 Fernet 进行加密。secret 可以是 32 bytes 的 base64 key，或任意字符串。
+    """
+    if not isinstance(data, str):
+        raise ValueError("data must be a string")
+    
+    ctx = EncryptionContext.from_secret(secret)
+    token = ctx.cipher().encrypt(data.encode("utf-8"))
+    return token.decode("utf-8")
+
+
+def decrypt_data(encrypted_data: str, *, secret: Optional[str] = None, default: str = "") -> str:
+    """
+    解密数据，失败时返回 default。
+    """
+    if not encrypted_data:
+        return default
+    
+    try:
+        ctx = EncryptionContext.from_secret(secret)
+        decrypted = ctx.cipher().decrypt(encrypted_data.encode("utf-8"))
+        return decrypted.decode("utf-8")
+    except (InvalidToken, ValueError):
+        return default
+
 

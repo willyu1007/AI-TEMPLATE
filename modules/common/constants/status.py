@@ -1,16 +1,10 @@
-"""
-
-
-
-"""
+"""Common status enums shared by modules."""
 
 from enum import Enum
 
 
 class Status(Enum):
-    """
-    
-    """
+    """Generic lifecycle status."""
     ACTIVE = "active"
     INACTIVE = "inactive"
     PENDING = "pending"
@@ -18,9 +12,7 @@ class Status(Enum):
 
 
 class UserStatus(Enum):
-    """
-    
-    """
+    """User-specific status values."""
     ACTIVE = "active"
     INACTIVE = "inactive"
     SUSPENDED = "suspended"
@@ -29,9 +21,7 @@ class UserStatus(Enum):
 
 
 class OrderStatus(Enum):
-    """
-    
-    """
+    """Order state transitions."""
     PENDING = "pending"
     CONFIRMED = "confirmed"
     PROCESSING = "processing"

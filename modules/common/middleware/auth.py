@@ -1,193 +1,192 @@
 """
-
-
-
- JWTOAuth2 
+基于 JWT 的轻量认证中间件，配合 AI Repo 的 Guardrail 使用。
 """
 
-from typing import Optional, Callable, Any, Dict, List
+from __future__ import annotations
+
+import os
+import secrets
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta, timezone
 from functools import wraps
-import hashlib
-import time
+from typing import Any, Callable, Dict, List, Optional
+
+import jwt
+from jwt import ExpiredSignatureError, InvalidTokenError
+
+
+@dataclass
+class AuthConfig:
+    """认证相关配置。"""
+    secret_key: str = field(default_factory=lambda: os.environ.get("TEMPLATEAI_AUTH_SECRET", "change-me"))
+    algorithm: str = "HS256"
+    token_ttl_seconds: int = 3600
+    leeway_seconds: int = 30
+
+
+class AuthError(PermissionError):
+    """认证失败时抛出的错误。"""
+
+
+class AuthMiddleware:
+    """
+    负责签发/校验 JWT，同时提供权限检查等工具。
+    """
+    
+    def __init__(self, config: Optional[AuthConfig] = None):
+        self.config = config or AuthConfig()
+        if not self.config.secret_key:
+            raise ValueError("Auth secret key cannot be empty")
+        self.last_validated: Optional[str] = None
+        self.permissions: List[str] = []
+        self.token_cache: Dict[str, Dict[str, Any]] = {}
+    
+    # --- Token helpers -------------------------------------------------
+    def issue_token(
+        self,
+        *,
+        user_id: str,
+        username: str,
+        role: str,
+        permissions: Optional[List[str]] = None,
+        ttl_seconds: Optional[int] = None,
+    ) -> str:
+        """签发 JWT，默认带过期时间。"""
+        now = datetime.now(timezone.utc)
+        payload = {
+            "sub": user_id,
+            "username": username,
+            "role": role,
+            "permissions": permissions or [],
+            "iat": int(now.timestamp()),
+            "exp": int((now + timedelta(seconds=ttl_seconds or self.config.token_ttl_seconds)).timestamp()),
+            "jti": secrets.token_hex(8),
+        }
+        token = jwt.encode(payload, self.config.secret_key, algorithm=self.config.algorithm)
+        bearer = f"Bearer {token}"
+        self.token_cache[bearer] = payload
+        return bearer
+    
+    def _decode_token(self, token: str) -> Dict[str, Any]:
+        """内部解码函数，统一处理异常。"""
+        if not token.startswith("Bearer "):
+            raise AuthError("Authorization header must start with 'Bearer '")
+        raw = token.split(" ", 1)[1]
+        return jwt.decode(
+            raw,
+            self.config.secret_key,
+            algorithms=[self.config.algorithm],
+            options={"require": ["exp", "sub"]},
+            leeway=self.config.leeway_seconds,
+        )
+    
+    # --- Public APIs ---------------------------------------------------
+    def validate_token(self, token: str) -> bool:
+        """只校验是否有效，不返回 payload。"""
+        if not token:
+            return False
+        
+        try:
+            payload = self._decode_token(token)
+        except (ExpiredSignatureError, InvalidTokenError, AuthError):
+            return False
+        
+        self.last_validated = token
+        self.token_cache[token] = payload
+        return True
+    
+    def extract_user(self, token: str) -> Optional[Dict[str, Any]]:
+        """解析用户信息。"""
+        if not token:
+            return None
+        
+        try:
+            payload = self._decode_token(token)
+        except InvalidTokenError:
+            return None
+        
+        user_id = payload.get("sub") or payload.get("user_id")
+        if not user_id:
+            return None
+        user = {
+            "user_id": user_id,
+            "username": payload.get("username"),
+            "permissions": payload.get("permissions", []),
+            "role": payload.get("role"),
+        }
+        self.token_cache[token] = payload
+        return user
+    
+    def set_permissions(self, permissions: List[str]):
+        """设置当前上下文的权限集合。"""
+        self.permissions = permissions
+    
+    def check_permission(self, permission: str) -> bool:
+        """权限检查。"""
+        return permission in self.permissions
+    
+    def refresh_token(self, token: str) -> Optional[str]:
+        """根据旧 token 的 payload 生成一个新的 token。"""
+        payload = self.token_cache.get(token)
+        if payload is None:
+            payload = self.extract_user(token)
+        if payload is None:
+            return None
+        
+        user_id = payload.get("sub") or payload.get("user_id")
+        if not user_id:
+            return None
+        return self.issue_token(
+            user_id=user_id,
+            username=payload.get("username", ""),
+            role=payload.get("role", "user"),
+            permissions=payload.get("permissions", []),
+        )
+    
+    def logout(self, token: str):
+        """移除缓存中的 token 记录。"""
+        self.token_cache.pop(token, None)
+        self.last_validated = None
+        self.permissions = []
+
+
+_default_auth = AuthMiddleware()
 
 
 def get_current_user(token: Optional[str] = None) -> Optional[dict]:
     """
-     token 
-    
-     JWT token  session 
-    
-    Args:
-        token:  token
-        
-    Returns:
-         None
-        
-    Examples:
-        >>> user = get_current_user("valid_token")
-        >>> user is None  # 
-        True
+    提供与旧接口兼容的 helper，内部使用默认的 AuthMiddleware。
     """
-    #  token 
-    if token and token.startswith("Bearer "):
-        #  JWT token 
-        # 
-        return {
-            "id": "user123",
-            "username": "test_user",
-            "role": "user"
-        }
+    if not token:
+        return None
+    return _default_auth.extract_user(token)
+
+
+def _resolve_token_from_args(*args, **kwargs) -> Optional[str]:
+    token = kwargs.get("token")
+    if token:
+        return token
+    if args:
+        candidate = getattr(args[0], "headers", None)
+        if candidate:
+            return candidate.get("Authorization")
     return None
 
 
 def require_auth(func: Callable) -> Callable:
     """
-    
-    
-    Args:
-        func: 
-        
-    Returns:
-        
-        
-    Examples:
-        >>> @require_auth
-        ... def protected_function():
-        ...     return "secret"
-        >>> protected_function()  # 
+    装饰器，确保函数执行前已经通过认证，并将 `current_user` 注入 kwargs。
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
-        #  token kwargs  request 
-        token = kwargs.get('token') or (args[0].headers.get('Authorization') if args else None)
-        
+        token = _resolve_token_from_args(*args, **kwargs)
         user = get_current_user(token)
         if user is None:
-            raise PermissionError("")
-        
-        #  kwargs
-        kwargs['current_user'] = user
+            raise AuthError("Unauthorized request")
+        # 避免把 token 透传到业务函数
+        if "token" in kwargs:
+            kwargs.pop("token")
+        kwargs["current_user"] = user
         return func(*args, **kwargs)
     
     return wrapper
-
-
-class AuthMiddleware:
-    """"""
-    
-    def __init__(self):
-        """"""
-        self.last_validated = None
-        self.permissions = []
-        self.token_cache = {}
-    
-    def validate_token(self, token: str) -> bool:
-        """
-        token
-        
-        Args:
-            token: Bearer token
-            
-        Returns:
-            bool: token
-        """
-        if not token or not token.startswith("Bearer "):
-            return False
-        
-        # token
-        if "expired" in token:
-            return False
-        
-        # token
-        self.last_validated = token
-        
-        # 
-        self.token_cache[token] = True
-        
-        return True
-    
-    def extract_user(self, token: str) -> Optional[Dict[str, Any]]:
-        """
-        token
-        
-        Args:
-            token: Bearer token
-            
-        Returns:
-            None
-        """
-        if not self.validate_token(token):
-            return None
-        
-        # tokenID
-        token_parts = token.split("_")
-        if len(token_parts) >= 2 and "user" in token_parts[1]:
-            user_id = token_parts[1].replace("user", "")
-            return {
-                'user_id': user_id or '123',
-                'permissions': ['read', 'write'],
-                'role': 'user'
-            }
-        
-        return {
-            'user_id': 'anonymous',
-            'permissions': ['read'],
-            'role': 'guest'
-        }
-    
-    def set_permissions(self, permissions: List[str]):
-        """
-        
-        
-        Args:
-            permissions: 
-        """
-        self.permissions = permissions
-    
-    def check_permission(self, permission: str) -> bool:
-        """
-        
-        
-        Args:
-            permission: 
-            
-        Returns:
-            bool: 
-        """
-        return permission in self.permissions
-    
-    def refresh_token(self, old_token: str) -> Optional[str]:
-        """
-        token
-        
-        Args:
-            old_token: token
-            
-        Returns:
-            tokenNone
-        """
-        if not old_token or not old_token.startswith("Bearer "):
-            return None
-        
-        # token
-        timestamp = str(int(time.time()))
-        new_suffix = hashlib.md5(f"{old_token}_{timestamp}".encode()).hexdigest()[:8]
-        new_token = f"Bearer refreshed_{new_suffix}_token"
-        
-        # token
-        self.token_cache[new_token] = True
-        
-        return new_token
-    
-    def logout(self, token: str):
-        """
-        token
-        
-        Args:
-            token: token
-        """
-        if token in self.token_cache:
-            del self.token_cache[token]
-        self.last_validated = None
-        self.permissions = []
-

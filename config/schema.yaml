@@ -1,2 +1,3 @@
 app: { name: str, env: [dev, staging, prod] }
+telemetry: { route_usage_logging: bool }
 

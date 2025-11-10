@@ -55,10 +55,10 @@ Type (Abstract)          Instance (Concrete)
 ```
 
 ### Module Instance Definition
-- Concrete implementation stored under `modules/<name>/` that conforms to one module type contract.
-- Must include `agent.md`, `doc/CONTRACT.md`, runbook, progress log, tests, and registration entry in `doc_human/guides/MODULE_INSTANCES.md`.
-- Created through `make ai_begin MODULE=<name>` and governed by template guardrails plus the module-local agent.
-- Differences between instances of the same type are domain specific inputs, owners, and guardrail configuration; IO contracts stay identical.
+The authoritative checklist lives in `doc_human/guides/MODULE_INSTANCES.md`. Use it after `make ai_begin MODULE=<name>` to ensure the instance:
+- Conforms to one module type contract (this file + `MODULE_TYPE_CONTRACTS.yaml`).
+- Ships all required docs/tests/registry entries so orchestration can enforce guardrails.
+- Records ownership, guardrails, and escalation paths in the shared guide.
 
 ---
 

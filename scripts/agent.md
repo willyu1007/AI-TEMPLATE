@@ -16,8 +16,14 @@ context_routes:
   on_demand:
     - topic: "Makefile Commands"
       priority: high
+      when: "Need concrete make targets or command references."
       paths:
         - /doc_human/reference/commands.md
+    - topic: "Context Usage Telemetry"
+      priority: medium
+      when: "Review high-traffic docs/topics or tune on_demand ordering."
+      paths:
+        - /doc_agent/flows/maintenance-loop.md
 ---
 # Scripts Agent Guide
 
@@ -36,11 +42,12 @@ context_routes:
 | Quality policy | `/doc_agent/policies/quality.md` | Expectations for automation output |
 
 ## Categories
-- Documentation and routing (docgen, doc_route_check, add_doc_headers)
+- Documentation and routing (docgen, doc_tools, doc_route_check)
 - Validation and lint (agent_lint, config_lint, python_scripts_lint, shell_scripts_lint)
 - Contracts and DB (contract_compat_check, migrate_check, rollback_check)
 - Workflow and triggers (workflow_suggest, agent_trigger, registry_check)
 - Maintenance (ai_maintenance, health_check, cleanup scripts)
+- Telemetry and optimization (context_usage_tracker, ai_chain_optimizer)
 
 ## Typical Flow
 1. Identify the script or target via README or `make help`.

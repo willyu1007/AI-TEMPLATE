@@ -1,8 +1,4 @@
-"""
-
-
-
-"""
+"""Simple in-memory rate limiter utilities."""
 
 import time
 from typing import Dict, Tuple, Optional, Callable, Any
@@ -11,43 +7,16 @@ from functools import wraps
 
 
 class RateLimiter:
-    """
-    
-    
-    
-    
-    Attributes:
-        max_requests: 
-        window_seconds: 
-        
-    Examples:
-        >>> limiter = RateLimiter(max_requests=10, window_seconds=60)
-        >>> limiter.is_allowed("user123")
-        True
-    """
+    """Track requests per identifier within a sliding window."""
     
     def __init__(self, max_requests: int = 100, window_seconds: int = 60):
-        """
-        
-        
-        Args:
-            max_requests: 
-            window_seconds: 
-        """
+        """Initialize a limiter with the given quota and window size."""
         self.max_requests = max_requests
         self.window_seconds = window_seconds
         self.requests: Dict[str, list] = defaultdict(list)
     
     def is_allowed(self, identifier: str) -> Tuple[bool, int]:
-        """
-        
-        
-        Args:
-            identifier: IDIP
-            
-        Returns:
-            (, )
-        """
+        """Return (allowed, remaining) for the provided identifier."""
         now = time.time()
         window_start = now - self.window_seconds
         
@@ -77,22 +46,7 @@ def rate_limit(
     window_seconds: int = 60,
     identifier_func: Optional[Callable[..., str]] = None
 ):
-    """
-    
-    
-    Args:
-        max_requests: 
-        window_seconds: 
-        identifier_func: 
-        
-    Returns:
-        
-        
-    Examples:
-        >>> @rate_limit(max_requests=10, window_seconds=60)
-        ... def api_endpoint():
-        ...     return "response"
-    """
+    """Decorator factory that enforces RateLimiter on a function."""
     limiter = RateLimiter(max_requests, window_seconds)
     
     def decorator(func):

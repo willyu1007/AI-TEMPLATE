@@ -196,6 +196,12 @@ See: doc/process/guardrail-quickstart.md
 
 ---
 
+## Telemetry Switches
+
+- `telemetry.route_usage_logging` (bool, default `false`): toggles whether orchestrators should emit `python scripts/context_usage_tracker.py maybe-log --topic <topic> --path <path>` after loading docs. Keep it `false` for silent operation; set to `true` when you want automatic route usage logging.
+
+---
+
 ## Commands
 
 ```bash

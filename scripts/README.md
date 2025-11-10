@@ -1,75 +1,101 @@
 # Scripts Directory
 
-This folder contains every automation hook referenced by the Makefile or documentation. Each script prints friendly `[ok]`, `[warn]`, `[error]` messages and exits non-zero on failure.
+This directory contains automation scripts used by Makefile targets and CI/CD workflows.
 
-## Categories
+## Script Organization
+
+### Health & Quality Checks
+- `health_check.py` - Repository health assessment
+- `module_health_check.py` - Module-specific health checks
+- `ai_friendliness_check.py` - AI compatibility verification
+
+### Linting & Validation
+- `agent_lint.py` - Validate agent.md files
+- `config_lint.py` - Configuration validation
+- `python_scripts_lint.py` - Python code linting
+- `shell_scripts_lint.sh` - Shell script validation
+- `makefile_check.py` - Makefile syntax check
+
 ### Documentation
-| Script | Purpose | Command |
-|--------|---------|---------|
-| `docgen.py` | Refresh headers and AI index | `make docgen` |
-| `doc_style_check.py` | Validate language, headers, encoding | `make doc_style_check` |
+- `docgen.py` - Generate documentation headers and indexes
+- `doc_style_check.py` - Documentation format validation
+- `doc_freshness_check.py` - Check documentation currency
+- `doc_route_check.py` - Validate context routes
+- `doc_script_sync_check.py` - Ensure doc/script synchronization
 
-### Contracts & DAGs
-| Script | Purpose | Command |
-|--------|---------|---------|
-| `dag_check.py` | Validate DAG definitions / cycles | `make dag_check` |
-| `contract_compat_check.py` | Compare contracts with baseline | `make contract_compat_check` |
+### Database & Migration
+- `db_lint.py` - Database schema validation
+- `migrate_check.py` - Migration pair verification
+- `db_env.py` - Database environment management
 
-### Database
-| Script | Purpose | Command |
-|--------|---------|---------|
-| `migrate_check.py` | Ensure up/down pairs exist | `make migrate_check` |
-| `rollback_check.sh` | Dry-run rollback | `make rollback_check PREV_REF=<tag>` |
-| `db_lint.py` | Lint schemas, migrations, docs | `make db_lint` |
+### Testing
+- `test_scaffold.py` - Generate test templates
+- `test_status_check.py` - Track test completion
+- `test_coverage_check.py` - Coverage reporting
 
-### Configuration & Consistency
-| Script | Purpose | Command |
-|--------|---------|---------|
-| `runtime_config_check.py` | Validate runtime config vs schema | `make runtime_config_check` |
-| `consistency_check.py` | Cross-doc consistency | `make consistency_check` |
-| `app_structure_check.py` | Enforce folder layout | `make app_structure_check` |
+### Contract & Compatibility
+- `contract_compat_check.py` - API contract validation
+- `type_contract_check.py` - Type contract verification
 
-### Dependencies & Testing
-| Script | Purpose | Command |
-|--------|---------|---------|
-| `deps_manager.py` | Detect missing deps | `make deps_check` |
-| `test_scaffold.py` | Generate test boilerplate | `make tests_scaffold MODULE=<name>` |
-| `test_status_check.py` | Track manual test state | `make test_status_check` |
-| `test_coverage_check.py` | Report coverage per module | `make test_coverage` |
+### Workflow & Automation
+- `ai_begin.sh` - Module scaffolding
+- `ai_maintenance.py` - Automated maintenance tasks
+- `workflow_suggest.py` - Workflow recommendations
+- `agent_trigger.py` - Trigger validation
 
-### Frontend Types
-`generate_openapi.py`, `generate_frontend_types.py`, `frontend_types_check.py` keep API and TS types in sync.
+### Analysis & Reporting
+- `complexity_check.py` - Code complexity analysis
+- `coupling_check.py` - Module coupling detection
+- `dag_check.py` - Dependency graph validation
+- `consistency_check.py` - Cross-repo consistency
+- `dataflow_trace.py` - Data flow analysis
+- `dataflow_visualizer.py` - Flow visualization
 
-### Workflow & Guardrails
-- `agent_lint.py`, `registry_check.py`, `doc_route_check.py`, `type_contract_check.py`, `doc_script_sync_check.py`, `registry_gen.py`, `module_doc_gen.py` enforce agent routing + module metadata.
-- `agent_trigger.py` powers the intelligent trigger system.
-- `workflow_suggest.py`, `workflow_suggest` Make targets, and pattern helpers live alongside the workflow catalog.
+### Utilities
+- `deps_manager.py` - Dependency management
+- `registry_gen.py` - Registry generation
+- `registry_check.py` - Registry validation
+- `secret_scan.py` - Security scanning
+- `fixture_loader.py` - Test fixture management
 
-### Dataflow + Observability
-- `dataflow_trace.py`, `dataflow_visualizer.py`, and `bottleneck_rules.yaml` analyze runtime flows.
-- `observability_check.py`, `log`/`metrics` configs, and Jaeger/Prometheus helpers ensure telemetry readiness.
+### Documentation Wrapper
+- `doc_tools.py` - Unified entry for docs checks (`style`, `freshness`, `sync`, `all`)
 
-### Maintenance & Utilities
-- `ai_maintenance.py` - scheduled maintenance aggregator.
-- `workdoc_create.sh`, `workdoc_archive.sh` - manage AI workdocs.
-- `mock_generator.py`, `mock_lifecycle.py`, `fixture_loader.py` - manage test data.
-- `refactor_suggest.py`, `complexity_check.py`, `ai_friendliness_check.py`, `secret_scan.py` - code intelligence utilities.
+### Telemetry & Optimization
+- `context_usage_tracker.py` - Log/report/optimize context route usage
+- `ai_chain_optimizer.py` - Emit route optimization suggestions based on telemetry
 
-## Adding A Script
-1. Place it in `scripts/` with executable bit (if shell).
-2. Include argparse/help text and `[ok]/[warn]/[error]` log helpers.
-3. Update this README and `Makefile` with the new target.
-4. Add tests where possible (unit for helpers, integration for pipelines).
-5. Document any new guardrail, trigger, or doc dependency you introduce.
+## Usage
 
-## Language Policy
-Every script must:
-- Print messages in the configured repository language (`config/language.yaml`).
-- Keep inline comments/docstrings in that language as well.
-- Fail fast if it needs localization data that is missing.
+Most scripts are invoked through Makefile targets:
 
-## Maintenance
-Scripts are maintained by the repository owners. File an Issue for bugs or missing automation.
+```bash
+make health_check        # Run health assessment
+make doc_style_check    # Check documentation
+make dev_check          # Full CI gate
+```
 
-See also: `Makefile`, `agent.md` (automation section), and `doc_agent/orchestration/agent-triggers.yaml`.
+Direct invocation:
+```bash
+python scripts/health_check.py --format json
+python scripts/module_health_check.py --module common
+python scripts/doc_tools.py all
+python scripts/context_usage_tracker.py report --limit 10
+python scripts/ai_chain_optimizer.py --optimize --limit 10
+```
 
+## Script Requirements
+
+All Python scripts should:
+1. Include clear docstring with purpose
+2. Define when/how to invoke
+3. Handle errors gracefully
+4. Return appropriate exit codes (0=success, 1=failure)
+5. Support `--help` flag where applicable
+
+## Adding New Scripts
+
+1. Place script in appropriate category
+2. Add Makefile target if needed
+3. Update this README
+4. Ensure clear invocation documentation

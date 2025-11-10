@@ -36,10 +36,12 @@ purpose: Repository overview for AI systems and humans
 6. **AI Workflow Patterns** - `ai/workflow-patterns/` contains ready-made task patterns and catalog entries a coordinator agent can recommend.
 
 ## Module Instances (Critical Definition)
-- A **module instance** is the concrete implementation created from a module type (see `doc_agent/specs/MODULE_TYPES.md`) and stored under `modules/<name>/`.
-- Each instance ships with an `agent.md`, `doc/CONTRACT.md`, runbook, tests, and registry entry so orchestration can enforce guardrails.
-- Instances inherit template rules plus their local agent; register them in `doc_human/guides/MODULE_INSTANCES.md` after running `make ai_begin MODULE=<name>`.
-- Module types describe abstract behavior, while module instances carry the domain-specific wiring that humans and AI collaborate on.
+See the canonical guide in `doc_human/guides/MODULE_INSTANCES.md` for the latest requirements.
+
+At a glance:
+- Run `make ai_begin MODULE=<name>` to scaffold a compliant directory under `modules/<name>/`.
+- Complete the eight required docs (agent, CONTRACT, RUNBOOK, TEST_PLAN, CHANGELOG, BUGS, PROGRESS) and register ownership in the module instances guide plus the orchestration registry.
+- Module *types* stay abstract (`doc_agent/specs/MODULE_TYPES.md`), while module *instances* wire those contracts into a domain (e.g., `1_user`, `4_sales_aggregator`).
 
 ---
 
@@ -102,6 +104,7 @@ Keep AI docs lean (<=150 lines, command oriented) and keep human docs detailed b
 - `make docgen` - rewrites documentation headers and regenerates AI context indexes.
 - `make db_migrate` / `make rollback_check` - executes database migrations with mandatory down scripts.
 - `scripts/*.py` and `scripts/*.sh` - single-purpose utilities for docs, health, observability, and workflow triage. Each file contains its own CLI help.
+- `python scripts/context_usage_tracker.py report --limit 10` - audit high-traffic docs/topics before tuning `context_routes`.
 
 ---
 

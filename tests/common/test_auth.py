@@ -1,83 +1,70 @@
 #!/usr/bin/env python3
 """
-
-
+Auth middleware tests.
 """
 
-import unittest
-from unittest.mock import Mock, patch
+import os
 import sys
+import unittest
 from pathlib import Path
 
-# 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from modules.common.middleware.auth import AuthMiddleware
+os.environ["TEMPLATEAI_AUTH_SECRET"] = "unit-test-secret"
+
+from modules.common.middleware.auth import AuthConfig, AuthMiddleware, AuthError
 
 
 class TestAuthMiddleware(unittest.TestCase):
-    """"""
-    
     def setUp(self):
-        """"""
-        self.auth = AuthMiddleware()
+        self.config = AuthConfig(secret_key="unit-test-secret", token_ttl_seconds=1, leeway_seconds=0)
+        self.auth = AuthMiddleware(self.config)
+        self.valid_token = self.auth.issue_token(
+            user_id="user123",
+            username="tester",
+            role="user",
+            permissions=["read"],
+        )
     
     def test_validate_token_valid(self):
-        """token"""
-        # token
-        valid_token = "Bearer valid_token_123"
-        result = self.auth.validate_token(valid_token)
-        
-        self.assertTrue(result)
-        self.assertEqual(self.auth.last_validated, valid_token)
+        self.assertTrue(self.auth.validate_token(self.valid_token))
+        self.assertEqual(self.auth.last_validated, self.valid_token)
     
-    def test_validate_token_invalid(self):
-        """token"""
-        # token
-        self.assertFalse(self.auth.validate_token(""))
-        
-        # token
+    def test_validate_token_invalid_format(self):
         self.assertFalse(self.auth.validate_token("invalid_format"))
-        
-        # token
-        expired_token = "Bearer expired_token"
-        self.assertFalse(self.auth.validate_token(expired_token))
+        expired = self.auth.issue_token(user_id="user123", username="x", role="user", permissions=[], ttl_seconds=-10)
+        self.assertFalse(self.auth.validate_token(expired))
     
     def test_extract_user_from_token(self):
-        """token"""
-        token = "Bearer user123_token"
-        user_info = self.auth.extract_user(token)
-        
+        user_info = self.auth.extract_user(self.valid_token)
         self.assertIsNotNone(user_info)
-        self.assertIn('user_id', user_info)
-        self.assertIn('permissions', user_info)
+        self.assertEqual(user_info["user_id"], "user123")
+        self.assertIn("read", user_info["permissions"])
     
     def test_check_permission(self):
-        """"""
-        # 
-        self.auth.set_permissions(['read', 'write'])
-        
-        # 
-        self.assertTrue(self.auth.check_permission('read'))
-        self.assertTrue(self.auth.check_permission('write'))
-        
-        # 
-        self.assertFalse(self.auth.check_permission('admin'))
-        self.assertFalse(self.auth.check_permission('delete'))
+        self.auth.set_permissions(["read", "write"])
+        self.assertTrue(self.auth.check_permission("read"))
+        self.assertFalse(self.auth.check_permission("admin"))
     
     def test_refresh_token(self):
-        """token"""
-        old_token = "Bearer old_token_123"
-        new_token = self.auth.refresh_token(old_token)
-        
-        self.assertIsNotNone(new_token)
-        self.assertNotEqual(old_token, new_token)
-        self.assertTrue(new_token.startswith("Bearer"))
+        refreshed = self.auth.refresh_token(self.valid_token)
+        self.assertIsNotNone(refreshed)
+        self.assertNotEqual(refreshed, self.valid_token)
+        self.assertTrue(self.auth.validate_token(refreshed))
     
-    def tearDown(self):
-        """"""
-        self.auth = None
+    def test_require_auth_helper(self):
+        from modules.common.middleware.auth import require_auth
+        
+        @require_auth
+        def protected_endpoint(*, current_user=None):
+            return current_user
+        
+        result = protected_endpoint(token=self.valid_token)
+        self.assertEqual(result["user_id"], "user123")
+        
+        with self.assertRaises(AuthError):
+            protected_endpoint(token="Bearer invalid")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

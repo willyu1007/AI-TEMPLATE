@@ -1,8 +1,4 @@
-"""
-
-
-URLUUID 
-"""
+"""Validation helpers for email/phone/URL/UUID strings."""
 
 import re
 import uuid
@@ -10,23 +6,7 @@ from typing import Optional
 
 
 def validate_email(email: str) -> bool:
-    """
-    
-    
-    Args:
-        email: 
-        
-    Returns:
-         True False
-        
-    Examples:
-        >>> validate_email("user@example.com")
-        True
-        >>> validate_email("invalid.email")
-        False
-        >>> validate_email("")
-        False
-    """
+    """Return True if the string looks like a valid email address."""
     if not email or not isinstance(email, str):
         return False
     
@@ -36,24 +16,7 @@ def validate_email(email: str) -> bool:
 
 
 def validate_phone(phone: str, country_code: str = 'CN') -> bool:
-    """
-    
-    
-    Args:
-        phone: 
-        country_code:  'CN' 
-        
-    Returns:
-         True False
-        
-    Examples:
-        >>> validate_phone("13800138000")
-        True
-        >>> validate_phone("1234567890")
-        False
-        >>> validate_phone("")
-        False
-    """
+    """Validate a phone number. Defaults to mainland China format, falls back to simple digit check."""
     if not phone or not isinstance(phone, str):
         return False
     
@@ -61,33 +24,16 @@ def validate_phone(phone: str, country_code: str = 'CN') -> bool:
     phone = phone.replace(' ', '').replace('-', '')
     
     if country_code == 'CN':
-        # 111
+        # Mainland China mobile numbers start with 1[3-9] and have 11 digits
         pattern = r'^1[3-9]\d{9}$'
         return bool(re.match(pattern, phone))
     else:
-        # 
-        # 
+        # Basic validation for other countries
         return phone.isdigit() and len(phone) >= 10
 
 
 def validate_url(url: str) -> bool:
-    """
-     URL 
-    
-    Args:
-        url: URL 
-        
-    Returns:
-         True False
-        
-    Examples:
-        >>> validate_url("https://example.com")
-        True
-        >>> validate_url("http://localhost:8000/api")
-        True
-        >>> validate_url("not-a-url")
-        False
-    """
+    """Return True when the string starts with http(s):// and matches a basic URL pattern."""
     if not url or not isinstance(url, str):
         return False
     
@@ -96,23 +42,7 @@ def validate_url(url: str) -> bool:
 
 
 def validate_uuid(uuid_string: str) -> bool:
-    """
-     UUID 
-    
-    Args:
-        uuid_string: UUID 
-        
-    Returns:
-         True False
-        
-    Examples:
-        >>> validate_uuid("123e4567-e89b-12d3-a456-426614174000")
-        True
-        >>> validate_uuid("invalid-uuid")
-        False
-        >>> validate_uuid("")
-        False
-    """
+    """Return True if the string is a valid UUID (any version)."""
     if not uuid_string or not isinstance(uuid_string, str):
         return False
     

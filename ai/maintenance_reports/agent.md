@@ -36,6 +36,8 @@ merge_strategy: "child_overrides_parent"
 make ai_maintenance
 make health_check
 make health_report
+python scripts/context_usage_tracker.py report
+python scripts/context_usage_tracker.py optimize --agent agent.md
 make cleanup_reports_smart
 ```
 
