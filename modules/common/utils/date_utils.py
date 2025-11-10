@@ -1,7 +1,7 @@
 """
-日期时间处理工具函数
 
-提供 UTC 时间、格式化、解析和相对时间等常用功能。
+
+ UTC 
 """
 
 from datetime import datetime, timezone, timedelta
@@ -10,10 +10,10 @@ from typing import Optional
 
 def now_utc() -> datetime:
     """
-    获取当前 UTC 时间
+     UTC 
     
     Returns:
-        当前 UTC 时间的 datetime 对象
+         UTC  datetime 
         
     Examples:
         >>> dt = now_utc()
@@ -27,14 +27,14 @@ def now_utc() -> datetime:
 
 def format_datetime(dt: datetime, format_str: str = '%Y-%m-%d %H:%M:%S') -> str:
     """
-    格式化日期时间为字符串
+    
     
     Args:
-        dt: datetime 对象
-        format_str: 格式字符串（默认 '%Y-%m-%d %H:%M:%S'）
+        dt: datetime 
+        format_str:  '%Y-%m-%d %H:%M:%S'
         
     Returns:
-        格式化后的字符串
+        
         
     Examples:
         >>> dt = datetime(2025, 11, 5, 10, 30, 0, tzinfo=timezone.utc)
@@ -48,14 +48,14 @@ def format_datetime(dt: datetime, format_str: str = '%Y-%m-%d %H:%M:%S') -> str:
 
 def parse_datetime(date_string: str, format_str: str = '%Y-%m-%d %H:%M:%S') -> Optional[datetime]:
     """
-    解析字符串为 datetime 对象
+     datetime 
     
     Args:
-        date_string: 日期时间字符串
-        format_str: 格式字符串（默认 '%Y-%m-%d %H:%M:%S'）
+        date_string: 
+        format_str:  '%Y-%m-%d %H:%M:%S'
         
     Returns:
-        datetime 对象，解析失败返回 None
+        datetime  None
         
     Examples:
         >>> dt = parse_datetime('2025-11-05 10:30:00')
@@ -72,27 +72,27 @@ def parse_datetime(date_string: str, format_str: str = '%Y-%m-%d %H:%M:%S') -> O
 
 def time_ago(dt: datetime, now: Optional[datetime] = None) -> str:
     """
-    计算相对时间（如 "5分钟前"、"2小时前"）
+     "5""2"
     
     Args:
-        dt: 目标时间
-        now: 当前时间（默认使用当前 UTC 时间）
+        dt: 
+        now:  UTC 
         
     Returns:
-        相对时间描述字符串
+        
         
     Examples:
         >>> past = now_utc() - timedelta(minutes=5)
         >>> time_ago(past)
-        '5分钟前'
+        '5'
         >>> past = now_utc() - timedelta(hours=2)
         >>> time_ago(past)
-        '2小时前'
+        '2'
     """
     if now is None:
         now = now_utc()
     
-    # 确保两个时间都有时区信息
+    # 
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=timezone.utc)
     if now.tzinfo is None:
@@ -101,15 +101,15 @@ def time_ago(dt: datetime, now: Optional[datetime] = None) -> str:
     delta = now - dt
     
     if delta.total_seconds() < 60:
-        return f'{int(delta.total_seconds())}秒前'
+        return f'{int(delta.total_seconds())}'
     elif delta.total_seconds() < 3600:
-        return f'{int(delta.total_seconds() / 60)}分钟前'
+        return f'{int(delta.total_seconds() / 60)}'
     elif delta.total_seconds() < 86400:
-        return f'{int(delta.total_seconds() / 3600)}小时前'
+        return f'{int(delta.total_seconds() / 3600)}'
     elif delta.days < 30:
-        return f'{delta.days}天前'
+        return f'{delta.days}'
     elif delta.days < 365:
-        return f'{delta.days // 30}个月前'
+        return f'{delta.days // 30}'
     else:
-        return f'{delta.days // 365}年前'
+        return f'{delta.days // 365}'
 

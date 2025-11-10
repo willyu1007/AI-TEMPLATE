@@ -1,4 +1,4 @@
-# Python logging 配置
+# Python logging 
 version: 1
 formatters:
   json:

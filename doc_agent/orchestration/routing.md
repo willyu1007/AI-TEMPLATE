@@ -1,168 +1,54 @@
-# 文档路由与合并规则
+# Routing Rules
 
-> **用途**: 定义智能体如何读取和合并agent.md配置
-> **版本**: 1.0
-> **创建时间**: 2025-11-07
+> Defines how agents load and merge context from `agent.md` files.
 
----
+## Principles
+1. **Layered loading** - module `agent.md` ¡ú root `agent.md` ¡ú referenced policies.
+2. **Merge strategy** - default is `child_overrides_parent` (set in root file). Children may override parent arrays/fields.
+3. **On-demand context** - only load what `context_routes` specifies; never follow references recursively.
 
-## 核心原则
+## `context_routes` Blocks
+### `always_read`
+Small documents loaded on every session start (e.g., `/doc_agent/index/AI_INDEX.md`). Keep under ~200 tokens.
 
-### 1. 分层读取
-智能体读取agent.md的顺序：
-```
-模块实例agent.md → 根agent.md → doc/policies/
-```
-
-### 2. 合并策略
-- **默认**: `child_overrides_parent`（子级覆盖父级）
-- **可在根agent.md中配置**: `merge_strategy: "child_overrides_parent"`
-
-示例：
-```yaml
-# 根agent.md
-constraints:
-  - "不得直接操作数据库"
-  - "保持测试覆盖率≥80%"
-
-# 模块agent.md
-constraints:
-  - "必须使用ORM访问数据库"
-  - "保持测试覆盖率≥90%"  # 覆盖父级
-
-# 最终合并结果（子级覆盖）
-constraints:
-  - "必须使用ORM访问数据库"
-  - "保持测试覆盖率≥90%"
-```
-
-### 3. 按需加载
-- **always_read**: 每次必读的文档（如policies/goals.md）
-- **on_demand**: 按主题读取（如"数据库"→DB_SPEC.yaml）
-- **by_scope**: 按范围读取（如"模块user"→modules/user/doc/）
-
----
-
-## Context Routes配置
-
-### always_read（必读文档）
-每个智能体启动时自动读取：
-
-```yaml
-context_routes:
-  always_read:
-    - /doc/policies/goals.md
-    - /doc/policies/safety.md
-    - /README.md
-```
-
-### on_demand（按需文档）
-根据任务主题按需读取：
-
+### `on_demand`
+Topic-based routes used when a task mentions a capability. Example:
 ```yaml
 context_routes:
   on_demand:
-    - topic: "数据库操作"
+    - topic: "Database Operations"
+      priority: high
       paths:
-        - /doc/db/DB_SPEC.yaml
-        - /doc/db/SCHEMA_GUIDE.md
-    - topic: "API开发"
-      paths:
-        - /doc/process/CONVENTIONS.md
-        - /tools/openapi.json
-    - topic: "模块开发"
-      paths:
-        - /doc/modules/MODULE_INIT_GUIDE.md
-        - /doc/modules/MODULE_TYPES.md
+        - /doc_agent/specs/DB_SPEC.yaml
+        - /doc_human/guides/DB_CHANGE_GUIDE.md
 ```
+Add `priority`, `audience`, and `language` metadata so orchestration can decide when to load.
 
-### by_scope（按范围文档）
-根据工作范围读取：
-
+### `by_scope`
+Scope-specific documents, usually for modules:
 ```yaml
-context_routes:
-  by_scope:
-    - scope: "modules/user"
-      read:
-        - /modules/user/agent.md
-        - /modules/user/README.md
-        - /modules/user/doc/CONTRACT.md
-        - /modules/user/doc/CHANGELOG.md
-    - scope: "common"
-      read:
-        - /common/README.md
-        - /common/models/base.py
+by_scope:
+  - scope: "modules/user"
+    read:
+      - /modules/user/agent.md
+      - /modules/user/doc/CONTRACT.md
+      - /modules/user/doc/RUNBOOK.md
 ```
 
----
+## Usage Scenarios
+| Scenario | Must Load |
+|----------|-----------|
+| New module | `always_read` + `on_demand` topic ¡°Module Development¡± + `by_scope` for the module |
+| Database change | `always_read` + ¡°Database Operations¡± topic + db scopes |
+| Bug fix | `always_read` + module scope + relevant test scope |
 
-## 路由实践
+## Validation
+Run `make doc_route_check` to ensure every referenced path exists and has the correct headers.
 
-### 场景1: 初始化新模块
-智能体应读取：
-```
-always_read: policies/goals.md, policies/safety.md
-on_demand: 
-  - topic: "模块开发"
-by_scope: 
-  - scope: "modules/<entity>"
-```
+## Guidelines
+- Keep `always_read` tiny; move heavy docs to `on_demand` or `by_scope`.
+- Use absolute POSIX-style paths.
+- Respect `audience` and `skip_for_ai` flags in the target documents.
 
-### 场景2: 修改数据库
-智能体应读取：
-```
-always_read: policies/goals.md, policies/safety.md
-on_demand: 
-  - topic: "数据库操作"
-by_scope: 
-  - scope: "db/"
-```
-
-### 场景3: 修复模块Bug
-智能体应读取：
-```
-always_read: policies/goals.md, policies/safety.md
-on_demand: 
-  - topic: "模块开发"
-by_scope: 
-  - scope: "modules/<entity>"
-  - scope: "tests/<entity>"
-```
-
----
-
-## 路径校验
-
-使用`doc_route_check.py`脚本自动校验所有路由路径：
-
-```bash
-make doc_route_check
-```
-
-校验内容：
-- 路径是否存在
-- 路径是否指向有效文件
-- 是否有循环依赖
-
----
-
-## 注意事项
-
-### 避免过度加载
-- 不要在`always_read`中包含大文件（>500KB）
-- 大文件应放在`on_demand`或`by_scope`中
-
-### 路径规范
-- 使用绝对路径（从根目录开始）
-- 使用正斜杠`/`（跨平台兼容）
-- 路径兼容：当前支持`doc/`和`doc/`（Phase 3后统一为`doc/`）
-
-### 安全限制
-- 智能体只能读取`context_routes`中声明的路径
-- 写入受`ownership.code_paths`限制
-
----
-
-**维护**: 根agent.md变更时，同步更新本文档
-**相关**: doc/policies/goals.md, doc/policies/safety.md
+Update this file whenever you introduce new routing patterns or merge strategies.
 

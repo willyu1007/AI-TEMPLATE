@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-代码复杂度检查脚本
-使用简化的圈复杂度计算方法评估代码复杂度
+
+
 
 Usage:
     python scripts/complexity_check.py [--json] [--module MODULE]
@@ -20,16 +20,16 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
-# 路径设置
+# 
 HERE = Path(__file__).parent.absolute()
 REPO_ROOT = HERE.parent
 
 
 class ComplexityAnalyzer(ast.NodeVisitor):
-    """AST访问器，计算函数的圈复杂度"""
+    """AST"""
     
     def __init__(self):
-        self.complexity = 1  # 基础复杂度为1
+        self.complexity = 1  # 1
     
     def visit_If(self, node):
         self.complexity += 1
@@ -56,7 +56,7 @@ class ComplexityAnalyzer(ast.NodeVisitor):
         self.generic_visit(node)
     
     def visit_BoolOp(self, node):
-        # and/or 操作符增加复杂度
+        # and/or 
         self.complexity += len(node.values) - 1
         self.generic_visit(node)
     
@@ -66,14 +66,14 @@ class ComplexityAnalyzer(ast.NodeVisitor):
 
 
 class CodeComplexityChecker:
-    """代码复杂度检查器"""
+    """"""
     
     def __init__(self):
         self.modules_path = REPO_ROOT / "modules"
         self.scripts_path = REPO_ROOT / "scripts"
         self.complexity_data = {}
         
-        # 复杂度阈值
+        # 
         self.thresholds = {
             "excellent": 10,
             "good": 15,
@@ -83,13 +83,13 @@ class CodeComplexityChecker:
         }
     
     def calculate_function_complexity(self, func_node: ast.FunctionDef) -> int:
-        """计算单个函数的圈复杂度"""
+        """"""
         analyzer = ComplexityAnalyzer()
         analyzer.visit(func_node)
         return analyzer.complexity
     
     def analyze_file(self, file_path: Path) -> Dict[str, Any]:
-        """分析单个Python文件的复杂度"""
+        """Python"""
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
@@ -123,7 +123,7 @@ class CodeComplexityChecker:
                         "line": node.lineno
                     })
             
-            # 计算文件平均复杂度
+            # 
             all_complexities = [f["complexity"] for f in functions]
             for cls in classes:
                 all_complexities.extend([m["complexity"] for m in cls["methods"]])
@@ -149,22 +149,22 @@ class CodeComplexityChecker:
             }
     
     def analyze_module(self, module_name: Optional[str] = None) -> Dict[str, Any]:
-        """分析模块或整个项目的复杂度"""
+        """"""
         files_to_analyze = []
         
         if module_name:
-            # 分析特定模块
+            # 
             module_path = self.modules_path / module_name
             if module_path.exists():
                 files_to_analyze.extend(module_path.glob("**/*.py"))
         else:
-            # 分析所有模块和脚本
+            # 
             for module_dir in self.modules_path.glob("*"):
                 if module_dir.is_dir():
                     files_to_analyze.extend(module_dir.glob("**/*.py"))
             files_to_analyze.extend(self.scripts_path.glob("*.py"))
         
-        # 分析每个文件
+        # 
         file_results = []
         for py_file in files_to_analyze:
             if "__pycache__" in str(py_file):
@@ -172,20 +172,20 @@ class CodeComplexityChecker:
             result = self.analyze_file(py_file)
             file_results.append(result)
         
-        # 计算总体统计
+        # 
         all_avg = [f["avg_complexity"] for f in file_results if "error" not in f]
         all_max = [f["max_complexity"] for f in file_results if "error" not in f]
         
         overall_avg = sum(all_avg) / len(all_avg) if all_avg else 0
         overall_max = max(all_max) if all_max else 0
         
-        # 找出高复杂度文件
+        # 
         high_complexity_files = [
             f for f in file_results 
             if "error" not in f and f["avg_complexity"] > self.thresholds["acceptable"]
         ]
         
-        # 找出高复杂度函数
+        # 
         high_complexity_functions = []
         for file_result in file_results:
             if "error" in file_result:
@@ -212,7 +212,7 @@ class CodeComplexityChecker:
         }
     
     def _get_status(self, avg_complexity: float) -> str:
-        """根据平均复杂度返回状态"""
+        """"""
         if avg_complexity <= self.thresholds["excellent"]:
             return "⭐ Excellent"
         elif avg_complexity <= self.thresholds["good"]:
@@ -225,7 +225,7 @@ class CodeComplexityChecker:
             return "❌ Critical"
     
     def _get_recommendations(self, avg: float, max_val: int, high_funcs: List[Dict]) -> List[str]:
-        """生成改进建议"""
+        """"""
         recommendations = []
         
         if avg > self.thresholds["good"]:
@@ -243,7 +243,7 @@ class CodeComplexityChecker:
         return recommendations
     
     def print_report(self, report: Dict[str, Any]):
-        """打印报告到控制台"""
+        """"""
         print("=" * 60)
         print("🔍 Code Complexity Report")
         print("=" * 60)
@@ -277,7 +277,7 @@ class CodeComplexityChecker:
 
 
 def main():
-    """主函数"""
+    """"""
     import argparse
     
     parser = argparse.ArgumentParser(description="Code Complexity Checker")
@@ -293,10 +293,10 @@ def main():
     else:
         checker.print_report(report)
     
-    # 返回状态码
+    # 
     if report['overall_avg_complexity'] > 30:
-        return 1  # 失败
-    return 0  # 成功
+        return 1  # 
+    return 0  # 
 
 
 if __name__ == "__main__":

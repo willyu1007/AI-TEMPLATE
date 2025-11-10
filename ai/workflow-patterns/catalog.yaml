@@ -1,104 +1,88 @@
 ---
 audience: ai
 language: en
-version: config
-purpose: Documentation for catalog
+version: catalog
+purpose: Workflow pattern catalog
 ---
-# AI工作流模式目录索引（自动生成）
-version: "1.0"
-generated_at: "2025-11-09"
+version: "1.1"
+generated_at: "2025-11-10"
 total_patterns: 8
-
 patterns:
-  # P0: 高优先级模式（必须实施）
   module-creation:
-    name: "模块创建标准工作流"
+    name: "Module Creation Workflow"
     category: "development"
     complexity: "medium"
     estimated_time: "2-4 hours"
     priority: "P0"
     file: "patterns/module-creation.yaml"
-    tags: ["module", "创建", "初始化"]
-  
+    tags: ["module", "scaffold"]
   database-migration:
-    name: "数据库变更标准工作流"
+    name: "Database Migration Workflow"
     category: "maintenance"
     complexity: "medium"
     estimated_time: "30-60 minutes"
     priority: "P0"
     file: "patterns/database-migration.yaml"
-    tags: ["database", "migration", "数据库"]
-  
+    tags: ["database", "migration"]
   api-development:
-    name: "API开发标准工作流"
+    name: "API Development Workflow"
     category: "development"
     complexity: "low"
     estimated_time: "1-2 hours"
     priority: "P0"
     file: "patterns/api-development.yaml"
-    tags: ["api", "rest", "接口"]
-  
+    tags: ["api", "rest"]
   bug-fix:
-    name: "Bug修复标准工作流"
+    name: "Bug Fix Workflow"
     category: "debugging"
     complexity: "low"
     estimated_time: "30-90 minutes"
     priority: "P0"
     file: "patterns/bug-fix.yaml"
-    tags: ["bug", "修复", "调试"]
-  
-  # P1: 建议实施模式
+    tags: ["bug", "regression"]
   refactoring:
-    name: "重构标准工作流"
+    name: "Refactoring Workflow"
     category: "maintenance"
     complexity: "medium"
     estimated_time: "1-3 hours"
     priority: "P1"
     file: "patterns/refactoring.yaml"
-    tags: ["refactor", "重构", "代码质量"]
-  
+    tags: ["refactor", "cleanup"]
   feature-development:
-    name: "功能开发标准工作流"
+    name: "Feature Development Workflow"
     category: "development"
     complexity: "medium"
     estimated_time: "4-8 hours"
     priority: "P1"
     file: "patterns/feature-development.yaml"
-    tags: ["feature", "功能", "开发"]
-  
+    tags: ["feature", "delivery"]
   performance-optimization:
-    name: "性能优化标准工作流"
+    name: "Performance Optimization Workflow"
     category: "optimization"
     complexity: "medium"
     estimated_time: "2-4 hours"
     priority: "P1"
     file: "patterns/performance-optimization.yaml"
-    tags: ["performance", "优化", "性能"]
-  
+    tags: ["performance", "latency"]
   security-audit:
-    name: "安全审计标准工作流"
+    name: "Security Audit Workflow"
     category: "maintenance"
     complexity: "medium"
     estimated_time: "2-3 hours"
     priority: "P1"
     file: "patterns/security-audit.yaml"
-    tags: ["security", "安全", "审计"]
-
-# 按类别分组
+    tags: ["security", "audit"]
 categories:
   development: ["module-creation", "api-development", "feature-development"]
   maintenance: ["database-migration", "refactoring", "security-audit"]
   debugging: ["bug-fix"]
   optimization: ["performance-optimization"]
-
-# 快速查找表
 quick_lookup:
-  "创建模块": "module-creation"
-  "数据库变更": "database-migration"
-  "开发API": "api-development"
-  "修复Bug": "bug-fix"
-  "代码重构": "refactoring"
-  "开发功能": "feature-development"
-  "性能优化": "performance-optimization"
-  "安全审计": "security-audit"
-
+  "create module": "module-creation"
+  "database change": "database-migration"
+  "build api": "api-development"
+  "fix bug": "bug-fix"
+  "refactor code": "refactoring"
+  "ship feature": "feature-development"
+  "optimize performance": "performance-optimization"
+  "security audit": "security-audit"

@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Mock数据生成器 - Phase 8.5+实现
+Mock - Phase 8.5+
 
-功能:
-1. 从TEST_DATA.md读取Mock生成规则
-2. 从表YAML读取字段定义和约束
-3. 使用Faker生成符合规则的随机数据
-4. 批量插入数据库
-5. 注册到Mock生命周期管理
+:
+1. TEST_DATA.mdMock
+2. YAML
+3. Faker
+4. 
+5. Mock
 
-用法:
+:
   python scripts/mock_generator.py --module <module_name> --table <table_name> --count <num>
   python scripts/mock_generator.py --module <module_name> --table <table_name> --count <num> --lifecycle <type>
   python scripts/mock_generator.py --module <module_name> --table <table_name> --count <num> --dry-run
 
-示例:
+:
   python scripts/mock_generator.py --module example --table runs --count 1000
   python scripts/mock_generator.py --module example --table runs --count 100 --lifecycle ephemeral
   python scripts/mock_generator.py --module example --table runs --count 50 --dry-run
@@ -38,15 +38,15 @@ from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime, timedelta
 import uuid
 
-# Faker库（可选依赖）
+# Faker
 try:
     from faker import Faker
     HAS_FAKER = True
 except ImportError:
     HAS_FAKER = False
-    print("警告: 未安装Faker库。运行 'pip install faker' 来启用Mock数据生成。")
+    print(": Faker 'pip install faker' Mock")
 
-# 数据库连接（可选依赖）
+# 
 try:
     import psycopg2
     from psycopg2 import sql
@@ -55,7 +55,7 @@ try:
 except ImportError:
     HAS_PSYCOPG2 = False
 
-# ANSI颜色
+# ANSI
 GREEN = '\033[92m'
 YELLOW = '\033[93m'
 RED = '\033[91m'
@@ -65,7 +65,7 @@ RESET = '\033[0m'
 
 
 def find_repo_root() -> Path:
-    """查找仓库根目录"""
+    """"""
     current = Path(__file__).resolve().parent
     while current != current.parent:
         if (current / 'agent.md').exists():
@@ -75,7 +75,7 @@ def find_repo_root() -> Path:
 
 
 def parse_yaml_frontmatter(content: str) -> Tuple[Optional[Dict], str]:
-    """解析YAML Front Matter"""
+    """YAML Front Matter"""
     lines = content.split('\n')
     if not lines or not lines[0].strip().startswith('---'):
         return None, content
@@ -100,7 +100,7 @@ def parse_yaml_frontmatter(content: str) -> Tuple[Optional[Dict], str]:
 
 
 def read_module_agent_md(repo_root: Path, module_name: str) -> Optional[Dict]:
-    """读取模块的agent.md"""
+    """agent.md"""
     module_path = repo_root / 'modules' / module_name / 'agent.md'
     if not module_path.exists():
         module_path = repo_root / 'doc' / 'modules' / module_name / 'agent.md'
@@ -115,13 +115,13 @@ def read_module_agent_md(repo_root: Path, module_name: str) -> Optional[Dict]:
         yaml_data, _ = parse_yaml_frontmatter(content)
         return yaml_data
     except Exception as e:
-        print(f"{RED}✗ 读取agent.md失败: {e}{RESET}")
+        print(f"{RED}✗ agent.md: {e}{RESET}")
         return None
 
 
 def read_test_data_md(repo_root: Path, module_name: str) -> Optional[Dict]:
     """
-    读取TEST_DATA.md，提取Mock规则
+    TEST_DATA.mdMock
     
     Returns:
         Dict: {
@@ -155,26 +155,26 @@ def read_test_data_md(repo_root: Path, module_name: str) -> Optional[Dict]:
         with open(test_data_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # 查找Mock规则的YAML代码块
+        # MockYAML
         mock_rules = {}
         in_yaml_block = False
         yaml_lines = []
         current_table = None
         
         for line in content.split('\n'):
-            # 查找YAML代码块
+            # YAML
             if line.strip().startswith('```yaml'):
                 in_yaml_block = True
                 yaml_lines = []
                 continue
             elif line.strip() == '```' and in_yaml_block:
                 in_yaml_block = False
-                # 解析YAML
+                # YAML
                 try:
                     yaml_content = '\n'.join(yaml_lines)
                     rule_data = yaml.safe_load(yaml_content)
                     
-                    # 检查是否是Mock规则（包含table和columns）
+                    # Mocktablecolumns
                     if isinstance(rule_data, dict) and 'table' in rule_data and 'columns' in rule_data:
                         table_name = rule_data['table']
                         mock_rules[table_name] = rule_data
@@ -188,12 +188,12 @@ def read_test_data_md(repo_root: Path, module_name: str) -> Optional[Dict]:
         return mock_rules if mock_rules else None
     
     except Exception as e:
-        print(f"{RED}✗ 读取TEST_DATA.md失败: {e}{RESET}")
+        print(f"{RED}✗ TEST_DATA.md: {e}{RESET}")
         return None
 
 
 def read_table_yaml(repo_root: Path, table_name: str) -> Optional[Dict]:
-    """读取表结构YAML"""
+    """YAML"""
     table_yaml_path = repo_root / 'db' / 'engines' / 'postgres' / 'schemas' / 'tables' / f'{table_name}.yaml'
     
     if not table_yaml_path.exists():
@@ -203,23 +203,23 @@ def read_table_yaml(repo_root: Path, table_name: str) -> Optional[Dict]:
         with open(table_yaml_path, 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
     except Exception as e:
-        print(f"{RED}✗ 读取表YAML失败: {e}{RESET}")
+        print(f"{RED}✗ YAML: {e}{RESET}")
         return None
 
 
 def _generate_uuid() -> str:
-    """生成UUID"""
+    """UUID"""
     return str(uuid.uuid4())
 
 
 def _generate_faker_value(faker: Any, column_def: Dict, generator: str) -> Any:
-    """使用Faker生成值"""
+    """Faker"""
     faker_method = generator.replace('faker.', '')
     try:
         faker_func = getattr(faker, faker_method)
         params = column_def.get('params', {})
         
-        # 特殊参数处理
+        # 
         special_handlers = {
             'sentence': lambda: faker_func(nb_words=column_def.get('nb_words', column_def.get('max_words', 10))),
             'random_int': lambda: faker_func(
@@ -237,12 +237,12 @@ def _generate_faker_value(faker: Any, column_def: Dict, generator: str) -> Any:
         else:
             return faker_func(**params)
     except AttributeError:
-        print(f"{YELLOW}⚠ Faker不支持方法: {faker_method}，使用默认值{RESET}")
+        print(f"{YELLOW}⚠ Faker: {faker_method}{RESET}")
         return None
 
 
 def _generate_choice_value(faker: Any, column_def: Dict) -> Any:
-    """生成枚举/选择值"""
+    """/"""
     choices = column_def.get('choices', column_def.get('values', []))
     weights = column_def.get('weights', None)
     
@@ -256,7 +256,7 @@ def _generate_choice_value(faker: Any, column_def: Dict) -> Any:
 
 
 def _generate_default_value_by_type(faker: Any, col_type: str, column_def: Dict) -> Any:
-    """根据类型生成默认值"""
+    """"""
     type_generators = {
         'string': lambda: faker.text(max_nb_chars=column_def.get('max_length', 50)),
         'text': lambda: faker.text(max_nb_chars=column_def.get('max_length', 50)),
@@ -286,40 +286,40 @@ def _generate_default_value_by_type(faker: Any, col_type: str, column_def: Dict)
 
 def generate_value(faker: Any, column_def: Dict, table_def: Optional[Dict] = None) -> Any:
     """
-    根据列定义生成值
+    
     
     Args:
-        faker: Faker实例
-        column_def: Mock规则中的列定义
-        table_def: 表YAML中的列定义（用于约束检查）
+        faker: Faker
+        column_def: Mock
+        table_def: YAML
     
     Returns:
-        生成的值
+        
     """
     col_type = column_def.get('type', 'string')
     generator = column_def.get('generator', None)
     
-    # 固定值优先级最高
+    # 
     if 'value' in column_def:
         return column_def['value']
     
-    # 特殊生成器
+    # 
     if generator == 'uuid4':
         return _generate_uuid()
     
-    # Faker生成器
+    # Faker
     if generator and generator.startswith('faker.'):
         result = _generate_faker_value(faker, column_def, generator)
         if result is not None:
             return result
     
-    # Enum/Choice生成器
+    # Enum/Choice
     if generator == 'choice' or col_type == 'enum':
         result = _generate_choice_value(faker, column_def)
         if result is not None:
             return result
     
-    # 根据类型生成默认值
+    # 
     return _generate_default_value_by_type(faker, col_type, column_def)
 
 
@@ -330,21 +330,21 @@ def generate_mock_data(
     count: int
 ) -> List[Dict]:
     """
-    生成Mock数据
+    Mock
     
     Args:
-        faker: Faker实例
-        mock_rule: TEST_DATA.md中的Mock规则
-        table_yaml: 表结构YAML
-        count: 生成数量
+        faker: Faker
+        mock_rule: TEST_DATA.mdMock
+        table_yaml: YAML
+        count: 
     
     Returns:
-        生成的数据列表
+        
     """
     records = []
     columns = mock_rule.get('columns', {})
     
-    # 获取表的列定义（用于类型检查）
+    # 
     table_columns = {}
     if table_yaml and 'table' in table_yaml:
         table_columns = {
@@ -355,11 +355,11 @@ def generate_mock_data(
     for i in range(count):
         record = {}
         for col_name, col_def in columns.items():
-            # 跳过自动生成的列（如created_at如果有default）
+            # created_atdefault
             if col_name in table_columns:
                 table_col = table_columns[col_name]
                 if table_col.get('default') and col_name in ['created_at', 'updated_at', 'id']:
-                    continue  # 跳过有默认值的列
+                    continue  # 
             
             record[col_name] = generate_value(faker, col_def, table_columns.get(col_name))
         
@@ -369,8 +369,8 @@ def generate_mock_data(
 
 
 def get_db_config(repo_root: Path, env: str = None) -> Optional[Dict]:
-    """获取数据库配置（从fixture_loader.py复用）"""
-    # 从环境变量获取
+    """fixture_loader.py"""
+    # 
     db_url = os.getenv('DATABASE_URL')
     if db_url:
         try:
@@ -386,7 +386,7 @@ def get_db_config(repo_root: Path, env: str = None) -> Optional[Dict]:
         except:
             pass
     
-    # 从独立环境变量获取
+    # 
     if all(os.getenv(key) for key in ['DB_HOST', 'DB_NAME', 'DB_USER']):
         return {
             'host': os.getenv('DB_HOST'),
@@ -400,16 +400,16 @@ def get_db_config(repo_root: Path, env: str = None) -> Optional[Dict]:
 
 
 def connect_to_db(db_config: Dict):
-    """连接数据库"""
+    """"""
     if not HAS_PSYCOPG2:
-        print(f"{RED}✗ 未安装psycopg2库。运行 'pip install psycopg2-binary' 来启用数据库连接。{RESET}")
+        print(f"{RED}✗ psycopg2 'pip install psycopg2-binary' {RESET}")
         return None
     
     try:
         conn = psycopg2.connect(**db_config)
         return conn
     except Exception as e:
-        print(f"{RED}✗ 数据库连接失败: {e}{RESET}")
+        print(f"{RED}✗ : {e}{RESET}")
         return None
 
 
@@ -420,18 +420,18 @@ def insert_mock_data(
     batch_size: int = 100
 ) -> int:
     """
-    批量插入Mock数据
+    Mock
     
     Returns:
-        成功插入的记录数
+        
     """
     if not records:
         return 0
     
-    # 获取列名
+    # 
     columns = list(records[0].keys())
     
-    # 构建INSERT语句
+    # INSERT
     insert_query = sql.SQL(
         "INSERT INTO {table} ({fields}) VALUES ({placeholders})"
     ).format(
@@ -442,17 +442,17 @@ def insert_mock_data(
     
     try:
         with conn.cursor() as cur:
-            # 准备数据
+            # 
             data = [tuple(record[col] for col in columns) for record in records]
             
-            # 批量插入
+            # 
             execute_batch(cur, insert_query, data, page_size=batch_size)
             conn.commit()
             
             return len(records)
     except Exception as e:
         conn.rollback()
-        print(f"{RED}✗ 插入数据失败: {e}{RESET}")
+        print(f"{RED}✗ : {e}{RESET}")
         return 0
 
 
@@ -464,19 +464,19 @@ def register_mock_lifecycle(
     lifecycle_type: str = 'temporary'
 ) -> bool:
     """
-    注册Mock生命周期记录
+    Mock
     
     Args:
-        conn: 数据库连接
-        module_name: 模块名称
-        table_name: 表名
-        count: 记录数
-        lifecycle_type: 生命周期类型（ephemeral/temporary/persistent/fixture）
+        conn: 
+        module_name: 
+        table_name: 
+        count: 
+        lifecycle_type: ephemeral/temporary/persistent/fixture
     
     Returns:
-        是否成功
+        
     """
-    # 计算TTL
+    # TTL
     ttl_map = {
         'ephemeral': timedelta(hours=1),
         'temporary': timedelta(days=7),
@@ -487,7 +487,7 @@ def register_mock_lifecycle(
     ttl = ttl_map.get(lifecycle_type, timedelta(days=7))
     expires_at = datetime.now() + ttl if ttl else None
     
-    # 确保_mock_lifecycle表存在
+    # _mock_lifecycle
     create_table_sql = """
     CREATE TABLE IF NOT EXISTS _mock_lifecycle (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -514,124 +514,124 @@ def register_mock_lifecycle(
             return True
     except Exception as e:
         conn.rollback()
-        print(f"{YELLOW}⚠ 注册Mock生命周期失败: {e}{RESET}")
+        print(f"{YELLOW}⚠ Mock: {e}{RESET}")
         return False
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Mock数据生成器',
+        description='Mock',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-示例:
+:
   python scripts/mock_generator.py --module example --table runs --count 1000
   python scripts/mock_generator.py --module example --table runs --count 100 --lifecycle ephemeral
   python scripts/mock_generator.py --module example --table runs --count 50 --dry-run
         """
     )
     
-    parser.add_argument('--module', required=True, help='模块名称')
-    parser.add_argument('--table', required=True, help='表名')
-    parser.add_argument('--count', type=int, required=True, help='生成记录数')
+    parser.add_argument('--module', required=True, help='')
+    parser.add_argument('--table', required=True, help='')
+    parser.add_argument('--count', type=int, required=True, help='')
     parser.add_argument('--lifecycle', 
                         choices=['ephemeral', 'temporary', 'persistent', 'fixture'],
                         default='temporary',
-                        help='生命周期类型（默认: temporary，7天）')
-    parser.add_argument('--dry-run', action='store_true', help='Dry-run模式（不实际插入）')
-    parser.add_argument('--seed', type=int, help='随机种子（用于可重复生成）')
+                        help=': temporary7')
+    parser.add_argument('--dry-run', action='store_true', help='Dry-run')
+    parser.add_argument('--seed', type=int, help='')
     
     args = parser.parse_args()
     
-    # 检查依赖
+    # 
     if not HAS_FAKER:
-        print(f"{RED}✗ 缺少Faker库。请运行: pip install faker{RESET}")
+        print(f"{RED}✗ Faker: pip install faker{RESET}")
         sys.exit(1)
     
-    # 查找repo根目录
+    # repo
     repo_root = find_repo_root()
-    print(f"{BLUE}📦 仓库根目录: {repo_root}{RESET}\n")
+    print(f"{BLUE}📦 : {repo_root}{RESET}\n")
     
-    # 初始化Faker
-    faker = Faker('zh_CN')  # 支持中文
+    # Faker
+    faker = Faker('zh_CN')  # 
     if args.seed:
         Faker.seed(args.seed)
-        print(f"{CYAN}🎲 使用随机种子: {args.seed}{RESET}")
+        print(f"{CYAN}🎲 : {args.seed}{RESET}")
     
-    # 读取模块信息
-    print(f"{CYAN}📖 读取模块信息: {args.module}{RESET}")
+    # 
+    print(f"{CYAN}📖 : {args.module}{RESET}")
     agent_data = read_module_agent_md(repo_root, args.module)
     
-    # 读取Mock规则
-    print(f"{CYAN}📖 读取Mock规则: TEST_DATA.md{RESET}")
+    # Mock
+    print(f"{CYAN}📖 Mock: TEST_DATA.md{RESET}")
     mock_rules = read_test_data_md(repo_root, args.module)
     
     if not mock_rules or args.table not in mock_rules:
-        print(f"{RED}✗ 未找到表 '{args.table}' 的Mock规则{RESET}")
-        print(f"{YELLOW}💡 请在TEST_DATA.md中定义Mock规则{RESET}")
+        print(f"{RED}✗  '{args.table}' Mock{RESET}")
+        print(f"{YELLOW}💡 TEST_DATA.mdMock{RESET}")
         sys.exit(1)
     
     mock_rule = mock_rules[args.table]
-    print(f"{GREEN}✓ 找到Mock规则{RESET}")
+    print(f"{GREEN}✓ Mock{RESET}")
     
-    # 读取表结构
-    print(f"{CYAN}📖 读取表结构: {args.table}.yaml{RESET}")
+    # 
+    print(f"{CYAN}📖 : {args.table}.yaml{RESET}")
     table_yaml = read_table_yaml(repo_root, args.table)
     
     if table_yaml:
-        print(f"{GREEN}✓ 找到表结构定义{RESET}")
+        print(f"{GREEN}✓ {RESET}")
     else:
-        print(f"{YELLOW}⚠ 未找到表结构YAML，使用Mock规则定义{RESET}")
+        print(f"{YELLOW}⚠ YAMLMock{RESET}")
     
-    # 生成Mock数据
-    print(f"\n{CYAN}🎲 生成Mock数据...{RESET}")
+    # Mock
+    print(f"\n{CYAN}🎲 Mock...{RESET}")
     records = generate_mock_data(faker, mock_rule, table_yaml, args.count)
-    print(f"{GREEN}✓ 生成 {len(records)} 条记录{RESET}")
+    print(f"{GREEN}✓  {len(records)} {RESET}")
     
-    # 显示示例
+    # 
     if records:
-        print(f"\n{CYAN}📝 数据示例（前3条）:{RESET}")
+        print(f"\n{CYAN}📝 3:{RESET}")
         for i, record in enumerate(records[:3], 1):
             print(f"  {i}. {record}")
     
-    # Dry-run模式
+    # Dry-run
     if args.dry_run:
-        print(f"\n{YELLOW}⚠ Dry-run模式，不实际插入数据{RESET}")
-        print(f"{GREEN}✓ Mock数据生成成功！{RESET}")
+        print(f"\n{YELLOW}⚠ Dry-run{RESET}")
+        print(f"{GREEN}✓ Mock{RESET}")
         return
     
-    # 获取数据库配置
-    print(f"\n{CYAN}🔌 连接数据库...{RESET}")
+    # 
+    print(f"\n{CYAN}🔌 ...{RESET}")
     db_config = get_db_config(repo_root)
     
     if not db_config:
-        print(f"{YELLOW}⚠ 未配置数据库连接{RESET}")
-        print(f"{YELLOW}💡 设置环境变量: DATABASE_URL 或 DB_HOST, DB_NAME, DB_USER, DB_PASSWORD{RESET}")
-        print(f"{GREEN}✓ Mock数据生成成功（dry-run）{RESET}")
+        print(f"{YELLOW}⚠ {RESET}")
+        print(f"{YELLOW}💡 : DATABASE_URL  DB_HOST, DB_NAME, DB_USER, DB_PASSWORD{RESET}")
+        print(f"{GREEN}✓ Mockdry-run{RESET}")
         return
     
     if not HAS_PSYCOPG2:
-        print(f"{YELLOW}⚠ 未安装psycopg2库{RESET}")
-        print(f"{YELLOW}💡 运行: pip install psycopg2-binary{RESET}")
-        print(f"{GREEN}✓ Mock数据生成成功（dry-run）{RESET}")
+        print(f"{YELLOW}⚠ psycopg2{RESET}")
+        print(f"{YELLOW}💡 : pip install psycopg2-binary{RESET}")
+        print(f"{GREEN}✓ Mockdry-run{RESET}")
         return
     
-    # 连接数据库
+    # 
     conn = connect_to_db(db_config)
     if not conn:
-        print(f"{YELLOW}⚠ 数据库连接失败，仅生成数据（dry-run）{RESET}")
-        print(f"{GREEN}✓ Mock数据生成成功（dry-run）{RESET}")
+        print(f"{YELLOW}⚠ dry-run{RESET}")
+        print(f"{GREEN}✓ Mockdry-run{RESET}")
         return
     
-    print(f"{GREEN}✓ 数据库连接成功{RESET}")
+    print(f"{GREEN}✓ {RESET}")
     
     try:
-        # 插入数据
-        print(f"\n{CYAN}💾 插入Mock数据...{RESET}")
+        # 
+        print(f"\n{CYAN}💾 Mock...{RESET}")
         inserted = insert_mock_data(conn, args.table, records)
-        print(f"{GREEN}✓ 成功插入 {inserted} 条记录{RESET}")
+        print(f"{GREEN}✓  {inserted} {RESET}")
         
-        # 注册生命周期
-        print(f"\n{CYAN}📝 注册Mock生命周期...{RESET}")
+        # 
+        print(f"\n{CYAN}📝 Mock...{RESET}")
         registered = register_mock_lifecycle(
             conn, 
             args.module, 
@@ -640,17 +640,17 @@ def main():
             args.lifecycle
         )
         if registered:
-            print(f"{GREEN}✓ 生命周期注册成功（类型: {args.lifecycle}）{RESET}")
+            print(f"{GREEN}✓ : {args.lifecycle}{RESET}")
             
-            # 显示过期时间
+            # 
             if args.lifecycle == 'ephemeral':
-                print(f"  {CYAN}⏰ 将在1小时后过期{RESET}")
+                print(f"  {CYAN}⏰ 1{RESET}")
             elif args.lifecycle == 'temporary':
-                print(f"  {CYAN}⏰ 将在7天后过期{RESET}")
+                print(f"  {CYAN}⏰ 7{RESET}")
             elif args.lifecycle == 'persistent':
-                print(f"  {CYAN}♾️  持久保留（需手动清理）{RESET}")
+                print(f"  {CYAN}♾️  {RESET}")
         
-        print(f"\n{GREEN}✅ Mock数据生成完成！{RESET}")
+        print(f"\n{GREEN}✅ Mock{RESET}")
         
     finally:
         conn.close()

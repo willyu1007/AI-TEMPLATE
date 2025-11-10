@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-AI友好度检查脚本
-评估项目对AI Agent的友好程度
+AI
+AI Agent
 
 Usage:
     python scripts/ai_friendliness_check.py [--check CHECK_TYPE] [--json]
     
 CHECK_TYPE:
-    - lightweight: agent.md轻量化检查
-    - clarity: 文档角色清晰度检查
-    - automation: 自动化覆盖检查
+    - lightweight: agent.md
+    - clarity: 
+    - automation: 
 """
 
 import os
@@ -25,13 +25,13 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
-# 路径设置
+# 
 HERE = Path(__file__).parent.absolute()
 REPO_ROOT = HERE.parent
 
 
 class AIFriendlinessChecker:
-    """AI友好度检查器"""
+    """AI"""
     
     def __init__(self):
         self.repo_root = REPO_ROOT
@@ -41,11 +41,11 @@ class AIFriendlinessChecker:
         self.trigger_path = self.repo_root / "doc" / "orchestration" / "agent-triggers.yaml"
         
     def check_lightweight(self) -> Dict[str, Any]:
-        """检查agent.md轻量化程度"""
+        """agent.md"""
         thresholds_met = 0
         results = {}
         
-        # 检查1：根agent.md行数
+        # 1agent.md
         if self.agent_md_path.exists():
             with open(self.agent_md_path, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
@@ -58,11 +58,11 @@ class AIFriendlinessChecker:
                 else:
                     results['root_agent_md_status'] = '❌'
         
-        # 检查2：always_read文件总行数
+        # 2always_read
         always_read_lines = 0
         always_read_files = 0
         
-        # 读取agent.md的YAML front matter获取always_read
+        # agent.mdYAML front matteralways_read
         if self.agent_md_path.exists():
             with open(self.agent_md_path, 'r', encoding='utf-8') as f:
                 content = f.read()
@@ -85,7 +85,7 @@ class AIFriendlinessChecker:
         results['always_read_total_lines'] = always_read_lines
         results['always_read_file_count'] = always_read_files
         
-        # 检查always_read是否满足条件
+        # always_read
         if always_read_lines <= 150:
             thresholds_met += 1
             results['always_read_lines_status'] = '✅'
@@ -104,31 +104,31 @@ class AIFriendlinessChecker:
         return results
     
     def check_clarity(self) -> Dict[str, Any]:
-        """检查文档角色清晰度"""
+        """"""
         total_docs = 0
         clear_docs = 0
         unclear_docs = []
         
-        # 扫描所有markdown文档
+        # markdown
         for md_file in self.doc_path.rglob("*.md"):
             total_docs += 1
             
             with open(md_file, 'r', encoding='utf-8') as f:
                 content = f.read()
-                first_lines = '\n'.join(content.split('\n')[:20])  # 前20行
+                first_lines = '\n'.join(content.split('\n')[:20])  # 20
                 
-                # 检查是否有清晰的角色标记
+                # 
                 is_ai_doc = False
                 is_human_doc = False
                 
-                # AI文档标记
+                # AI
                 if any(marker in first_lines.lower() for marker in [
                     'for ai agents', 'ai-optimized', 'audience: ai',
                     'ai quickstart', 'ai reference'
                 ]):
                     is_ai_doc = True
                 
-                # 人类文档标记
+                # 
                 if '_guide.md' in str(md_file).lower():
                     is_human_doc = True
                 elif any(marker in first_lines.lower() for marker in [
@@ -137,7 +137,7 @@ class AIFriendlinessChecker:
                 ]):
                     is_human_doc = True
                 
-                # 检查YAML front matter
+                # YAML front matter
                 if '---' in content:
                     try:
                         yaml_content = content.split('---')[1]
@@ -154,7 +154,7 @@ class AIFriendlinessChecker:
                     except:
                         pass
                 
-                # 统计清晰度
+                # 
                 if is_ai_doc or is_human_doc:
                     clear_docs += 1
                 else:
@@ -171,20 +171,20 @@ class AIFriendlinessChecker:
         }
     
     def check_automation(self) -> Dict[str, Any]:
-        """检查自动化覆盖率"""
+        """"""
         targets_met = 0
         results = {}
         
-        # 检查1：dev_check命令数量
+        # 1dev_check
         dev_check_count = 0
         if self.makefile_path.exists():
             with open(self.makefile_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-                # 查找dev_check目标
+                # dev_check
                 if 'dev_check:' in content:
-                    # 统计dev_check中调用的检查命令
+                    # dev_check
                     dev_check_section = content.split('dev_check:')[1].split('\n\n')[0]
-                    # 统计make调用（简化统计）
+                    # make
                     dev_check_count = dev_check_section.count('$(MAKE)') + dev_check_section.count('make ')
         
         results['dev_check_count'] = dev_check_count
@@ -194,12 +194,12 @@ class AIFriendlinessChecker:
         else:
             results['dev_check_status'] = '❌'
         
-        # 检查2：Makefile命令总数
+        # 2Makefile
         makefile_commands = 0
         if self.makefile_path.exists():
             with open(self.makefile_path, 'r', encoding='utf-8') as f:
                 for line in f:
-                    # 统计以字母开头后跟冒号的行（make target）
+                    # make target
                     line = line.strip()
                     if line and not line.startswith('#') and ':' in line:
                         if line[0].isalpha() or line[0] == '.':
@@ -212,7 +212,7 @@ class AIFriendlinessChecker:
         else:
             results['makefile_status'] = '❌'
         
-        # 检查3：触发规则覆盖
+        # 3
         trigger_count = 0
         if self.trigger_path.exists():
             try:
@@ -236,7 +236,7 @@ class AIFriendlinessChecker:
         return results
     
     def run_all_checks(self) -> Dict[str, Any]:
-        """运行所有检查"""
+        """"""
         return {
             'lightweight': self.check_lightweight(),
             'clarity': self.check_clarity(),
@@ -244,7 +244,7 @@ class AIFriendlinessChecker:
         }
     
     def print_report(self, results: Dict[str, Any], check_type: str = None):
-        """打印报告"""
+        """"""
         print("=" * 60)
         print("🤖 AI Friendliness Check Report")
         print("=" * 60)
@@ -287,7 +287,7 @@ class AIFriendlinessChecker:
 
 
 def main():
-    """主函数"""
+    """"""
     import argparse
     
     parser = argparse.ArgumentParser(description="AI Friendliness Checker")
@@ -299,7 +299,7 @@ def main():
     checker = AIFriendlinessChecker()
     
     if args.check:
-        # 运行特定检查
+        # 
         if args.check == 'lightweight':
             results = {'lightweight': checker.check_lightweight()}
         elif args.check == 'clarity':
@@ -307,11 +307,11 @@ def main():
         elif args.check == 'automation':
             results = {'automation': checker.check_automation()}
     else:
-        # 运行所有检查
+        # 
         results = checker.run_all_checks()
     
     if args.json:
-        # 对于特定检查，只输出该检查的结果
+        # 
         if args.check and args.check in results:
             print(json.dumps(results[args.check], indent=2, ensure_ascii=False))
         else:

@@ -1,7 +1,7 @@
 """
-日志中间件
 
-提供统一的日志配置和请求/响应日志记录功能。
+
+/
 """
 
 import logging
@@ -16,15 +16,15 @@ def setup_logging(
     log_file: Optional[str] = None
 ) -> logging.Logger:
     """
-    设置日志配置
+    
     
     Args:
-        level: 日志级别（DEBUG, INFO, WARNING, ERROR, CRITICAL）
-        format_string: 日志格式字符串
-        log_file: 日志文件路径（可选，默认输出到控制台）
+        level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+        format_string: 
+        log_file: 
         
     Returns:
-        配置好的 logger 对象
+         logger 
         
     Examples:
         >>> logger = setup_logging(level="DEBUG")
@@ -36,18 +36,18 @@ def setup_logging(
     logger = logging.getLogger()
     logger.setLevel(getattr(logging, level.upper()))
     
-    # 清除现有的处理器
+    # 
     logger.handlers.clear()
     
-    # 创建格式化器
+    # 
     formatter = logging.Formatter(format_string)
     
-    # 控制台处理器
+    # 
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
     
-    # 文件处理器（如果指定）
+    # 
     if log_file:
         file_handler = logging.FileHandler(log_file, encoding='utf-8')
         file_handler.setFormatter(formatter)
@@ -64,14 +64,14 @@ def log_request(
     logger: Optional[logging.Logger] = None
 ):
     """
-    记录请求日志
+    
     
     Args:
-        method: HTTP 方法（GET, POST 等）
-        path: 请求路径
-        headers: 请求头（可选）
-        params: 请求参数（可选）
-        logger: logger 对象（可选，默认使用根 logger）
+        method: HTTP GET, POST 
+        path: 
+        headers: 
+        params: 
+        logger: logger  logger
         
     Examples:
         >>> log_request("GET", "/api/users", params={"page": 1})
@@ -93,13 +93,13 @@ def log_response(
     logger: Optional[logging.Logger] = None
 ):
     """
-    记录响应日志
+    
     
     Args:
-        status_code: HTTP 状态码
-        path: 请求路径
-        duration_ms: 处理耗时（毫秒）
-        logger: logger 对象（可选，默认使用根 logger）
+        status_code: HTTP 
+        path: 
+        duration_ms: 
+        logger: logger  logger
         
     Examples:
         >>> log_response(200, "/api/users", 150.5)

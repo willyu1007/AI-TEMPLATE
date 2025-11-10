@@ -124,7 +124,7 @@ class Issue:
         
         # Location
         if self.file:
-            md += f"- **文件**: `{self.file}`"
+            md += f"- ****: `{self.file}`"
             if self.line:
                 md += f":{self.line}"
                 if self.column:
@@ -133,7 +133,7 @@ class Issue:
         
         # Code context
         if include_context and (self.context_before or self.context_after):
-            md += "- **代码上下文**:\n\n```python\n"
+            md += "- ****:\n\n```python\n"
             if self.context_before:
                 for line in self.context_before:
                     md += f"{line}\n"
@@ -145,19 +145,19 @@ class Issue:
         
         # Fix information
         if self.suggestion:
-            md += f"- **修复建议**: {self.suggestion}\n"
+            md += f"- ****: {self.suggestion}\n"
         if self.fix_command:
-            md += f"- **修复命令**: `{self.fix_command}`\n"
+            md += f"- ****: `{self.fix_command}`\n"
         if self.estimated_time:
-            md += f"- **预估时间**: {self.estimated_time}\n"
+            md += f"- ****: {self.estimated_time}\n"
         if self.reference:
-            md += f"- **参考文档**: {self.reference}\n"
+            md += f"- ****: {self.reference}\n"
         if self.impact:
-            md += f"- **影响**: {self.impact}\n"
+            md += f"- ****: {self.impact}\n"
         
         # Tags
         if self.tags:
-            md += f"- **标签**: {', '.join(self.tags)}\n"
+            md += f"- ****: {', '.join(self.tags)}\n"
         
         return md
     

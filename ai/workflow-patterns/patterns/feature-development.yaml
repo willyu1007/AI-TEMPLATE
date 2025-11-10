@@ -1,231 +1,41 @@
-# AI工作流模式：功能开发
-# 此文件为AI优化文档，轻量化设计（约160行）
-# 人类完整参考：../examples/feature-development-example.md
-
 pattern_id: "feature-development"
-version: "1.0"
-name: "功能开发标准工作流"
-description: "新功能从需求到上线的完整流程"
+version: "1.1"
+name: "Feature Development Workflow"
+description: "Ship a multi-step feature across code, docs, and tests"
 complexity: "medium"
-estimated_time: "4-8小时"
-ai_optimized: true
+estimated_time: "4-8 hours"
 category: "development"
-
-# 前置条件
+ai_optimized: true
 prerequisites:
-  - "功能需求明确（PRD或User Story）"
-  - "技术方案已评审"
-  - "了解影响的模块"
-
-# 工作流步骤
+  - "Workdoc plan + tasks"
+  - "Dependencies identified"
 workflow:
   - step: 1
-    name: "需求理解"
-    description: "深入理解功能需求"
-    estimated_time: "30-45分钟"
-    
-    ai_prompt_template: |
-      功能需求：{feature_description}
-      用户场景：{user_scenarios}
-      验收标准：{acceptance_criteria}
-      请分析：
-      1. 功能范围
-      2. 涉及模块
-      3. 技术挑战
-      4. 依赖关系
-    
+    name: "Plan"
+    description: "Break scope into milestones, confirm language policy"
     documents_to_load:
-      - path: /doc/project/PRD_ONEPAGER.md
-        priority: high
-      - path: /doc/modules/MODULE_TYPES.md
-        priority: medium
-    
-    expected_output:
-      - "功能范围清晰"
-      - "涉及模块列表"
-      - "技术方案草案"
-    
-    validation:
-      - "需求理解准确"
-      - "范围明确"
-      - "无遗漏场景"
-
+      - /doc_human/templates/workdoc-plan.md
   - step: 2
-    name: "技术设计"
-    description: "详细技术设计"
-    estimated_time: "1-2小时"
-    
-    ai_prompt_template: |
-      基于需求设计技术方案：
-      1. 模块划分
-      2. 数据库设计（如需要）
-      3. API设计（如需要）
-      4. 前端设计（如需要）
-    
+    name: "Implement"
+    description: "Code + tests"
     documents_to_load:
-      - path: /doc/modules/MODULE_TYPE_CONTRACTS.yaml
-        priority: high
-      - path: /doc/db/DB_SPEC.yaml
-        priority: medium
-    
-    expected_output:
-      - "技术方案文档"
-      - "数据流图"
-      - "API契约（如有）"
-    
-    validation:
-      - "方案可行"
-      - "考虑扩展性"
-      - "性能可接受"
-
+      - /doc_agent/coding/AI_CODING_GUIDE.md
+      - /doc_agent/coding/TEST_STANDARDS.md
   - step: 3
-    name: "任务拆分"
-    description: "将功能拆分为可执行任务"
-    estimated_time: "20-30分钟"
-    
-    ai_prompt_template: |
-      拆分任务：
-      1. 数据库变更（如需要）
-      2. 后端实现
-      3. API开发（如需要）
-      4. 前端实现（如需要）
-      5. 测试
-      6. 文档
-    
-    expected_output:
-      - "任务清单（TODO）"
-      - "任务依赖关系"
-      - "时间估算"
-    
-    validation:
-      - "任务粒度合理（每个0.5-2小时）"
-      - "依赖关系清晰"
-
+    name: "Docs"
+    description: "Update module docs, README, workdoc"
+    documents_to_load:
+      - /doc_human/templates/module-templates/
   - step: 4
-    name: "迭代开发"
-    description: "按任务清单开发"
-    estimated_time: "2-5小时"
-    
-    ai_prompt_template: |
-      按任务顺序开发：
-      参考对应的工作流模式：
-      - database-migration
-      - api-development
-      - module-creation
-    
+    name: "Validation"
+    description: "Run guardrails, dev_check, update release notes"
     documents_to_load:
-      - path: /ai/workflow-patterns/patterns/database-migration.yaml
-        priority: high
-      - path: /ai/workflow-patterns/patterns/api-development.yaml
-        priority: high
-      - path: /ai/workflow-patterns/patterns/module-creation.yaml
-        priority: medium
-    
-    expected_output:
-      - "功能代码实现"
-      - "单元测试"
-      - "每个任务完成后提交"
-    
-    validation:
-      - "每个任务的测试通过"
-      - "代码符合规范"
-
-  - step: 5
-    name: "集成测试"
-    description: "端到端功能测试"
-    estimated_time: "30-45分钟"
-    
-    ai_prompt_template: |
-      测试完整功能流程：
-      1. 正常场景
-      2. 边界条件
-      3. 错误处理
-      4. 性能测试
-    
-    documents_to_load:
-      - path: /doc/process/testing.md
-        priority: high
-    
-    expected_output:
-      - "集成测试用例"
-      - "测试报告"
-    
-    validation:
-      - "所有场景通过"
-      - "性能可接受"
-
-  - step: 6
-    name: "文档和发布"
-    description: "更新文档，准备发布"
-    estimated_time: "30-45分钟"
-    
-    ai_prompt_template: |
-      发布准备：
-      1. 更新CHANGELOG.md
-      2. 更新用户文档（如需要）
-      3. 更新API文档（如需要）
-      4. 发布说明
-    
-    expected_output:
-      - "文档完整"
-      - "发布说明"
-    
-    validation:
-      - "文档与实现一致"
-      - "发布说明清晰"
-
-# 常见陷阱
-pitfalls:
-  - issue: "范围蔓延"
-    impact: "开发时间超预期"
-    solution: "严格控制范围，额外需求记录到backlog"
-    severity: "high"
-  
-  - issue: "过度设计"
-    impact: "浪费时间"
-    solution: "YAGNI原则，只实现当前需要的"
-    severity: "medium"
-  
-  - issue: "缺少测试"
-    impact: "质量不可控"
-    solution: "边开发边写测试，覆盖率≥75%"
-    severity: "high"
-
-# 质量检查清单
+      - /doc_agent/quickstart/guardrail-quickstart.md
 quality_checklist:
-  - "[ ] 需求理解准确"
-  - "[ ] 技术方案合理"
-  - "[ ] 任务拆分清晰"
-  - "[ ] 代码实现完成"
-  - "[ ] 单元测试通过"
-  - "[ ] 集成测试通过"
-  - "[ ] 覆盖率≥75%"
-  - "[ ] 文档完整"
-  - "[ ] 符合验收标准"
-
-# 估时参考
-time_breakdown:
-  understanding: "30-45分钟"
-  design: "1-2小时"
-  task_breakdown: "20-30分钟"
-  development: "2-5小时"
-  integration_test: "30-45分钟"
-  documentation: "30-45分钟"
-  total: "4-8小时"
-
-# 参考资源
+  - "[ ] Workdoc updated"
+  - "[ ] Tests/coverage met"
+  - "[ ] Docs in English"
+  - "[ ] Guardrails pass"
 references:
-  detailed_guide: "/ai/workflow-patterns/examples/feature-development-example.md"
-  related_patterns:
-    - "module-creation"
-    - "api-development"
-    - "database-migration"
-
-# 成功标准
-success_criteria:
-  - "所有6个步骤完成"
-  - "所有质量检查清单项通过"
-  - "功能满足验收标准"
-  - "测试通过"
-  - "文档完整"
-
+  - /ai/workflow-patterns/README.md
+  - /doc_human/guides/MODULE_INIT_GUIDE.md

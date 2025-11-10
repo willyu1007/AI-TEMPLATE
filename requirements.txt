@@ -1,24 +1,27 @@
-# Python 依赖
+# Python 
 
-# YAML 解析（用于 DAG 和配置校验）
+# YAML  DAG 
 pyyaml>=6.0
 
-# 测试框架（可选，用于运行测试）
+# 
 pytest>=7.0.0
 pytest-cov>=4.0.0
 
-# 代码质量（可选）
+# 
 # pylint>=2.0.0
 # black>=22.0.0
-radon>=6.0.1  # 代码复杂度分析
-mypy>=1.0.0   # 静态类型检查
+radon>=6.0.1  # 
+mypy>=1.0.0   # 
 
-# Schema校验（用于agent_lint等工具）
+# Schemaagent_lint
 jsonschema>=4.0.0
 
-# 数据库连接（可选，用于fixture_loader实际执行SQL）
-# psycopg2-binary>=2.9.0  # 取消注释以启用PostgreSQL支持
+# fixture_loaderSQL
+# psycopg2-binary>=2.9.0  # PostgreSQL
 
-# Mock数据生成（可选，用于mock_generator）
-# Faker>=20.0.0  # 取消注释以启用Mock数据生成
+# Mockmock_generator
+# Faker>=20.0.0  # Mock
+
+# Redis health checks
+redis>=5.0.0
 

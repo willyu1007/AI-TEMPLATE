@@ -1,8 +1,8 @@
 """
-加密解密工具函数
 
-提供密码哈希、验证和数据加密解密功能。
-注意：实际项目中应使用更安全的加密库（如 bcrypt、argon2）。
+
+
+ bcryptargon2
 """
 
 import hashlib
@@ -12,16 +12,16 @@ from typing import Optional
 
 def hash_password(password: str, salt: Optional[str] = None) -> str:
     """
-    哈希密码（使用 SHA-256）
+     SHA-256
     
-    警告：此函数仅作为示例，生产环境应使用 bcrypt 或 argon2。
+     bcrypt  argon2
     
     Args:
-        password: 原始密码
-        salt: 盐值（可选，默认使用固定盐）
+        password: 
+        salt: 
         
     Returns:
-        哈希后的密码字符串
+        
         
     Examples:
         >>> hashed = hash_password("password123")
@@ -33,7 +33,7 @@ def hash_password(password: str, salt: Optional[str] = None) -> str:
     if salt is None:
         salt = "default_salt_change_in_production"
     
-    # 使用 SHA-256 哈希
+    #  SHA-256 
     hash_obj = hashlib.sha256()
     hash_obj.update((password + salt).encode('utf-8'))
     return base64.b64encode(hash_obj.digest()).decode('utf-8')
@@ -41,15 +41,15 @@ def hash_password(password: str, salt: Optional[str] = None) -> str:
 
 def verify_password(password: str, hashed_password: str, salt: Optional[str] = None) -> bool:
     """
-    验证密码是否匹配哈希值
+    
     
     Args:
-        password: 原始密码
-        hashed_password: 哈希后的密码
-        salt: 盐值（必须与 hash_password 时使用的相同）
+        password: 
+        hashed_password: 
+        salt:  hash_password 
         
     Returns:
-        匹配返回 True，否则返回 False
+         True False
         
     Examples:
         >>> hashed = hash_password("password123")
@@ -63,16 +63,16 @@ def verify_password(password: str, hashed_password: str, salt: Optional[str] = N
 
 def encrypt_data(data: str, key: Optional[str] = None) -> str:
     """
-    加密数据（简单示例，实际应使用 AES 等加密算法）
+     AES 
     
-    警告：此函数仅作为示例，生产环境应使用专业的加密库（如 cryptography）。
+     cryptography
     
     Args:
-        data: 要加密的字符串
-        key: 加密密钥（可选）
+        data: 
+        key: 
         
     Returns:
-        加密后的 base64 编码字符串
+         base64 
         
     Examples:
         >>> encrypted = encrypt_data("sensitive_data")
@@ -82,21 +82,21 @@ def encrypt_data(data: str, key: Optional[str] = None) -> str:
     if key is None:
         key = "default_key_change_in_production"
     
-    # 简单的 XOR 加密（仅示例，不用于生产）
+    #  XOR 
     encrypted = ''.join(chr(ord(c) ^ ord(key[i % len(key)])) for i, c in enumerate(data))
     return base64.b64encode(encrypted.encode('utf-8')).decode('utf-8')
 
 
 def decrypt_data(encrypted_data: str, key: Optional[str] = None) -> str:
     """
-    解密数据
+    
     
     Args:
-        encrypted_data: 加密后的 base64 编码字符串
-        key: 解密密钥（必须与加密时使用的相同）
+        encrypted_data:  base64 
+        key: 
         
     Returns:
-        解密后的原始字符串
+        
         
     Examples:
         >>> encrypted = encrypt_data("sensitive_data")

@@ -1,38 +1,30 @@
-# 配置管理（Configuration）
+# Configuration Directory
 
-## 目标
-提供统一的配置加载机制，支持多环境部署和安全的密钥管理。
+## Purpose
+Keep runtime configuration deterministic across environments and easy for agents to load.
 
-## 配置层次
+## Layering Order (lowest to highest)
+1. `defaults.yaml` - shared defaults.
+2. `<env>.yaml` - env-specific overrides (`dev`, `staging`, `prod`).
+3. Environment variables - injected at runtime.
+4. Secrets - stored outside git (see `.secrets.yaml` sample, never commit real secrets).
 
-配置按以下优先级层叠加载：
+## Files
+| File | Purpose | Committed |
+|------|---------|-----------|
+| `schema.yaml` | Strongly typed schema definition | ? |
+| `defaults.yaml` | Baseline values | ? |
+| `<env>.yaml` | Environment overrides | ? |
+| `language.yaml` | Repository language + localization hints | ? |
+| `.secrets.yaml` | Local secrets | ? |
 
-### 加载顺序（优先级从低到高）
-1. **defaults.yaml** - 默认配置（所有环境通用）
-2. **<env>.yaml** - 环境特定配置（dev/staging/prod）
-3. **环境变量** - 运行时覆盖
-4. **Secrets** - 密钥（最高优先级，不提交到 git）
+## Language Configuration
+`language.yaml` defines the canonical language for documentation, comments, and generated reports. Update it during project initialization and remind contributors to follow the setting. Automation scripts can read this file to enforce consistency.
 
-## 文件说明
+## Loaders
+See `loader/` for examples in Python (`python_loader.py`), Go (`go_loader.go`), and TypeScript (`ts_loader.ts`). Each loader validates against `schema.yaml` and falls back to `defaults.yaml` when a key is missing.
 
-| 文件 | 用途 | 提交到git |
-|------|------|----------|
-| `schema.yaml` | 配置结构定义（类型、必填、默认值）| ✅ |
-| `defaults.yaml` | 默认配置 | ✅ |
-| `dev.yaml` | 开发环境配置 | ✅ |
-| `staging.yaml` | 预发布环境配置 | ✅ |
-| `prod.yaml` | 生产环境配置（无密钥）| ✅ |
-| `.secrets.yaml` | 本地密钥（**禁止提交**）| ❌ |
-
-## 加载示例
-
-参考 `loader/` 目录下的示例代码：
-- `python_loader.py` - Python 配置加载
-- `go_loader.go` - Go 配置加载
-- `ts_loader.ts` - TypeScript 配置加载
-
-## 相关文档
-- 详细指南：`docs/process/CONFIG_GUIDE.md`
-- 环境规范：`docs/process/ENV_SPEC.yaml`
-
+## Related Docs
+- `doc_human/guides/CONFIG_GUIDE.md` - deep dive.
+- `agent.md` ¡ì4 - configuration guardrails.
 

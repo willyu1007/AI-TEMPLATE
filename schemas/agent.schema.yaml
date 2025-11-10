@@ -1,59 +1,59 @@
 # Agent.md YAML Front Matter Schema
-# 用于校验所有agent.md文件的YAML前言部分
-# 版本: 1.0
+# agent.mdYAML
+# : 1.0
 
 type: object
 required: [spec_version, agent_id, role]
 
 properties:
-  # 基础字段（所有agent.md必需）
+  # agent.md
   spec_version:
     type: string
-    description: "Schema版本号"
+    description: "Schema"
     pattern: "^\\d+\\.\\d+$"
   
   agent_id:
     type: string
-    description: "Agent唯一标识，根级为'repo'，模块级为'modules.<entity>.<instance>'"
+    description: "Agent'repo''modules.<entity>.<instance>'"
     examples: ["repo", "modules.example.v1", "modules.user.v2"]
   
   role:
     type: string
-    description: "Agent角色描述"
+    description: "Agent"
     minLength: 1
   
-  # 模块级字段（可选但建议填写）
+  # 
   level:
     type: integer
     minimum: 1
     maximum: 4
-    description: "模块层级：1-4级"
+    description: "1-4"
   
   module_type:
     type: string
-    description: "模块类型标识，如'1_Assign', '2_Select', '3_SelectMethod'"
+    description: "'1_Assign', '2_Select', '3_SelectMethod'"
     examples: ["1_example", "1_Assign", "2_Select", "3_SelectMethod"]
   
-  # 权限与所有权
+  # 
   ownership:
     type: object
     properties:
       code_paths:
         type: object
-        description: "可改动的代码路径范围"
+        description: ""
         properties:
           include:
             type: array
             items: {type: string}
-            description: "允许改动的路径列表"
+            description: ""
             examples: [["modules/example/"]]
           exclude:
             type: array
             items: {type: string}
-            description: "禁止改动的路径列表"
+            description: ""
             examples: [["modules/*/doc/CHANGELOG.md"]]
   
-  # 输入输出定义
+  # 
   io:
     type: object
     properties:
@@ -65,7 +65,7 @@ properties:
             name: {type: string}
             schema_ref: {type: string}
             description: {type: string}
-        description: "输入定义列表"
+        description: ""
       outputs:
         type: array
         items:
@@ -74,100 +74,100 @@ properties:
             name: {type: string}
             schema_ref: {type: string}
             description: {type: string}
-        description: "输出定义列表"
+        description: ""
   
-  # 契约定义
+  # 
   contracts:
     type: object
     properties:
       apis:
         type: array
         items: {type: string}
-        description: "接口契约文件路径列表"
+        description: ""
         examples: [["modules/example/doc/CONTRACT.md"]]
   
-  # 依赖关系
+  # 
   dependencies:
     type: object
     properties:
       upstream:
         type: array
         items: {type: string}
-        description: "上游依赖的agent_id列表"
+        description: "agent_id"
         examples: [["modules.data_query.v1"]]
       downstream:
         type: array
         items: {type: string}
-        description: "下游输出到的agent_id列表"
+        description: "agent_id"
         examples: [["orchestrator.main"]]
   
-  # 约束条件
+  # 
   constraints:
     type: array
     items: {type: string}
-    description: "行为约束列表"
+    description: ""
     examples: [["must not access DB directly", "must maintain test coverage >= 80%"]]
   
-  # 工具权限
+  # 
   tools_allowed:
     type: object
     properties:
       calls:
         type: array
         items: {type: string}
-        description: "允许调用的工具/API列表"
+        description: "/API"
         examples: [["http", "fs.read", "db.query"]]
       models:
         type: array
         items: {type: string}
-        description: "允许使用的模型列表"
+        description: ""
         examples: [["gpt-4", "claude-3"]]
   
-  # 质量门槛
+  # 
   quality_gates:
     type: object
     properties:
       required_tests:
         type: array
         items: {type: string}
-        description: "必需的测试类型"
+        description: ""
         examples: [["unit", "integration", "smoke"]]
       coverage_min:
         type: number
         minimum: 0
         maximum: 1
-        description: "最低测试覆盖率（0-1之间）"
+        description: "0-1"
         examples: [0.80, 0.75]
   
-  # 编排提示
+  # 
   orchestration_hints:
     type: object
     properties:
       triggers:
         type: array
         items: {type: string}
-        description: "触发条件列表"
+        description: ""
         examples: [["on_http_request", "on_schedule", "on_event"]]
       routing_tags:
         type: array
         items: {type: string}
-        description: "路由标签，用于调度"
+        description: ""
         examples: [["module:user", "level:1", "domain:auth"]]
       priority:
         type: integer
         minimum: 0
-        description: "调度优先级，数字越大越优先"
+        description: ""
         examples: [5, 10]
   
-  # 上下文路由（关键字段）
+  # 
   context_routes:
     type: object
-    description: "文档路由，指定模型应该读取哪些文档"
+    description: ""
     properties:
       always_read:
         type: array
         items: {type: string}
-        description: "每次必读的文档路径列表"
+        description: ""
         examples: [["/doc/policies/goals.md", "/doc/policies/safety.md"]]
       on_demand:
         type: array
@@ -178,7 +178,7 @@ properties:
             paths: 
               type: array
               items: {type: string}
-        description: "按需读取的文档，按topic分组"
+        description: "topic"
       by_scope:
         type: array
         items:
@@ -188,73 +188,73 @@ properties:
             read:
               type: array
               items: {type: string}
-        description: "按范围读取的文档"
+        description: ""
   
-  # 根级特有字段
+  # 
   policies:
     type: object
-    description: "全局策略引用（仅根agent.md使用）"
+    description: "agent.md"
     properties:
       goals_ref: {type: string}
       safety_ref: {type: string}
   
   merge_strategy:
     type: string
-    description: "合并策略（仅根agent.md使用）"
+    description: "agent.md"
     enum: ["child_overrides_parent", "parent_overrides_child"]
     examples: ["child_overrides_parent"]
   
-  # 测试数据管理（模块级，Phase 6新增）
+  # Phase 6
   test_data:
     type: object
-    description: "模块的测试数据管理配置（轻量化，详细内容在doc/TEST_DATA.md）"
+    description: "doc/TEST_DATA.md"
     properties:
       enabled:
         type: boolean
-        description: "是否启用测试数据管理"
+        description: ""
         default: false
       spec:
         type: string
-        description: "测试数据规格文档路径（相对于模块根目录）"
+        description: ""
         default: "doc/TEST_DATA.md"
         examples: ["doc/TEST_DATA.md"]
   
-  # 智能触发器配置（可选，Phase 10新增）
+  # Phase 10
   trigger_config:
     type: object
-    description: "智能触发器配置，用于自动加载相关文档（与agent-triggers.yaml配合使用）"
+    description: "agent-triggers.yaml"
     properties:
       enabled:
         type: boolean
-        description: "是否启用智能触发器"
+        description: ""
         default: true
       rules:
         type: array
-        description: "适用的触发规则ID列表（来自agent-triggers.yaml）"
+        description: "IDagent-triggers.yaml"
         items: {type: string}
         examples: [["database-operations", "module-development"]]
       exclude_rules:
         type: array
-        description: "排除的触发规则ID列表"
+        description: "ID"
         items: {type: string}
         examples: [["security", "deployment"]]
       custom_triggers:
         type: array
-        description: "自定义触发规则（仅当前模块有效）"
+        description: ""
         items:
           type: object
           properties:
             id: 
               type: string
-              description: "规则ID"
+              description: "ID"
             file_patterns:
               type: array
               items: {type: string}
-              description: "文件路径模式"
+              description: ""
             prompt_keywords:
               type: array
               items: {type: string}
-              description: "Prompt关键词"
+              description: "Prompt"
             load_documents:
               type: array
               items:
@@ -263,6 +263,6 @@ properties:
                   path: {type: string}
                   priority: {type: string, enum: ["critical", "high", "medium", "low"]}
 
-# 允许额外字段，以便未来扩展
+# 
 additionalProperties: true
 

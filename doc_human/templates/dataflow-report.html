@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数据流可视化</title>
+    <title>Dataflow Visualization</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {
-            font-family: "Microsoft YaHei", "SimHei", sans-serif;
+            font-family: "Segoe UI", sans-serif;
             margin: 0;
             padding: 20px;
             background: #f5f5f5;
@@ -82,128 +82,84 @@
             opacity: 0;
             transition: opacity 0.2s;
         }
-        .analysis-panel {
-            margin-top: 20px;
-            padding: 15px;
-            background: #fff3cd;
-            border-radius: 4px;
-        }
-        .issue-critical { color: #d32f2f; }
-        .issue-high { color: #f57c00; }
-        .issue-medium { color: #fbc02d; }
-        .issue-low { color: #388e3c; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>数据流可视化</h1>
-        
-        <div class="metadata">
-            <strong>生成时间:</strong> 2025-11-09 13:00:38<br>
-            <strong>节点数:</strong> 2 个 | 
-            <strong>边数:</strong> 1 个
-        </div>
-        
+        <h1>Dataflow Visualization</h1>
+        <div class="metadata" id="metadata"></div>
         <div id="graph"></div>
-        
         <div class="controls">
-            <button onclick="resetZoom()">重置视图</button>
-            <button onclick="exportSVG()">导出SVG</button>
-            <button onclick="exportPNG()">导出PNG</button>
+            <button onclick="resetZoom()">Reset View</button>
+            <button onclick="exportSVG()">Export SVG</button>
+            <button onclick="exportPNG()">Export PNG</button>
         </div>
-        
-        
     </div>
-    
     <div class="tooltip" id="tooltip"></div>
-    
     <script>
-        // 数据
+        const generatedAt = '2025-11-09 13:00:38';
         const nodesData = [{"id": "web.frontend", "label": "web.frontend", "type": "default", "group": 1}, {"id": "api.codegen", "label": "api.codegen", "type": "default", "group": 1}];
         const linksData = [{"source": "web.frontend", "target": "api.codegen", "label": "", "type": "normal"}];
-        
-        // SVG设置
+        document.getElementById('metadata').innerHTML = `
+            <strong>Generated:</strong> ${generatedAt}<br>
+            <strong>Nodes:</strong> ${nodesData.length} &nbsp;|&nbsp;
+            <strong>Edges:</strong> ${linksData.length}
+        `;
         const width = document.getElementById('graph').clientWidth;
         const height = 600;
-        
-        const svg = d3.select("#graph")
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height);
-        
-        const g = svg.append("g");
-        
-        // 缩放
-        const zoom = d3.zoom()
-            .scaleExtent([0.1, 4])
-            .on("zoom", (event) => g.attr("transform", event.transform));
-        
-        svg.call(zoom);
-        
-        // 力导向图
-        const simulation = d3.forceSimulation(nodesData)
-            .force("link", d3.forceLink(linksData).id(d => d.id).distance(150))
-            .force("charge", d3.forceManyBody().strength(-300))
-            .force("center", d3.forceCenter(width / 2, height / 2));
-        
-        // 绘制边
-        const link = g.append("g")
-            .selectAll("line")
-            .data(linksData)
-            .enter().append("line")
-            .attr("class", "link")
-            .attr("stroke-width", d => d.type === 'critical' ? 3 : 1);
-        
-        // 边标签
-        const linkLabel = g.append("g")
-            .selectAll("text")
-            .data(linksData)
-            .enter().append("text")
-            .attr("class", "link-label")
-            .text(d => d.label);
-        
-        // 绘制节点
-        const node = g.append("g")
-            .selectAll("g")
-            .data(nodesData)
-            .enter().append("g")
-            .attr("class", "node")
-            .call(d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended));
-        
-        // 节点圆圈
-        node.append("circle")
-            .attr("r", 20)
-            .attr("fill", d => getNodeColor(d.type));
-        
-        // 节点标签
-        node.append("text")
-            .attr("dy", -25)
-            .attr("text-anchor", "middle")
-            .text(d => d.label);
-        
-        // 节点交互
-        node.on("mouseover", showTooltip)
-            .on("mouseout", hideTooltip);
-        
-        // 更新位置
-        simulation.on("tick", () => {
-            link
-                .attr("x1", d => d.source.x)
-                .attr("y1", d => d.source.y)
-                .attr("x2", d => d.target.x)
-                .attr("y2", d => d.target.y);
-            
-            linkLabel
-                .attr("x", d => (d.source.x + d.target.x) / 2)
-                .attr("y", d => (d.source.y + d.target.y) / 2);
-            
-            node.attr("transform", d => `translate(${d.x},${d.y})`);
+        const svg = d3.select('#graph')
+            .append('svg')
+            .attr('width', width)
+            .attr('height', height);
+        const zoom = d3.zoom().scaleExtent([0.2, 3]).on('zoom', event => {
+            g.attr('transform', event.transform);
         });
-        
-        // 辅助函数
+        const g = svg.append('g');
+        svg.call(zoom);
+        const simulation = d3.forceSimulation(nodesData)
+            .force('link', d3.forceLink(linksData).id(d => d.id).distance(150))
+            .force('charge', d3.forceManyBody().strength(-300))
+            .force('center', d3.forceCenter(width / 2, height / 2));
+        const link = g.append('g')
+            .selectAll('line')
+            .data(linksData)
+            .enter().append('line')
+            .attr('class', 'link')
+            .attr('stroke-width', d => d.type === 'critical' ? 3 : 1);
+        const linkLabel = g.append('g')
+            .selectAll('text')
+            .data(linksData)
+            .enter().append('text')
+            .attr('class', 'link-label')
+            .text(d => d.label);
+        const node = g.append('g')
+            .selectAll('g')
+            .data(nodesData)
+            .enter().append('g')
+            .attr('class', 'node')
+            .call(d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended));
+        node.append('circle')
+            .attr('r', 20)
+            .attr('fill', d => getNodeColor(d.type));
+        node.append('text')
+            .attr('dy', -25)
+            .attr('text-anchor', 'middle')
+            .text(d => d.label);
+        node.on('mouseover', showTooltip).on('mouseout', hideTooltip);
+        simulation.on('tick', () => {
+            link
+                .attr('x1', d => d.source.x)
+                .attr('y1', d => d.source.y)
+                .attr('x2', d => d.target.x)
+                .attr('y2', d => d.target.y);
+            linkLabel
+                .attr('x', d => (d.source.x + d.target.x) / 2)
+                .attr('y', d => (d.source.y + d.target.y) / 2);
+            node.attr('transform', d => `translate(${d.x},${d.y})`);
+        });
         function getNodeColor(type) {
             const colors = {
                 'start': '#4caf50',
@@ -215,40 +171,33 @@
             };
             return colors[type] || colors['default'];
         }
-        
         function showTooltip(event, d) {
-            const tooltip = d3.select("#tooltip");
-            tooltip.style("opacity", 1)
-                .html(`<strong>${d.label}</strong><br>类型: ${d.type}`)
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 28) + "px");
+            const tooltip = d3.select('#tooltip');
+            tooltip.style('opacity', 1)
+                .html(`<strong>${d.label}</strong><br>Type: ${d.type}`)
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 28) + 'px');
         }
-        
         function hideTooltip() {
-            d3.select("#tooltip").style("opacity", 0);
+            d3.select('#tooltip').style('opacity', 0);
         }
-        
         function dragstarted(event, d) {
             if (!event.active) simulation.alphaTarget(0.3).restart();
             d.fx = d.x;
             d.fy = d.y;
         }
-        
         function dragged(event, d) {
             d.fx = event.x;
             d.fy = event.y;
         }
-        
         function dragended(event, d) {
             if (!event.active) simulation.alphaTarget(0);
             d.fx = null;
             d.fy = null;
         }
-        
         function resetZoom() {
             svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
         }
-        
         function exportSVG() {
             const svgData = svg.node().outerHTML;
             const blob = new Blob([svgData], {type: 'image/svg+xml'});
@@ -258,9 +207,8 @@
             a.download = 'dataflow.svg';
             a.click();
         }
-        
         function exportPNG() {
-            alert('PNG导出功能需要服务端支持');
+            alert('PNG export requires server-side rendering in this template.');
         }
     </script>
 </body>

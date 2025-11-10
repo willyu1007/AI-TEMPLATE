@@ -16,7 +16,8 @@ doc_agent/
 ├── policies/         # Core execution policies
 ├── specs/            # Technical specifications
 ├── orchestration/    # Module orchestration configs
-├── flows/            # DAG and flow definitions
+├── flows/            # Lifecycle + DAG definitions
+├── init/             # Initialization playbooks
 ├── quickstart/       # Quick reference guides
 ├── coding/           # Coding standards
 └── index/            # AI context indexes
@@ -39,10 +40,14 @@ doc_agent/
    - DB_SPEC.yaml for database schema
    - HEALTH_CHECK_MODEL.yaml for metrics
 
-4. **Use quickstart/ for operations**
-   - module-init.md for new modules
-   - workdocs.md for task management
-   - guardrail.md for validation
+4. **Use flows/ + init/ + quickstart/**
+   - flows/repo-lifecycle.md for end-to-end orchestration view
+   - flows/maintenance-loop.md for recurring health checks
+   - init/project-init.md for repo initialization protocol
+   - init/module-init.md for module initialization protocol
+   - quickstart/module-init.md for command cheatsheet
+   - quickstart/workdocs-quickstart.md for task management
+   - quickstart/guardrail-quickstart.md for guardrail validation
 
 ## Key Documents
 
@@ -50,7 +55,11 @@ doc_agent/
 |----------|---------|--------------|
 | index/AI_INDEX.md | Repository overview | Always |
 | specs/MODULE_TYPES.md | Module classification | Module work |
-| quickstart/module-init.md | Module creation | New modules |
+| init/project-init.md | Repo initialization protocol | Before scaffolding |
+| init/module-init.md | Module initialization protocol | Before scaffolding |
+| flows/repo-lifecycle.md | Full orchestration lifecycle | Planning & handoff |
+| flows/maintenance-loop.md | Health & maintenance loop | Post-release |
+| quickstart/module-init.md | Module command checklist | After protocol |
 | coding/AI_CODING_GUIDE.md | Coding standards | Implementation |
 | orchestration/registry.yaml | Module registry | Dependencies |
 

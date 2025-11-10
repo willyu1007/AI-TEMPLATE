@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-密钥和敏感信息扫描脚本
-检查代码中是否有泄露的密钥、密码和其他敏感信息
+
+
 
 Usage:
     python scripts/secret_scan.py [--json]
@@ -20,19 +20,19 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
-# 路径设置
+# 
 HERE = Path(__file__).parent.absolute()
 REPO_ROOT = HERE.parent
 
 
 class SecretScanner:
-    """敏感信息扫描器"""
+    """"""
     
     def __init__(self):
         self.repo_root = REPO_ROOT
         self.issues = []
         
-        # 定义敏感信息模式
+        # 
         self.patterns = {
             'api_key': [
                 r'api[_-]?key\s*[=:]\s*["\']?[a-zA-Z0-9]{20,}',
@@ -68,7 +68,7 @@ class SecretScanner:
             ]
         }
         
-        # 忽略的文件路径模式
+        # 
         self.ignore_patterns = [
             '.git',
             'node_modules',
@@ -87,7 +87,7 @@ class SecretScanner:
             'build',
         ]
         
-        # 允许的假密钥（示例、占位符）
+        # 
         self.allowed_patterns = [
             r'example',
             r'sample',
@@ -101,40 +101,40 @@ class SecretScanner:
             r'todo',
             r'fixme',
             r'replace',
-            r'\$\{[^}]+\}',  # 环境变量占位符
-            r'Bearer\s+(valid_token|invalid_token|expired_token|refreshed_)',  # 测试token
+            r'\$\{[^}]+\}',  # 
+            r'Bearer\s+(valid_token|invalid_token|expired_token|refreshed_)',  # token
         ]
     
     def should_ignore(self, file_path: Path) -> bool:
-        """检查文件是否应该被忽略"""
+        """"""
         path_str = str(file_path)
         
         for pattern in self.ignore_patterns:
             if pattern in path_str:
                 return True
         
-        # 忽略二进制文件
+        # 
         if file_path.suffix in ['.jpg', '.png', '.gif', '.pdf', '.zip', '.tar', '.gz']:
             return True
         
         return False
     
     def is_allowed(self, matched_text: str) -> bool:
-        """检查匹配的文本是否是允许的（假密钥）"""
+        """"""
         matched_lower = matched_text.lower()
         
         for pattern in self.allowed_patterns:
             if re.search(pattern, matched_lower, re.IGNORECASE):
                 return True
         
-        # 检查是否全是相同字符（如 "xxxxxxxx"）
+        #  "xxxxxxxx"
         if len(set(re.sub(r'[^a-zA-Z0-9]', '', matched_text))) <= 2:
             return True
         
         return False
     
     def scan_file(self, file_path: Path) -> List[Dict[str, Any]]:
-        """扫描单个文件"""
+        """"""
         file_issues = []
         
         try:
@@ -147,14 +147,14 @@ class SecretScanner:
                     for match in re.finditer(pattern, content, re.IGNORECASE | re.MULTILINE):
                         matched_text = match.group(0)
                         
-                        # 检查是否是允许的模式
+                        # 
                         if self.is_allowed(matched_text):
                             continue
                         
-                        # 找出行号
+                        # 
                         line_start = content[:match.start()].count('\n') + 1
                         
-                        # 脱敏处理
+                        # 
                         if len(matched_text) > 20:
                             sanitized = matched_text[:10] + '...[REDACTED]'
                         else:
@@ -169,13 +169,13 @@ class SecretScanner:
                         })
         
         except Exception as e:
-            # 忽略无法读取的文件
+            # 
             pass
         
         return file_issues
     
     def get_severity(self, secret_type: str) -> str:
-        """获取密钥类型的严重程度"""
+        """"""
         high_severity = ['private_key', 'aws_key', 'database_url']
         medium_severity = ['api_key', 'token', 'jwt_secret']
         
@@ -187,15 +187,15 @@ class SecretScanner:
             return 'LOW'
     
     def scan_repository(self) -> Dict[str, Any]:
-        """扫描整个仓库"""
+        """"""
         self.issues = []
         files_scanned = 0
         
-        # 扫描所有文件
+        # 
         for root, dirs, files in os.walk(self.repo_root):
             root_path = Path(root)
             
-            # 过滤掉应忽略的目录
+            # 
             dirs[:] = [d for d in dirs if not any(pattern in d for pattern in self.ignore_patterns)]
             
             for file in files:
@@ -208,16 +208,16 @@ class SecretScanner:
                 file_issues = self.scan_file(file_path)
                 self.issues.extend(file_issues)
         
-        # 检查.env文件是否在.gitignore中
+        # .env.gitignore
         env_in_gitignore = self.check_env_gitignore()
         
-        # 计算安全检查通过数
+        # 
         security_checks_passed = self.calculate_security_score()
         
         return {
             'files_scanned': files_scanned,
             'issues_found': len(self.issues),
-            'issues': self.issues[:10],  # 只返回前10个问题
+            'issues': self.issues[:10],  # 10
             'high_severity_count': len([i for i in self.issues if i['severity'] == 'HIGH']),
             'medium_severity_count': len([i for i in self.issues if i['severity'] == 'MEDIUM']),
             'low_severity_count': len([i for i in self.issues if i['severity'] == 'LOW']),
@@ -227,7 +227,7 @@ class SecretScanner:
         }
     
     def check_env_gitignore(self) -> bool:
-        """检查.env文件是否在.gitignore中"""
+        """.env.gitignore"""
         gitignore_path = self.repo_root / '.gitignore'
         if gitignore_path.exists():
             with open(gitignore_path, 'r', encoding='utf-8') as f:
@@ -236,29 +236,29 @@ class SecretScanner:
         return False
     
     def calculate_security_score(self) -> int:
-        """计算安全检查通过数（满分4）"""
+        """4"""
         score = 0
         
-        # 检查1：无高危密钥
+        # 1
         if not any(i['severity'] == 'HIGH' for i in self.issues):
             score += 1
         
-        # 检查2：无中危密钥
+        # 2
         if not any(i['severity'] == 'MEDIUM' for i in self.issues):
             score += 1
         
-        # 检查3：总问题数少于5个
+        # 35
         if len(self.issues) < 5:
             score += 1
         
-        # 检查4：.env在.gitignore中
+        # 4.env.gitignore
         if self.check_env_gitignore():
             score += 1
         
         return score
     
     def get_status(self) -> str:
-        """获取扫描状态"""
+        """"""
         if len(self.issues) == 0:
             return '✅ Clean'
         elif any(i['severity'] == 'HIGH' for i in self.issues):
@@ -269,7 +269,7 @@ class SecretScanner:
             return '❌ Failed'
     
     def print_report(self, results: Dict[str, Any]):
-        """打印报告"""
+        """"""
         print("=" * 60)
         print("🔐 Security Scan Report")
         print("=" * 60)
@@ -315,7 +315,7 @@ class SecretScanner:
 
 
 def main():
-    """主函数"""
+    """"""
     import argparse
     
     parser = argparse.ArgumentParser(description="Secret Scanner")
@@ -330,9 +330,9 @@ def main():
     else:
         scanner.print_report(results)
     
-    # 返回状态码
+    # 
     if results['issues_found'] > 0 and results['high_severity_count'] > 0:
-        return 1  # 有高危问题
+        return 1  # 
     return 0
 
 

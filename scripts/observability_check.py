@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-可观测性检查脚本
-检查项目的日志、指标、追踪和告警配置
+
+
 
 Usage:
     python scripts/observability_check.py [--json]
@@ -20,13 +20,13 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
-# 路径设置
+# 
 HERE = Path(__file__).parent.absolute()
 REPO_ROOT = HERE.parent
 
 
 class ObservabilityChecker:
-    """可观测性检查器"""
+    """"""
     
     def __init__(self):
         self.repo_root = REPO_ROOT
@@ -34,11 +34,11 @@ class ObservabilityChecker:
         self.modules_path = self.repo_root / "modules"
         
     def check_logging(self) -> Dict[str, Any]:
-        """检查日志配置"""
+        """"""
         checks_passed = []
         issues = []
         
-        # 检查1：日志配置文件存在
+        # 1
         logging_config_paths = [
             self.observability_path / "logging" / "fluentd.conf",
             self.observability_path / "logging" / "filebeat.yaml",
@@ -51,14 +51,14 @@ class ObservabilityChecker:
         else:
             issues.append("No logging configuration found")
         
-        # 检查2：模块有日志配置
+        # 2
         modules_with_logging = 0
         total_modules = 0
         
         for module_dir in self.modules_path.glob("*"):
             if module_dir.is_dir() and not module_dir.name.startswith('.'):
                 total_modules += 1
-                # 检查是否有日志相关代码
+                # 
                 has_logging = False
                 for py_file in module_dir.rglob("*.py"):
                     with open(py_file, 'r', encoding='utf-8', errors='ignore') as f:
@@ -83,16 +83,16 @@ class ObservabilityChecker:
         }
     
     def check_metrics(self) -> Dict[str, Any]:
-        """检查指标收集配置"""
+        """"""
         checks_passed = []
         issues = []
         
-        # 检查1：Prometheus配置
+        # 1Prometheus
         prometheus_config = self.observability_path / "metrics" / "prometheus.yml"
         if prometheus_config.exists():
             checks_passed.append("Prometheus config exists")
             
-            # 检查配置内容
+            # 
             with open(prometheus_config, 'r', encoding='utf-8') as f:
                 content = f.read()
                 if 'scrape_configs' in content:
@@ -100,7 +100,7 @@ class ObservabilityChecker:
         else:
             issues.append("No Prometheus configuration")
         
-        # 检查2：Grafana仪表板
+        # 2Grafana
         grafana_dashboards = self.observability_path / "metrics" / "grafana-dashboard.json"
         if grafana_dashboards.exists():
             checks_passed.append("Grafana dashboard exists")
@@ -113,11 +113,11 @@ class ObservabilityChecker:
         }
     
     def check_tracing(self) -> Dict[str, Any]:
-        """检查分布式追踪配置"""
+        """"""
         checks_passed = []
         issues = []
         
-        # 检查追踪配置文件
+        # 
         tracing_configs = [
             self.observability_path / "tracing" / "jaeger.yaml",
             self.observability_path / "tracing" / "zipkin.yaml",
@@ -129,7 +129,7 @@ class ObservabilityChecker:
         else:
             issues.append("No distributed tracing configuration")
         
-        # 检查是否有OpenTelemetry集成
+        # OpenTelemetry
         otel_found = False
         for module_dir in self.modules_path.glob("*"):
             if module_dir.is_dir():
@@ -153,16 +153,16 @@ class ObservabilityChecker:
         }
     
     def check_alerts(self) -> Dict[str, Any]:
-        """检查告警规则配置"""
+        """"""
         checks_passed = []
         issues = []
         
-        # 检查1：Prometheus告警规则
+        # 1Prometheus
         alert_rules = self.observability_path / "alerts" / "prometheus_alerts.yml"
         if alert_rules.exists():
             checks_passed.append("Alert rules defined")
             
-            # 检查规则内容
+            # 
             try:
                 with open(alert_rules, 'r', encoding='utf-8') as f:
                     alert_config = yaml.safe_load(f)
@@ -175,7 +175,7 @@ class ObservabilityChecker:
         else:
             issues.append("No alert rules defined")
         
-        # 检查2：AlertManager配置
+        # 2AlertManager
         alertmanager_config = self.observability_path / "alerts" / "alertmanager.yml"
         if alertmanager_config.exists():
             checks_passed.append("AlertManager configured")
@@ -188,18 +188,18 @@ class ObservabilityChecker:
         }
     
     def check_dashboards(self) -> Dict[str, Any]:
-        """检查监控仪表板"""
+        """"""
         checks_passed = []
         issues = []
         
-        # 检查Grafana仪表板
+        # Grafana
         dashboard_path = self.observability_path / "metrics"
         dashboard_files = list(dashboard_path.glob("*dashboard*.json")) if dashboard_path.exists() else []
         
         if dashboard_files:
             checks_passed.append(f"{len(dashboard_files)} dashboard(s) configured")
             
-            # 检查仪表板内容
+            # 
             for dashboard_file in dashboard_files:
                 try:
                     with open(dashboard_file, 'r', encoding='utf-8') as f:
@@ -219,10 +219,10 @@ class ObservabilityChecker:
         }
     
     def calculate_score(self, results: Dict[str, Any]) -> int:
-        """计算总分（最高5分）"""
+        """5"""
         score = 0
         
-        # 每个维度贡献1分
+        # 1
         for dimension in ['logging', 'metrics', 'tracing', 'alerts', 'dashboards']:
             if dimension in results:
                 if len(results[dimension]['checks_passed']) > 0:
@@ -231,7 +231,7 @@ class ObservabilityChecker:
         return min(score, 5)
     
     def run_all_checks(self) -> Dict[str, Any]:
-        """运行所有检查"""
+        """"""
         results = {
             'logging': self.check_logging(),
             'metrics': self.check_metrics(),
@@ -240,7 +240,7 @@ class ObservabilityChecker:
             'dashboards': self.check_dashboards()
         }
         
-        # 计算总体统计
+        # 
         total_checks_passed = sum(len(r['checks_passed']) for r in results.values())
         total_issues = sum(len(r['issues']) for r in results.values())
         
@@ -255,7 +255,7 @@ class ObservabilityChecker:
         return results
     
     def get_status(self, checks_passed: int, issues: int) -> str:
-        """获取状态"""
+        """"""
         if issues == 0:
             return '✅ Excellent'
         elif checks_passed >= 10:
@@ -266,7 +266,7 @@ class ObservabilityChecker:
             return '❌ Poor'
     
     def print_report(self, results: Dict[str, Any]):
-        """打印报告"""
+        """"""
         print("=" * 60)
         print("👁️ Observability Check Report")
         print("=" * 60)
@@ -316,7 +316,7 @@ class ObservabilityChecker:
 
 
 def main():
-    """主函数"""
+    """"""
     import argparse
     
     parser = argparse.ArgumentParser(description="Observability Checker")

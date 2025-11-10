@@ -91,7 +91,7 @@ class IssueAggregator:
         ]
         if test_issues:
             clusters.append(IssueCluster(
-                name="测试基础设施问题",
+                name="",
                 root_cause="Testing infrastructure not configured or insufficient",
                 affected_issues=test_issues,
                 impact_score=sum(i.priority for i in test_issues),
@@ -106,7 +106,7 @@ class IssueAggregator:
         ]
         if doc_issues:
             clusters.append(IssueCluster(
-                name="文档完整性问题",
+                name="",
                 root_cause="Module documentation templates missing or incomplete",
                 affected_issues=doc_issues,
                 impact_score=sum(i.priority for i in doc_issues),
@@ -121,7 +121,7 @@ class IssueAggregator:
         ]
         if quality_issues:
             clusters.append(IssueCluster(
-                name="代码质量问题",
+                name="",
                 root_cause="Code quality tools not configured or standards not met",
                 affected_issues=quality_issues,
                 impact_score=sum(i.priority for i in quality_issues),
@@ -135,7 +135,7 @@ class IssueAggregator:
         ]
         if security_issues:
             clusters.append(IssueCluster(
-                name="安全问题",
+                name="",
                 root_cause="Secrets or credentials hardcoded in code",
                 affected_issues=security_issues,
                 impact_score=sum(i.priority for i in security_issues),
@@ -149,7 +149,7 @@ class IssueAggregator:
         ]
         if arch_issues:
             clusters.append(IssueCluster(
-                name="架构设计问题",
+                name="",
                 root_cause="Module dependencies or architecture not optimal",
                 affected_issues=arch_issues,
                 impact_score=sum(i.priority for i in arch_issues),
@@ -176,17 +176,17 @@ class IssueAggregator:
         if len(test_related) >= 3:  # Significant impact
             root_causes.append(RootCause(
                 id="RC-001",
-                name="测试基础设施缺失",
+                name="",
                 description="No pytest or coverage tools configured, leading to zero test coverage",
                 affected_dimensions=['code_quality', 'operations'],
                 affected_count=len(test_related),
                 fix_proposal="""
-**一键修复方案**:
+****:
 ```bash
-# 1. 安装测试工具
+# 1. 
 pip install pytest pytest-cov pytest-mock
 
-# 2. 创建配置文件
+# 2. 
 cat > pytest.ini << EOF
 [pytest]
 testpaths = tests
@@ -196,18 +196,18 @@ python_functions = test_*
 addopts = --cov=modules --cov=scripts --cov-report=term-missing
 EOF
 
-# 3. 运行首次测试
+# 3. 
 make test_coverage
 ```
 
-将解决 {count} 个问题，涉及以下文件:
+ {count} :
 - {files}
                 """.format(
                     count=len(test_related),
                     files="\n- ".join(set(i.file for i in test_related if i.file))[:500]
                 ),
-                expected_improvement="+15-20分",
-                estimated_time="1-2小时"
+                expected_improvement="+15-20",
+                estimated_time="1-2"
             ))
         
         # Root Cause 2: Module documentation incomplete
@@ -224,25 +224,25 @@ make test_coverage
             
             root_causes.append(RootCause(
                 id="RC-002",
-                name="模块文档模板缺失",
+                name="",
                 description=f"Modules missing standard documentation (affects {len(affected_modules)} module(s))",
                 affected_dimensions=['documentation', 'ai_friendliness'],
                 affected_count=len(doc_issues),
                 fix_proposal=f"""
-**批量修复方案**:
+****:
 ```bash
-# 为每个模块生成缺失文档
+# 
 {chr(10).join([f"make module_doc_gen MODULE={m}" for m in sorted(affected_modules)])}
 ```
 
-将自动创建:
-- RUNBOOK.md (运维手册)
-- BUGS.md (已知问题)
-- PROGRESS.md (进度追踪)
-- TEST_PLAN.md (测试计划)
+:
+- RUNBOOK.md ()
+- BUGS.md ()
+- PROGRESS.md ()
+- TEST_PLAN.md ()
                 """,
-                expected_improvement="+5-8分",
-                estimated_time="30分钟-1小时"
+                expected_improvement="+5-8",
+                estimated_time="30-1"
             ))
         
         # Root Cause 3: Linter/code quality tools not configured
@@ -253,29 +253,29 @@ make test_coverage
         if len(linter_issues) >= 2:
             root_causes.append(RootCause(
                 id="RC-003",
-                name="代码质量工具未配置",
+                name="",
                 description="Linters and complexity tools not properly configured",
                 affected_dimensions=['code_quality'],
                 affected_count=len(linter_issues),
                 fix_proposal="""
-**配置代码质量工具**:
+****:
 ```bash
-# 1. 安装工具
+# 1. 
 pip install pylint flake8 radon mypy
 
-# 2. 创建配置
+# 2. 
 cat > .pylintrc << EOF
 [MASTER]
 max-line-length=120
 EOF
 
-# 3. 运行检查
+# 3. 
 make python_scripts_lint
 make complexity_check
 ```
                 """,
-                expected_improvement="+8-10分",
-                estimated_time="1-1.5小时"
+                expected_improvement="+8-10",
+                estimated_time="1-1.5"
             ))
         
         # Root Cause 4: Secrets not externalized
@@ -286,30 +286,30 @@ make complexity_check
         if len(secret_issues) >= 1:
             root_causes.append(RootCause(
                 id="RC-004",
-                name="敏感信息硬编码",
+                name="",
                 description="Secrets, passwords, or tokens hardcoded in configuration",
                 affected_dimensions=['security', 'operations'],
                 affected_count=len(secret_issues),
                 fix_proposal="""
-**迁移到环境变量**:
+****:
 ```bash
-# 1. 创建.env.example模板
+# 1. .env.example
 cat > .env.example << EOF
 DB_PASSWORD=your_password_here
 AWS_SECRET_KEY=your_key_here
 API_TOKEN=your_token_here
 EOF
 
-# 2. 更新配置文件使用环境变量
+# 2. 
 # config/prod.yaml:
 # password: ${DB_PASSWORD}
 
-# 3. 确保.env在.gitignore中
+# 3. .env.gitignore
 echo ".env" >> .gitignore
 ```
                 """,
-                expected_improvement="+5-10分（阻断问题）",
-                estimated_time="15-30分钟"
+                expected_improvement="+5-10",
+                estimated_time="15-30"
             ))
         
         self.root_causes = sorted(root_causes, key=lambda x: x.affected_count, reverse=True)
@@ -325,32 +325,32 @@ echo ".env" >> .gitignore
         clusters = self.cluster_similar_issues()
         root_causes = self.analyze_root_causes()
         
-        md = "## 🎯 问题聚合分析\n\n"
+        md = "## 🎯 \n\n"
         
         if not root_causes:
-            md += "✅ 未检测到需要聚合分析的问题模式\n\n"
+            md += "✅ \n\n"
             return md
         
-        md += f"识别到 **{len(root_causes)}个根本原因**，影响 **{sum(rc.affected_count for rc in root_causes)}个问题**\n\n"
+        md += f" **{len(root_causes)}** **{sum(rc.affected_count for rc in root_causes)}**\n\n"
         md += "---\n\n"
         
         for i, rc in enumerate(root_causes, 1):
-            md += f"### 根本原因{i}: {rc.name}\n\n"
+            md += f"### {i}: {rc.name}\n\n"
             md += f"**ID**: {rc.id}  \n"
-            md += f"**影响范围**: {rc.affected_count}个问题，涉及 {', '.join(rc.affected_dimensions)} 维度  \n"
-            md += f"**根本原因**: {rc.description}  \n\n"
+            md += f"****: {rc.affected_count} {', '.join(rc.affected_dimensions)}   \n"
+            md += f"****: {rc.description}  \n\n"
             
             md += rc.fix_proposal
             md += "\n\n"
             
-            md += f"**预期效果**: {rc.expected_improvement}  \n"
-            md += f"**预估时间**: {rc.estimated_time}  \n\n"
+            md += f"****: {rc.expected_improvement}  \n"
+            md += f"****: {rc.estimated_time}  \n\n"
             md += "---\n\n"
         
         # Add cluster summary
         if clusters:
-            md += "### 问题聚类汇总\n\n"
-            md += "| 聚类名称 | 问题数 | 影响分数 | 修复策略 |\n"
+            md += "### \n\n"
+            md += "|  |  |  |  |\n"
             md += "|----------|--------|----------|----------|\n"
             for cluster in clusters:
                 md += f"| {cluster.name} | {len(cluster.affected_issues)} | {cluster.impact_score} | {cluster.fix_strategy} |\n"
@@ -417,22 +417,22 @@ echo ".env" >> .gitignore
         # Add quick wins section
         quick_wins = self.get_quick_wins()
         if quick_wins:
-            report += "## 🚀 快速改进（Quick Wins）\n\n"
-            report += "以下问题可快速修复（高影响、低耗时）：\n\n"
+            report += "## 🚀 Quick Wins\n\n"
+            report += "\n\n"
             for i, issue in enumerate(quick_wins, 1):
                 report += f"{i}. **[{issue.rule}]** {issue.message}\n"
                 if issue.fix_command:
-                    report += f"   - 命令: `{issue.fix_command}`\n"
-                report += f"   - 时间: {issue.estimated_time}\n"
-                report += f"   - 影响: +{issue.priority/10:.0f}分\n\n"
+                    report += f"   - : `{issue.fix_command}`\n"
+                report += f"   - : {issue.estimated_time}\n"
+                report += f"   - : +{issue.priority/10:.0f}\n\n"
         
         # Add improvement potential
         potential = self.calculate_improvement_potential()
-        report += "## 📈 改进潜力分析\n\n"
-        report += f"- **立即修复** ({len([i for i in self.issues if i.is_high_priority()])}个): 约 +{potential['immediate']:.0f}分\n"
-        report += f"- **短期改进** ({len([i for i in self.issues if i.level == IssueLevel.WARNING])}个): 约 +{potential['short_term']:.0f}分\n"
-        report += f"- **长期优化** ({len([i for i in self.issues if not i.is_high_priority() and i.level != IssueLevel.WARNING])}个): 约 +{potential['long_term']:.0f}分\n"
-        report += f"- **总潜力**: 约 +{sum(potential.values()):.0f}分\n\n"
+        report += "## 📈 \n\n"
+        report += f"- **** ({len([i for i in self.issues if i.is_high_priority()])}):  +{potential['immediate']:.0f}\n"
+        report += f"- **** ({len([i for i in self.issues if i.level == IssueLevel.WARNING])}):  +{potential['short_term']:.0f}\n"
+        report += f"- **** ({len([i for i in self.issues if not i.is_high_priority() and i.level != IssueLevel.WARNING])}):  +{potential['long_term']:.0f}\n"
+        report += f"- ****:  +{sum(potential.values()):.0f}\n\n"
         
         # Save report
         output_path = Path(output_path)

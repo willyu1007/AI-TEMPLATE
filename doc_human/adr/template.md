@@ -1,51 +1,25 @@
-# ADR-XXX: [决策标题]
+---
+audience: human
+language: en
+version: template
+purpose: ADR template
+---
+# ADR-XXX: <Title>
 
-## 状态
-[提议 | 已采纳 | 已弃用 | 已替代]
+## Status
+Proposed / Accepted / Deprecated
 
-## 上下文
-[描述决策的背景和问题]
+## Context
+Describe the problem, constraints, and language considerations.
 
-## 决策
-[说明最终选择的方案]
+## Decision
+Explain the chosen solution.
 
-## 考虑的方案
+## Consequences
+- Positive
+- Negative / Trade-offs
 
-### 方案 A: [方案名称]
-**优点**：
-- 优点1
-- 优点2
+## References
+- Workdocs, PRs, metrics, guardrail notes.
 
-**缺点**：
-- 缺点1
-- 缺点2
-
-### 方案 B: [方案名称]
-**优点**：
-- 优点1
-
-**缺点**：
-- 缺点1
-
-## 决策理由
-[说明为什么选择此方案，考虑因素包括：成本、风险、团队技能、维护性等]
-
-## 后果
-
-### 正面影响
-- 影响1
-- 影响2
-
-### 负面影响
-- 影响1
-- 影响2
-
-### 需要关注
-- 需要定期评估的点
-
-## 相关决策
-- ADR-XXX: [相关决策标题]
-
-## 更新记录
-- YYYY-MM-DD: 初始创建
-
+Write ADRs in English (or the configured language) for consistency.

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-add_doc_headers.py - 批量添加文档audience头部
+add_doc_headers.py - audience
 
-为所有缺少头部声明的文档添加 YAML front matter。
+ YAML front matter
 
 Usage:
     python scripts/add_doc_headers.py --dry-run
@@ -24,11 +24,11 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
-# 路径设置
+# 
 HERE = Path(__file__).parent.absolute()
 REPO_ROOT = HERE.parent
 
-# 文档分类规则
+# 
 DOC_HEADERS = {
     # AI documents (English)
     'ai': {
@@ -110,7 +110,7 @@ DOC_HEADERS = {
 
 
 def has_yaml_header(file_path: Path) -> bool:
-    """检查文件是否已有YAML头部"""
+    """YAML"""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             first_line = f.readline().strip()
@@ -120,13 +120,13 @@ def has_yaml_header(file_path: Path) -> bool:
 
 
 def add_header(file_path: Path, audience: str, language: str, version: str, purpose: str = None, full_version: str = None, ai_version: str = None) -> bool:
-    """添加YAML头部到文档"""
+    """YAML"""
     try:
-        # 读取原内容
+        # 
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # 构建头部
+        # 
         header_lines = ['---']
         header_lines.append(f'audience: {audience}')
         header_lines.append(f'language: {language}')
@@ -144,10 +144,10 @@ def add_header(file_path: Path, audience: str, language: str, version: str, purp
         header_lines.append('---')
         header_lines.append('')
         
-        # 组合新内容
+        # 
         new_content = '\n'.join(header_lines) + content
         
-        # 写回文件
+        # 
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(new_content)
         
@@ -159,21 +159,21 @@ def add_header(file_path: Path, audience: str, language: str, version: str, purp
 
 
 def main():
-    """主函数"""
+    """"""
     import argparse
     
-    parser = argparse.ArgumentParser(description='批量添加文档audience头部')
-    parser.add_argument('--dry-run', action='store_true', help='仅显示将要修改的文件，不实际修改')
-    parser.add_argument('--apply', action='store_true', help='实际应用修改')
+    parser = argparse.ArgumentParser(description='audience')
+    parser.add_argument('--dry-run', action='store_true', help='')
+    parser.add_argument('--apply', action='store_true', help='')
     
     args = parser.parse_args()
     
     if not args.dry_run and not args.apply:
-        print("请指定 --dry-run 或 --apply")
-        print("用法: python scripts/add_doc_headers.py --dry-run")
+        print(" --dry-run  --apply")
+        print(": python scripts/add_doc_headers.py --dry-run")
         sys.exit(1)
     
-    # 统计
+    # 
     total_files = 0
     skipped_files = 0
     updated_files = 0
@@ -183,7 +183,7 @@ def main():
     print("=" * 70)
     print()
     
-    # 处理每个类别
+    # 
     for category, config in DOC_HEADERS.items():
         print(f"\n📂 Category: {category}")
         print(f"   Audience: {config['audience']}, Language: {config['language']}, Version: {config['version']}")
@@ -206,10 +206,10 @@ def main():
             if args.dry_run:
                 print(f"  🔜 Would add header: {rel_path}")
             else:
-                # 获取purpose
+                # purpose
                 purpose = config.get('purpose', f"Documentation for {file_path.stem}")
                 
-                # 确定full_version或ai_version
+                # full_versionai_version
                 full_version = None
                 ai_version = None
                 
@@ -234,7 +234,7 @@ def main():
                     print(f"  ❌ Failed: {rel_path}")
                     skipped_files += 1
     
-    # 总结
+    # 
     print()
     print("=" * 70)
     print("📊 Summary")

@@ -99,41 +99,41 @@ class IssueReporter:
         warning_count = len(self.categorized['warning'])
         info_count = len(self.categorized['info']) + len(self.categorized['suggestion'])
         
-        summary = """## 📋 执行摘要
+        summary = """## 📋 
 
-### 关键指标
+### 
 """
         
         # Status indicators
         if blocker_count > 0:
-            summary += f"- 🔴 **阻断性问题**: {blocker_count}个 - **必须立即修复**\n"
+            summary += f"- 🔴 ****: {blocker_count} - ****\n"
         if error_count > 0:
-            summary += f"- 🟠 **错误**: {error_count}个 - 高优先级修复\n"
+            summary += f"- 🟠 ****: {error_count} - \n"
         if warning_count > 0:
-            summary += f"- 🟡 **警告**: {warning_count}个 - 建议修复\n"
+            summary += f"- 🟡 ****: {warning_count} - \n"
         if info_count > 0:
-            summary += f"- 🔵 **信息/建议**: {info_count}个 - 可选优化\n"
+            summary += f"- 🔵 **/**: {info_count} - \n"
         
         if not self.issues:
-            summary += "- ✅ **没有检测到问题** - 状态良好！\n"
+            summary += "- ✅ **** - \n"
         
-        summary += "\n### 影响评估\n"
+        summary += "\n### \n"
         
         if blocker_count > 0:
-            summary += f"- 🔴 **阻断发布**: {blocker_count}个阻断性问题必须解决\n"
+            summary += f"- 🔴 ****: {blocker_count}\n"
         
         high_priority_count = blocker_count + error_count
         if high_priority_count > 0:
-            summary += f"- 🔴 **必须修复**: {high_priority_count}个高优先级问题\n"
+            summary += f"- 🔴 ****: {high_priority_count}\n"
         
         if warning_count > 0:
-            summary += f"- 🟡 **建议修复**: {warning_count}个警告\n"
+            summary += f"- 🟡 ****: {warning_count}\n"
         
         # Category breakdown
-        summary += "\n### 问题分布（按维度）\n"
+        summary += "\n### \n"
         for cat_name, cat_issues in sorted(self.by_category.items(), key=lambda x: len(x[1]), reverse=True):
             if cat_issues:
-                summary += f"- **{cat_name}**: {len(cat_issues)}个问题\n"
+                summary += f"- **{cat_name}**: {len(cat_issues)}\n"
         
         return summary + "\n"
     
@@ -154,11 +154,11 @@ class IssueReporter:
         
         # Title mapping
         title_map = {
-            'blocker': "🔥 阻断性问题（必须立即修复）",
-            'error': "🚨 严重问题（优先修复）",
-            'warning': "⚠️  一般问题（建议修复）",
-            'info': "ℹ️  信息提示",
-            'suggestion': "💡 优化建议（可选）"
+            'blocker': "🔥 ",
+            'error': "🚨 ",
+            'warning': "⚠️  ",
+            'info': "ℹ️  ",
+            'suggestion': "💡 "
         }
         
         md = f"## {title_map.get(level, level.upper())}\n\n"
@@ -174,7 +174,7 @@ class IssueReporter:
             
             # Location
             if issue.file:
-                md += f"- **文件**: `{issue.file}`"
+                md += f"- ****: `{issue.file}`"
                 if issue.line:
                     md += f":{issue.line}"
                     if issue.column:
@@ -183,7 +183,7 @@ class IssueReporter:
             
             # Code context
             if issue.context_before or issue.context_after:
-                md += "- **代码上下文**:\n\n```python\n"
+                md += "- ****:\n\n```python\n"
                 if issue.context_before:
                     for line in issue.context_before:
                         md += f"{line}\n"
@@ -195,20 +195,20 @@ class IssueReporter:
             
             # Fix information
             if issue.suggestion:
-                md += f"- **修复建议**: {issue.suggestion}\n"
+                md += f"- ****: {issue.suggestion}\n"
             if issue.fix_command:
-                md += f"- **修复命令**: `{issue.fix_command}`\n"
+                md += f"- ****: `{issue.fix_command}`\n"
             if issue.estimated_time:
-                md += f"- **预估时间**: {issue.estimated_time}\n"
+                md += f"- ****: {issue.estimated_time}\n"
             if issue.reference:
-                md += f"- **参考文档**: {issue.reference}\n"
+                md += f"- ****: {issue.reference}\n"
             if issue.impact:
-                md += f"- **影响**: {issue.impact}\n"
+                md += f"- ****: {issue.impact}\n"
             
             md += "\n---\n\n"
         
         if max_issues and len(issues) > max_issues:
-            md += f"*还有 {len(issues) - max_issues} 个{level}问题，请查看完整JSON报告*\n\n"
+            md += f"* {len(issues) - max_issues} {level}JSON*\n\n"
         
         return md
     
@@ -227,35 +227,35 @@ class IssueReporter:
         short_term = [i for i in sorted_issues if i.level == IssueLevel.WARNING]
         long_term = [i for i in sorted_issues if i.level in [IssueLevel.INFO, IssueLevel.SUGGESTION]]
         
-        md = "## 📈 改进路径（优先级排序）\n\n"
+        md = "## 📈 \n\n"
         
         if immediate:
-            md += "### 立即执行（今日内）\n\n"
+            md += "### \n\n"
             for i, issue in enumerate(immediate[:5], 1):
-                time_est = issue.estimated_time or "未知"
+                time_est = issue.estimated_time or ""
                 md += f"{i}. [{issue.rule}] {issue.message} ({time_est})\n"
                 if issue.fix_command:
                     md += f"   ```bash\n   {issue.fix_command}\n   ```\n"
             if len(immediate) > 5:
-                md += f"\n*还有 {len(immediate) - 5} 个高优先级问题...*\n"
+                md += f"\n* {len(immediate) - 5} ...*\n"
             md += "\n"
         
         if short_term:
-            md += "### 短期改进（本周内）\n\n"
+            md += "### \n\n"
             for i, issue in enumerate(short_term[:10], 1):
-                time_est = issue.estimated_time or "未知"
+                time_est = issue.estimated_time or ""
                 md += f"{i}. [{issue.rule}] {issue.message} ({time_est})\n"
             if len(short_term) > 10:
-                md += f"\n*还有 {len(short_term) - 10} 个警告...*\n"
+                md += f"\n* {len(short_term) - 10} ...*\n"
             md += "\n"
         
         if long_term:
-            md += "### 中长期改进（2周内）\n\n"
+            md += "### 2\n\n"
             for i, issue in enumerate(long_term[:10], 1):
-                time_est = issue.estimated_time or "未知"
+                time_est = issue.estimated_time or ""
                 md += f"{i}. [{issue.rule}] {issue.message} ({time_est})\n"
             if len(long_term) > 10:
-                md += f"\n*还有 {len(long_term) - 10} 个优化建议...*\n"
+                md += f"\n* {len(long_term) - 10} ...*\n"
             md += "\n"
         
         # Expected improvement calculation
@@ -263,14 +263,14 @@ class IssueReporter:
         short_score = sum(issue.priority for issue in short_term) / 10
         mid_score = sum(issue.priority for issue in long_term) / 10
         
-        md += "### 预期效果\n\n"
+        md += "### \n\n"
         if immediate:
-            md += f"- **立即执行**: 约 +{immediate_score:.0f}分\n"
+            md += f"- ****:  +{immediate_score:.0f}\n"
         if short_term:
-            md += f"- **短期改进**: 约 +{short_score:.0f}分\n"
+            md += f"- ****:  +{short_score:.0f}\n"
         if long_term:
-            md += f"- **中期改进**: 约 +{mid_score:.0f}分\n"
-        md += f"- **总潜在提升**: 约 +{immediate_score + short_score + mid_score:.0f}分\n"
+            md += f"- ****:  +{mid_score:.0f}\n"
+        md += f"- ****:  +{immediate_score + short_score + mid_score:.0f}\n"
         
         return md + "\n"
     
@@ -293,13 +293,13 @@ class IssueReporter:
         else:
             grade = "⚠️ Needs Improvement"
         
-        report = f"""# 仓库健康度检查报告
+        report = f"""# 
 
-> **检查时间**: {timestamp}  
-> **总体评分**: {self.overall_score:.1f}/100  
-> **评级**: {grade}  
-> **检查时长**: {self.duration:.2f}秒  
-> **检测问题**: {len(self.issues)}个
+> ****: {timestamp}  
+> ****: {self.overall_score:.1f}/100  
+> ****: {grade}  
+> ****: {self.duration:.2f}  
+> ****: {len(self.issues)}
 
 ---
 
@@ -321,20 +321,20 @@ class IssueReporter:
 
 ---
 
-## 📁 附件
+## 📁 
 
-- 完整JSON报告: `{Path(output_path).stem}.json`
-- 问题清单CSV: `{Path(output_path).stem}.csv`
-
----
-
-**下次检查**: 建议24小时后重新检查  
-**命令**: `make health_check`  
-**严格模式**: `make health_check_strict`
+- JSON: `{Path(output_path).stem}.json`
+- CSV: `{Path(output_path).stem}.csv`
 
 ---
 
-*报告生成时间: {timestamp}*
+****: 24  
+****: `make health_check`  
+****: `make health_check_strict`
+
+---
+
+*: {timestamp}*
 """
         
         # Save Markdown report

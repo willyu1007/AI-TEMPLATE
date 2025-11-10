@@ -7,7 +7,7 @@ version: quickstart
 
 > **For**: AI Agents initializing new modules  
 > **Time**: 5 minutes  
-> **Prerequisites**: Module type decided
+> **Prerequisites**: Requirement document approved (see `/doc_agent/init/module-init.md`)
 
 ---
 
@@ -130,6 +130,7 @@ make module_health_check MODULE=<module_name>
 ---
 
 **See Also**: 
+- `/doc_agent/init/module-init.md` - Conversation protocol
 - `/doc_agent/specs/MODULE_TYPES.md` - Type definitions
 - `/doc_agent/specs/MODULE_TYPE_CONTRACTS.yaml` - IO contracts
 - `/doc_human/guides/MODULE_INIT_GUIDE.md` - Detailed guide

@@ -1,8 +1,8 @@
 """
-认证中间件
 
-提供用户认证和权限验证功能。
-注意：此实现为示例，实际项目应使用 JWT、OAuth2 等标准认证方案。
+
+
+ JWTOAuth2 
 """
 
 from typing import Optional, Callable, Any, Dict, List
@@ -13,25 +13,25 @@ import time
 
 def get_current_user(token: Optional[str] = None) -> Optional[dict]:
     """
-    从 token 获取当前用户信息
+     token 
     
-    注意：此函数为示例，实际应验证 JWT token 或从 session 获取。
+     JWT token  session 
     
     Args:
-        token: 认证 token（可选）
+        token:  token
         
     Returns:
-        用户信息字典，未认证返回 None
+         None
         
     Examples:
         >>> user = get_current_user("valid_token")
-        >>> user is None  # 示例中未实现实际验证
+        >>> user is None  # 
         True
     """
-    # 示例实现：实际应验证 token 并返回用户信息
+    #  token 
     if token and token.startswith("Bearer "):
-        # 这里应该验证 JWT token 并解析用户信息
-        # 示例返回
+        #  JWT token 
+        # 
         return {
             "id": "user123",
             "username": "test_user",
@@ -42,30 +42,30 @@ def get_current_user(token: Optional[str] = None) -> Optional[dict]:
 
 def require_auth(func: Callable) -> Callable:
     """
-    认证装饰器：要求用户必须登录
+    
     
     Args:
-        func: 被装饰的函数
+        func: 
         
     Returns:
-        装饰后的函数
+        
         
     Examples:
         >>> @require_auth
         ... def protected_function():
         ...     return "secret"
-        >>> protected_function()  # 需要认证
+        >>> protected_function()  # 
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
-        # 从请求中获取 token（示例：从 kwargs 或 request 对象）
+        #  token kwargs  request 
         token = kwargs.get('token') or (args[0].headers.get('Authorization') if args else None)
         
         user = get_current_user(token)
         if user is None:
-            raise PermissionError("需要认证")
+            raise PermissionError("")
         
-        # 将用户信息注入到 kwargs
+        #  kwargs
         kwargs['current_user'] = user
         return func(*args, **kwargs)
     
@@ -73,53 +73,53 @@ def require_auth(func: Callable) -> Callable:
 
 
 class AuthMiddleware:
-    """认证授权中间件"""
+    """"""
     
     def __init__(self):
-        """初始化认证中间件"""
+        """"""
         self.last_validated = None
         self.permissions = []
         self.token_cache = {}
     
     def validate_token(self, token: str) -> bool:
         """
-        验证token有效性
+        token
         
         Args:
-            token: Bearer token字符串
+            token: Bearer token
             
         Returns:
-            bool: token是否有效
+            bool: token
         """
         if not token or not token.startswith("Bearer "):
             return False
         
-        # 检查token是否过期（简化实现）
+        # token
         if "expired" in token:
             return False
         
-        # 记录最后验证的token
+        # token
         self.last_validated = token
         
-        # 缓存验证结果
+        # 
         self.token_cache[token] = True
         
         return True
     
     def extract_user(self, token: str) -> Optional[Dict[str, Any]]:
         """
-        从token中提取用户信息
+        token
         
         Args:
-            token: Bearer token字符串
+            token: Bearer token
             
         Returns:
-            用户信息字典或None
+            None
         """
         if not self.validate_token(token):
             return None
         
-        # 简化实现：从token中提取用户ID
+        # tokenID
         token_parts = token.split("_")
         if len(token_parts) >= 2 and "user" in token_parts[1]:
             user_id = token_parts[1].replace("user", "")
@@ -137,54 +137,54 @@ class AuthMiddleware:
     
     def set_permissions(self, permissions: List[str]):
         """
-        设置用户权限
+        
         
         Args:
-            permissions: 权限列表
+            permissions: 
         """
         self.permissions = permissions
     
     def check_permission(self, permission: str) -> bool:
         """
-        检查是否有指定权限
+        
         
         Args:
-            permission: 需要检查的权限
+            permission: 
             
         Returns:
-            bool: 是否有该权限
+            bool: 
         """
         return permission in self.permissions
     
     def refresh_token(self, old_token: str) -> Optional[str]:
         """
-        刷新token
+        token
         
         Args:
-            old_token: 旧的token
+            old_token: token
             
         Returns:
-            新的token或None
+            tokenNone
         """
         if not old_token or not old_token.startswith("Bearer "):
             return None
         
-        # 生成新token（简化实现）
+        # token
         timestamp = str(int(time.time()))
         new_suffix = hashlib.md5(f"{old_token}_{timestamp}".encode()).hexdigest()[:8]
         new_token = f"Bearer refreshed_{new_suffix}_token"
         
-        # 缓存新token
+        # token
         self.token_cache[new_token] = True
         
         return new_token
     
     def logout(self, token: str):
         """
-        登出，使token失效
+        token
         
         Args:
-            token: 要失效的token
+            token: token
         """
         if token in self.token_cache:
             del self.token_cache[token]

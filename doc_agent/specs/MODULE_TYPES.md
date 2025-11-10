@@ -54,6 +54,12 @@ Type (Abstract)          Instance (Concrete)
 4_Aggregator            4_dashboard_aggregator
 ```
 
+### Module Instance Definition
+- Concrete implementation stored under `modules/<name>/` that conforms to one module type contract.
+- Must include `agent.md`, `doc/CONTRACT.md`, runbook, progress log, tests, and registration entry in `doc_human/guides/MODULE_INSTANCES.md`.
+- Created through `make ai_begin MODULE=<name>` and governed by template guardrails plus the module-local agent.
+- Differences between instances of the same type are domain specific inputs, owners, and guardrail configuration; IO contracts stay identical.
+
 ---
 
 ## Type Specifications

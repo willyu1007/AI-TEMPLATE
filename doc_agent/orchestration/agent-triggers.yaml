@@ -2,678 +2,111 @@
 audience: ai
 language: en
 version: config
-purpose: Documentation for agent-triggers
+purpose: Intelligent trigger configuration
 ---
-version: "1.0"
-description: "AI智能体自动触发规则 - 基于文件路径和prompt自动加载相关文档"
-
-# 全局配置
+version: "1.1"
+description: "Guardrail triggers based on file paths and prompts"
 config:
   enabled: true
   priority_order: ["critical", "high", "medium", "low"]
-  enforcement_default: "suggest"  # suggest|warn|block
-  
-# 触发规则
+  enforcement_default: "suggest"
 triggers:
-  # 规则1: 数据库操作自动触发
   database-operations:
-    priority: high
-    enforcement: suggest
-    description: "数据库操作相关文档"
-    
-    # 文件触发
+    priority: critical
+    enforcement: block
+    description: "Schema or SQL changes"
     file_triggers:
       path_patterns:
         - "db/engines/**/*.sql"
         - "db/engines/**/*.yaml"
         - "migrations/**/*.sql"
-        - "modules/*/models/**/*.py"
-        - "modules/*/models/**/*.go"
-        - "modules/*/models/**/*.ts"
-      content_patterns:
-        - "CREATE TABLE"
-        - "ALTER TABLE"
-        - "DROP TABLE"
-        - "CREATE INDEX"
-        - "prisma\\."
-        - "async def.*query"
-        - "db\\.query"
-    
-    # Prompt触发
     prompt_triggers:
-      keywords:
-        - "数据库"
-        - "database"
-        - "迁移"
-        - "migration"
-        - "表结构"
-        - "schema"
-        - "SQL"
-      intent_patterns:
-        - "(创建|修改|删除).{0,5}(表|字段|索引)"
-        - "(add|create|modify|delete).{0,10}(table|column|index)"
-        - "(数据库|database).{0,10}(操作|变更)"
-    
-    # 触发时加载的文档
+      keywords: ["database", "schema", "migration", "sql"]
     load_documents:
-      - path: /doc/db/DB_SPEC.yaml
-        priority: critical
-      - path: /doc/db/SCHEMA_GUIDE.md
-        priority: high
-      - path: /doc/process/DB_CHANGE_GUIDE.md
-        priority: high
       - path: /db/engines/README.md
+        priority: high
+      - path: /doc_human/guides/DB_CHANGE_GUIDE.md
+        priority: high
+      - path: /db/engines/postgres/docs/SCHEMA_GUIDE.md
         priority: medium
-
-  # 规则2: 模块开发自动触发
   module-development:
     priority: high
     enforcement: suggest
-    description: "模块开发相关文档"
-    
+    description: "Creating or restructuring modules"
     file_triggers:
       path_patterns:
         - "modules/*/agent.md"
-        - "modules/*/README.md"
-        - "modules/*/plan.md"
-        - "modules/*/core/**/*"
-        - "modules/*/api/**/*"
-        - "modules/*/frontend/**/*"
-      content_patterns:
-        - "# agent.md"
-        - "spec_version:"
-        - "agent_id: \"modules\\."
-    
-    prompt_triggers:
-      keywords:
-        - "模块"
-        - "module"
-        - "初始化模块"
-        - "create module"
-        - "新建模块"
-        - "模块开发"
-      intent_patterns:
-        - "(创建|初始化|添加|开发).{0,5}模块"
-        - "(create|initialize|add|develop).{0,10}module"
-    
-    load_documents:
-      - path: /doc/modules/MODULE_INIT_GUIDE.md
-        priority: critical
-      - path: /doc/modules/MODULE_TYPES.md
-        priority: high
-      - path: /doc/modules/MODULE_TYPE_CONTRACTS.yaml
-        priority: high
-      - path: /doc/modules/example/README.md
-        priority: medium
-
-  # 规则3: 契约变更（Guardrail模式）
-  contract-changes:
-    priority: critical
-    enforcement: block  # ← 强制检查
-    description: "契约变更必须遵守兼容性规则"
-    
-    file_triggers:
-      path_patterns:
-        - "tools/*/contract.json"
-        - "modules/*/doc/CONTRACT.md"
-        - "tools/openapi.json"
-      content_patterns:
-        - "# CONTRACT"
-        - "\"contract_version\":"
-    
-    prompt_triggers:
-      keywords:
-        - "契约"
-        - "contract"
-        - "API变更"
-        - "接口变更"
-        - "breaking change"
-      intent_patterns:
-        - "(修改|变更|更新).{0,5}(契约|contract|API)"
-        - "(change|modify|update).{0,10}(contract|API)"
-    
-    load_documents:
-      - path: /doc/modules/MODULE_TYPE_CONTRACTS.yaml
-        priority: critical
-      - path: /doc/process/CONVENTIONS.md
-        priority: high
-    
-    # Guardrail检查
-    guardrail:
-      - check: "make contract_compat_check"
-        message: "必须运行契约兼容性检查"
-        enforcement: block
-      - check: "确认无破坏性变更或已升级major版本"
-        message: "破坏性变更需要升级major版本号"
-        enforcement: block
-
-  # 规则4: 测试开发
-  test-development:
-    priority: medium
-    enforcement: suggest
-    description: "测试开发相关文档"
-    
-    file_triggers:
-      path_patterns:
-        - "tests/**/*.py"
-        - "tests/**/*.go"
-        - "tests/**/*.ts"
-        - "modules/*/tests/**/*"
-      content_patterns:
-        - "def test_"
-        - "func Test"
-        - "describe\\("
-        - "@pytest"
-    
-    prompt_triggers:
-      keywords:
-        - "测试"
-        - "test"
-        - "单元测试"
-        - "集成测试"
-        - "覆盖率"
-        - "coverage"
-      intent_patterns:
-        - "(编写|创建|添加).{0,5}测试"
-        - "(write|create|add).{0,10}test"
-    
-    load_documents:
-      - path: /doc/process/testing.md
-        priority: critical
-      - path: /doc/policies/quality_standards.md
-        priority: high
-      - path: /doc/modules/TEMPLATES/TEST_PLAN.md.template
-        priority: medium
-
-  # 规则5: 文档更新
-  documentation:
-    priority: medium
-    enforcement: suggest
-    description: "文档编写相关规范"
-    
-    file_triggers:
-      path_patterns:
-        - "doc/**/*.md"
         - "modules/*/doc/**/*.md"
-        - "README.md"
-        - "CHANGELOG.md"
-      content_patterns:
-        - "^# "
-        - "^## "
-    
+        - "modules/*/core/**/*"
     prompt_triggers:
-      keywords:
-        - "文档"
-        - "documentation"
-        - "README"
-        - "CHANGELOG"
-        - "更新文档"
-      intent_patterns:
-        - "(编写|创建|更新).{0,5}文档"
-        - "(write|create|update).{0,10}(document|README)"
-    
+      keywords: ["module", "scaffold", "plan"]
     load_documents:
-      - path: /agent.md
+      - path: /doc_human/guides/MODULE_INIT_GUIDE.md
         priority: high
-        note: "查看§3 文档编写规范"
-      - path: /doc/policies/quality_standards.md
+      - path: /doc_human/templates/module-templates/README.md
         priority: medium
-
-  # 规则6: 配置管理
-  configuration:
-    priority: medium
-    enforcement: suggest
-    description: "配置文件相关文档"
-    
-    file_triggers:
-      path_patterns:
-        - "config/**/*.yaml"
-        - "config/**/*.yml"
-        - "config/**/*.json"
-        - ".env*"
-      content_patterns:
-        - "^[A-Z_]+="
-        - "environment:"
-    
-    prompt_triggers:
-      keywords:
-        - "配置"
-        - "config"
-        - "环境变量"
-        - "environment"
-      intent_patterns:
-        - "(添加|修改|配置).{0,5}(配置|环境变量)"
-        - "(add|modify|configure).{0,10}(config|environment)"
-    
-    load_documents:
-      - path: /config/README.md
-        priority: high
-      - path: /doc/process/CONFIG_GUIDE.md
-        priority: medium
-
-  # 规则7: 部署与发布
-  deployment:
-    priority: high
-    enforcement: warn
-    description: "部署和发布相关文档"
-    
-    file_triggers:
-      path_patterns:
-        - ".github/workflows/**/*"
-        - "docker-compose.yml"
-        - "Dockerfile"
-        - "deploy/**/*"
-      content_patterns:
-        - "deploy:"
-        - "release:"
-    
-    prompt_triggers:
-      keywords:
-        - "部署"
-        - "deploy"
-        - "发布"
-        - "release"
-        - "上线"
-      intent_patterns:
-        - "(部署|发布|上线)"
-        - "(deploy|release|publish)"
-    
-    load_documents:
-      - path: /doc/project/RELEASE_TRAIN.md
-        priority: critical
-      - path: /doc/process/pr_workflow.md
-        priority: high
-    
-    # Guardrail检查
-    guardrail:
-      - check: "make dev_check"
-        message: "部署前必须通过所有检查"
-        enforcement: warn
-      - check: "make rollback_check"
-        message: "高风险变更需要验证回滚"
-        enforcement: warn
-
-  # 规则8: 安全相关（Block）
-  security:
+  contract-change:
     priority: critical
     enforcement: block
-    description: "安全相关操作"
-    
+    description: "Breaking API or contract changes"
     file_triggers:
       path_patterns:
-        - "common/middleware/auth.py"
-        - "common/utils/encryption.py"
-        - "**/auth/**/*"
-        - "**/security/**/*"
-      content_patterns:
-        - "password"
-        - "secret"
-        - "token"
-        - "jwt"
-        - "encrypt"
-    
+        - "modules/*/doc/CONTRACT.md"
+        - "tools/**/*.json"
     prompt_triggers:
-      keywords:
-        - "安全"
-        - "security"
-        - "认证"
-        - "authentication"
-        - "加密"
-        - "encryption"
-        - "密码"
-        - "password"
-      intent_patterns:
-        - "(修改|添加).{0,5}(安全|认证|加密)"
-        - "(modify|add).{0,10}(security|auth|encryption)"
-    
+      keywords: ["contract", "api", "breaking"]
     load_documents:
-      - path: /doc/policies/safety.md
-        priority: critical
-      - path: /doc/policies/security_details.md
-        priority: critical
-    
-    # Guardrail配置
-    block_config:
-      message: |
-        ⚠️ BLOCKED - 安全相关操作
-        
-        📋 安全检查清单:
-        1. 禁止硬编码密钥、密码、token
-        2. 敏感信息必须通过环境变量或密钥服务
-        3. 必须先阅读 doc/policies/security_details.md
-        4. Code Review必须包含安全审查
-        
-        继续前请确认已遵守所有安全规范。
-      
-      require_confirmation: true
-      confirmation_prompt: "已确认遵守安全规范? (yes/no)"
-
-  # 规则9: 生产配置变更（Block）
-  prod-config-changes:
+      - path: /doc_human/templates/module-templates/CONTRACT.md.template
+        priority: high
+      - path: /doc_agent/quickstart/guardrail-quickstart.md
+        priority: high
+  production-config:
     priority: critical
     enforcement: block
-    description: "生产环境配置变更"
-    
+    description: "Editing production configuration"
     file_triggers:
       path_patterns:
         - "config/prod.yaml"
-        - "config/staging.yaml"
-        - ".env.production"
-      content_patterns:
-        - "prod"
-        - "production"
-        - "staging"
-    
     prompt_triggers:
-      keywords:
-        - "生产配置"
-        - "prod config"
-        - "production"
-        - "staging"
-      intent_patterns:
-        - "(修改|变更).{0,5}(生产|prod|staging).{0,5}配置"
-    
+      keywords: ["production config", "prod.yaml"]
     load_documents:
       - path: /config/README.md
-        priority: critical
-      - path: /doc/process/CONFIG_GUIDE.md
         priority: high
-      - path: /doc/policies/safety.md
+      - path: /doc_human/guides/CONFIG_GUIDE.md
         priority: high
-    
-    # Guardrail配置
-    block_config:
-      message: |
-        ⚠️ BLOCKED - 生产配置变更
-        
-        📋 必须执行:
-        1. 运行: make runtime_config_check
-        2. Code Review（至少2人审批）
-        3. 在staging环境完整测试
-        4. 准备回滚方案
-        5. 通知运维团队
-        
-        生产配置变更是高风险操作！
-      
-      skip_conditions:
-        env_var: "ALLOW_PROD_CONFIG"
-        or_user_role: "admin"
-
-  root-agent-changes:
+  staging-config:
     priority: high
     enforcement: warn
-    description: "根agent.md变更"
-    
+    description: "Editing staging configuration"
     file_triggers:
       path_patterns:
-        - "agent.md"  # 仅根目录，不包含模块
-      exclude_patterns:
-        - "modules/*/agent.md"
-    
+        - "config/staging.yaml"
     prompt_triggers:
-      keywords:
-        - "修改agent.md"
-        - "更新agent"
-        - "agent配置"
-      intent_patterns:
-        - "修改.{0,5}agent\\.md"
-    
+      keywords: ["staging config"]
     load_documents:
-      - path: /schemas/agent.schema.yaml
-        priority: critical
-      - path: /doc/orchestration/routing.md
-        priority: high
-    
-    # Guardrail配置
-    warn_config:
-      message: |
-        ⚠️ WARNING - 根agent.md变更
-        
-        这是核心配置文件！建议:
-        1. 运行: make agent_lint
-        2. 运行: make doc_route_check
-        3. 确认所有路由有效
-        4. 通知团队成员
-        
-        继续?
-      
-      require_confirmation: true
-      confirmation_prompt: "(yes/no)"
-
-  database-migrations:
-    priority: critical
-    enforcement: block
-    description: "数据库迁移脚本"
-    
-    file_triggers:
-      path_patterns:
-        - "db/engines/**/migrations/*_up.sql"
-        - "db/engines/**/migrations/*_down.sql"
-        - "migrations/*_up.sql"
-        - "migrations/*_down.sql"
-    
-    prompt_triggers:
-      keywords:
-        - "迁移脚本"
-        - "migration script"
-        - "数据库迁移"
-      intent_patterns:
-        - "(创建|修改).{0,5}迁移脚本"
-    
-    load_documents:
-      - path: /doc/process/DB_CHANGE_GUIDE.md
-        priority: critical
-      - path: /doc/process/resources/db-migration-script.md
-        priority: high
-    
-    # Guardrail配置
-    block_config:
-      message: |
-        ⚠️ BLOCKED - 数据库迁移脚本
-        
-        📋 必须执行:
-        1. 确认up和down脚本成对存在
-        2. 确认脚本具有幂等性（可重复执行）
-        3. 运行: make db_lint
-        4. 在dev环境测试up脚本
-        5. 在dev环境测试down脚本（回滚）
-        6. 添加适当的事务控制
-        
-        迁移脚本错误可能导致数据丢失！
-      
-      skip_conditions:
-        make_commands_passed:
-          - "make db_lint"
-        and_confirmation: true
-
-  registry-changes:
+      - path: /config/README.md
+        priority: medium
+  test-data:
     priority: high
     enforcement: warn
-    description: "模块注册表变更"
-    
+    description: "Modifying fixtures or test data"
     file_triggers:
       path_patterns:
-        - "doc/orchestration/registry.yaml"
-    
+        - "**/fixtures/**/*"
+        - "modules/*/doc/TEST_DATA.md"
     prompt_triggers:
-      keywords:
-        - "registry"
-        - "注册表"
-        - "模块注册"
-      intent_patterns:
-        - "(修改|更新).{0,5}(registry|注册表)"
-    
+      keywords: ["fixture", "test data"]
     load_documents:
-      - path: /doc/orchestration/registry.yaml
-        priority: critical
-      - path: /doc/modules/MODULE_INIT_GUIDE.md
+      - path: /doc_human/guides/TEST_DATA_STRATEGY.md
         priority: high
-    
-    # Guardrail配置
-    warn_config:
-      message: |
-        ⚠️ WARNING - Registry变更
-        
-        建议:
-        1. 运行: make registry_check
-        2. 确认模块路径存在
-        3. 确认依赖关系无循环
-        
-        继续?
-      
-      require_confirmation: true
-
-  workflow-pattern-suggestion:
+  workflow-pattern:
     priority: medium
     enforcement: suggest
-    description: "根据操作推荐合适的工作流模式"
-    
+    description: "Recommend workflow patterns based on prompts"
     prompt_triggers:
-      keywords:
-        - "我想"
-        - "如何"
-        - "怎么"
-        - "创建"
-        - "开发"
-        - "修复"
-        - "优化"
-        - "重构"
-        - "审计"
-      intent_patterns:
-        - "(创建|开发|添加).{0,10}(模块|功能|API)"
-        - "(修复|解决).{0,10}(bug|问题|错误)"
-        - "(重构|优化).{0,10}(代码|性能|架构)"
-        - "(create|develop|add).{0,10}(module|feature|api)"
-        - "(fix|solve).{0,10}(bug|issue|error)"
-        - "(refactor|optimi[zs]e).{0,10}(code|performance)"
-    
+      keywords: ["create module", "fix bug", "database change", "optimize performance", "security audit"]
     load_documents:
-      - path: /ai/workflow-patterns/README.md
-        priority: high
-        type: main
       - path: /ai/workflow-patterns/catalog.yaml
-        priority: high
-        type: index
-
-  dataflow-analysis:
-    priority: medium
-    enforcement: suggest
-    description: "数据流分析与性能优化触发"
-    
-    file_triggers:
-      path_patterns:
-        - "doc/flows/**/*.yaml"
-        - "scripts/dataflow_*.py"
-        - "scripts/bottleneck_*.py"
-      content_patterns:
-        - "graph:"
-        - "nodes:"
-        - "edges:"
-    
-    prompt_triggers:
-      keywords:
-        - "数据流"
-        - "性能"
-        - "瓶颈"
-        - "优化"
-        - "调用链"
-        - "可视化"
-        - "流程图"
-      intent_patterns:
-        - "(分析|检查|优化).{0,10}(数据流|性能|瓶颈)"
-        - "(生成|创建).{0,10}(流程图|可视化)"
-        - "(dataflow|performance|bottleneck)"
-    
-    load_documents:
-      - path: /doc/templates/dataflow-summary.md
-        priority: high
-        type: main
-      - path: /scripts/bottleneck_rules.yaml
         priority: medium
-        type: config
-      - path: /doc/process/DATAFLOW_ANALYSIS_GUIDE.md
-        priority: low
-        type: reference
-
-  # 规则16: 仓库健康度检查触发 ⭐ NEW (Phase 14.2)
-  repository-health-check:
-    priority: high
-    enforcement: suggest
-    description: "仓库健康度评估和质量检查"
-    
-    # 文件触发
-    file_triggers:
-      path_patterns:
-        - "doc/process/HEALTH_CHECK_MODEL.yaml"
-        - "ai/maintenance_reports/**/*.json"
-        - "ai/maintenance_reports/**/*.md"
-      content_patterns:
-        - "health_check"
-        - "ai_friendliness"
-        - "coupling"
-    
-    # Prompt触发
-    prompt_triggers:
-      keywords:
-        - "健康度"
-        - "health"
-        - "质量检查"
-        - "quality check"
-        - "仓库评分"
-        - "repo score"
-        - "AI友好度"
-        - "ai friendliness"
-        - "耦合度"
-        - "coupling"
-        - "文档时效"
-        - "doc freshness"
-        - "密钥扫描"
-        - "secret scan"
-        - "可观测性"
-        - "observability"
-      intent_patterns:
-        - "(仓库|repo|repository).{0,10}(健康度|质量|评分|检查)"
-        - "(健康度|health).{0,10}(检查|评估|分析|报告)"
-        - "(质量|quality).{0,10}(检查|评估|分析)"
-        - "检查.{0,5}(仓库|repo).{0,5}(健康|质量)"
-        - "(评估|assess|evaluate).{0,10}(代码|文档|架构).{0,5}质量"
-        - "(AI|ai).{0,5}友好度"
-        - "(模块|module).{0,5}耦合"
-    
-    # 推荐文档
-    recommended_docs:
-      - /doc/process/HEALTH_CHECK_MODEL.yaml
-      - /ai/maintenance_reports/README.md
-    
-    # 推荐命令
-    recommended_commands:
-      - make health_check
-      - make health_report
-      - make health_trend
-      - make ai_friendliness_check
-      - make module_health_check
-      - make doc_freshness_check
-      - make coupling_check
-      - make observability_check
-      - make secret_scan
-    
-    load_documents:
-      - path: /doc/process/HEALTH_CHECK_MODEL.yaml
-        priority: high
-        type: main
-      - path: /ai/maintenance_reports/README.md
+      - path: /ai/workflow-patterns/README.md
         priority: medium
-        type: reference
-
-# 元数据
-meta:
-  version: "1.1"
-  created: "2025-11-08"
-  last_updated: "2025-11-09"
-  author: "AI-TEMPLATE Phase 10 + Phase 13 + Phase 14.2"
-  total_rules: 16
-  related_docs:
-    - /doc/orchestration/routing.md
-    - /doc/orchestration/triggers-guide.md
-    - /agent.md
-

@@ -1,287 +1,39 @@
-# AI工作流模式：安全审计
-# 此文件为AI优化文档，轻量化设计（约180行）
-# 人类完整参考：../examples/security-audit-example.md
-
 pattern_id: "security-audit"
-version: "1.0"
-name: "安全审计标准工作流"
-description: "系统化的安全检查和漏洞修复流程"
+version: "1.1"
+name: "Security Audit Workflow"
+description: "Review auth, secrets, and dependencies"
 complexity: "medium"
-estimated_time: "2-3小时"
-ai_optimized: true
+estimated_time: "2-3 hours"
 category: "maintenance"
-
-# 前置条件
+ai_optimized: true
 prerequisites:
-  - "了解系统架构和数据流"
-  - "了解常见安全漏洞（OWASP Top 10）"
-  - "有安全扫描工具（如需要）"
-
-# 工作流步骤
+  - "Access to logs, config, and dependency lists"
 workflow:
   - step: 1
-    name: "审计范围确定"
-    description: "明确审计目标和范围"
-    estimated_time: "15-20分钟"
-    
-    ai_prompt_template: |
-      审计范围：{audit_scope}
-      涉及模块：{modules}
-      审计重点：{focus_areas}
-      请规划审计清单
-    
+    name: "Scope"
+    description: "List assets, language requirements, and guardrails"
     documents_to_load:
-      - path: /doc/policies/safety.md
-        priority: critical
-      - path: /doc/policies/security_details.md
-        priority: high
-    
-    expected_output:
-      - "审计清单"
-      - "审计优先级"
-    
-    validation:
-      - "覆盖关键安全领域"
-      - "优先级合理"
-    
-    common_issues:
-      - issue: "不知道审计什么"
-        solution: "参考OWASP Top 10，检查常见漏洞"
-      - issue: "范围过大"
-        solution: "先审计高风险区域（认证、授权、输入验证）"
-
+      - /doc_human/policies/security_details.md
   - step: 2
-    name: "代码安全审查"
-    description: "审查代码安全问题"
-    estimated_time: "45-60分钟"
-    
-    ai_prompt_template: |
-      审查以下安全问题：
-      1. SQL注入
-      2. XSS跨站脚本
-      3. CSRF跨站请求伪造
-      4. 认证和授权缺陷
-      5. 敏感信息泄露
-      6. 不安全的依赖
-    
+    name: "Review"
+    description: "Scan configs, secrets, dependencies"
     documents_to_load:
-      - path: /doc/policies/security_details.md
-        priority: critical
-        description: "安全规范详情"
-      - path: /common/middleware/auth.py
-        priority: high
-    
-    expected_output:
-      - "发现的安全问题列表"
-      - "问题严重程度分级"
-    
-    validation:
-      - "覆盖OWASP Top 10"
-      - "问题描述清晰"
-    
-    common_issues:
-      - issue: "不确定是否有问题"
-        solution: "使用安全扫描工具辅助"
-      - issue: "问题太多无从下手"
-        solution: "按严重程度分级，先修复Critical"
-
+      - /config/README.md
+      - /scripts/secret_scan.py
   - step: 3
-    name: "配置安全检查"
-    description: "检查配置安全性"
-    estimated_time: "20-30分钟"
-    
-    ai_prompt_template: |
-      检查配置安全：
-      1. 密钥管理
-      2. 环境配置
-      3. HTTPS/TLS配置
-      4. CORS配置
-      5. 日志配置
-    
+    name: "Report"
+    description: "Document findings + mitigation plan"
     documents_to_load:
-      - path: /config/
-        priority: high
-      - path: /doc/process/ENV_SPEC.yaml
-        priority: medium
-    
-    expected_output:
-      - "配置问题列表"
-      - "修复建议"
-    
-    validation:
-      - "无硬编码密钥"
-      - "生产配置安全"
-    
-    common_issues:
-      - issue: "密钥硬编码"
-        solution: "使用环境变量或密钥管理服务"
-      - issue: "生产和开发配置混用"
-        solution: "严格区分环境配置"
-
+      - /doc_human/templates/workdoc-context.md
   - step: 4
-    name: "依赖安全扫描"
-    description: "检查依赖库漏洞"
-    estimated_time: "15-20分钟"
-    
-    ai_prompt_template: |
-      扫描依赖安全：
-      运行：safety check（Python）
-      或：npm audit（Node.js）
-      或：go list -json -m all（Go）
-    
+    name: "Follow-up"
+    description: "Create tasks for fixes"
     documents_to_load:
-      - path: /requirements.txt
-        priority: high
-    
-    expected_output:
-      - "高危依赖列表"
-      - "升级建议"
-    
-    validation:
-      - "无高危漏洞依赖"
-      - "依赖版本合理"
-    
-    common_issues:
-      - issue: "依赖有漏洞"
-        solution: "升级到安全版本"
-      - issue: "无法升级"
-        solution: "评估风险，添加WAF规则"
-
-  - step: 5
-    name: "修复实施"
-    description: "修复发现的安全问题"
-    estimated_time: "30-60分钟"
-    
-    ai_prompt_template: |
-      修复安全问题：
-      按严重程度优先修复
-      问题列表：{security_issues}
-    
-    documents_to_load:
-      - path: /doc/policies/security_details.md
-        priority: high
-      - path: /doc/process/AI_CODING_GUIDE.md
-        priority: medium
-    
-    expected_output:
-      - "修复代码"
-      - "安全测试"
-    
-    validation:
-      - "问题已修复"
-      - "无新引入问题"
-      - "安全测试通过"
-    
-    common_issues:
-      - issue: "修复影响功能"
-        solution: "运行完整测试，确保功能正常"
-      - issue: "不知道如何修复"
-        solution: "参考security_details.md安全实践"
-
-  - step: 6
-    name: "文档和监控"
-    description: "更新文档，配置安全监控"
-    estimated_time: "15-20分钟"
-    
-    ai_prompt_template: |
-      完成审计：
-      1. 更新CHANGELOG.md
-      2. 记录发现的问题和修复
-      3. 配置安全监控（如告警）
-    
-    documents_to_load:
-      - path: /observability/alerts/
-        priority: medium
-    
-    expected_output:
-      - "审计报告"
-      - "安全监控配置"
-    
-    validation:
-      - "文档完整"
-      - "监控已配置"
-
-# 常见陷阱
-pitfalls:
-  - issue: "只修复表面问题"
-    impact: "安全隐患未消除"
-    solution: "深入理解安全原理，从根本修复"
-    severity: "high"
-  
-  - issue: "忽视配置安全"
-    impact: "代码安全但配置不安全"
-    solution: "代码和配置都要审计"
-    severity: "high"
-  
-  - issue: "依赖库漏洞未升级"
-    impact: "已知漏洞被利用"
-    solution: "定期运行依赖扫描，及时升级"
-    severity: "critical"
-  
-  - issue: "修复后未测试"
-    impact: "修复不完整或引入新问题"
-    solution: "每个修复都要安全测试"
-    severity: "high"
-
-# 质量检查清单
+      - /doc_human/project/FINAL_IMPROVEMENTS.md
 quality_checklist:
-  - "[ ] 审计清单完整"
-  - "[ ] 代码安全审查完成"
-  - "[ ] 配置安全检查完成"
-  - "[ ] 依赖安全扫描完成"
-  - "[ ] 所有Critical问题已修复"
-  - "[ ] 所有High问题已修复或有缓解措施"
-  - "[ ] 安全测试通过"
-  - "[ ] 审计报告完成"
-  - "[ ] 安全监控已配置"
-
-# OWASP Top 10快速检查
-owasp_top_10:
-  - name: "A01:2021 – 访问控制失效"
-    check: "检查认证和授权逻辑"
-  - name: "A02:2021 – 加密失败"
-    check: "检查敏感数据加密和传输"
-  - name: "A03:2021 – 注入"
-    check: "检查SQL注入、命令注入等"
-  - name: "A04:2021 – 不安全设计"
-    check: "检查业务逻辑漏洞"
-  - name: "A05:2021 – 安全配置错误"
-    check: "检查默认配置、错误信息泄露"
-  - name: "A06:2021 – 易受攻击和过时的组件"
-    check: "依赖库漏洞扫描"
-  - name: "A07:2021 – 身份验证和会话管理失效"
-    check: "检查session管理、token安全"
-  - name: "A08:2021 – 软件和数据完整性故障"
-    check: "检查CI/CD安全、更新机制"
-  - name: "A09:2021 – 安全日志和监控不足"
-    check: "检查日志记录和告警"
-  - name: "A10:2021 – 服务端请求伪造(SSRF)"
-    check: "检查外部请求验证"
-
-# 估时参考
-time_breakdown:
-  scope_definition: "15-20分钟"
-  code_review: "45-60分钟"
-  config_check: "20-30分钟"
-  dependency_scan: "15-20分钟"
-  fix_implementation: "30-60分钟"
-  documentation: "15-20分钟"
-  total: "2-3.5小时"
-
-# 参考资源
+  - "[ ] Findings logged"
+  - "[ ] Language consistent"
+  - "[ ] Guardrails adjusted if needed"
 references:
-  detailed_guide: "/ai/workflow-patterns/examples/security-audit-example.md"
-  related_patterns:
-    - "bug-fix (修复安全漏洞)"
-  external:
-    - "OWASP Top 10: https://owasp.org/Top10/"
-    - "CWE Top 25: https://cwe.mitre.org/top25/"
-
-# 成功标准
-success_criteria:
-  - "所有6个步骤完成"
-  - "所有质量检查清单项通过"
-  - "Critical和High问题已修复"
-  - "审计报告完成"
-  - "安全监控配置"
-
+  - /doc_agent/quickstart/guardrail-quickstart.md
+  - /doc_human/policies/security_details.md

@@ -1,15 +1,15 @@
 """
 Pytest configuration for example module tests
-测试配置和共享 fixtures
+ fixtures
 """
 import pytest
 
 
 @pytest.fixture
 def sample_data():
-    """示例测试数据 [Fixture]"""
+    """ [Fixture]"""
     return {
-        "task": "示例任务",
+        "task": "",
         "language": "python",
         "dry_run": False
     }
@@ -17,9 +17,9 @@ def sample_data():
 
 @pytest.fixture
 def expected_response():
-    """期望的响应格式 [Fixture]"""
+    """ [Fixture]"""
     return {
-        "result": "处理完成",
+        "result": "",
         "status": "success",
         "metadata": {
             "duration_ms": 100,
@@ -30,8 +30,8 @@ def expected_response():
 
 @pytest.fixture
 def mock_database(monkeypatch):
-    """Mock 数据库连接 [Fixture]"""
-    # 示例：使用 monkeypatch 替换数据库连接
+    """Mock  [Fixture]"""
+    #  monkeypatch 
     # class MockDB:
     #     def query(self, *args):
     #         return []
@@ -42,7 +42,7 @@ def mock_database(monkeypatch):
 
 @pytest.fixture(scope="session")
 def test_config():
-    """测试配置 [Fixture - Session 级别]"""
+    """ [Fixture - Session ]"""
     return {
         "env": "test",
         "database_url": "sqlite:///:memory:",
@@ -52,34 +52,34 @@ def test_config():
 
 @pytest.fixture
 def sample_user():
-    """示例用户数据 [Fixture]"""
+    """ [Fixture]"""
     return {
         "id": "test-user-001",
         "email": "test@example.com",
-        "name": "测试用户"
+        "name": ""
     }
 
 
-# Pytest 钩子：自定义测试行为
+# Pytest 
 def pytest_configure(config):
-    """Pytest 配置钩子"""
-    # 添加自定义标记
+    """Pytest """
+    # 
     config.addinivalue_line(
-        "markers", "slow: 标记慢速测试"
+        "markers", "slow: "
     )
     config.addinivalue_line(
-        "markers", "integration: 标记集成测试"
+        "markers", "integration: "
     )
 
 
-# 测试失败时的自定义处理（可选）
+# 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
-    """测试报告生成钩子"""
+    """"""
     outcome = yield
     rep = outcome.get_result()
     
-    # 可以在这里添加自定义日志或报告
+    # 
     if rep.when == "call" and rep.failed:
-        print(f"\n❌ 测试失败: {item.nodeid}")
+        print(f"\n❌ : {item.nodeid}")
 

@@ -1,7 +1,7 @@
 """
-限流中间件
 
-提供基于时间窗口的请求限流功能。
+
+
 """
 
 import time
@@ -12,13 +12,13 @@ from functools import wraps
 
 class RateLimiter:
     """
-    限流器
     
-    基于滑动时间窗口实现限流。
+    
+    
     
     Attributes:
-        max_requests: 时间窗口内最大请求数
-        window_seconds: 时间窗口大小（秒）
+        max_requests: 
+        window_seconds: 
         
     Examples:
         >>> limiter = RateLimiter(max_requests=10, window_seconds=60)
@@ -28,11 +28,11 @@ class RateLimiter:
     
     def __init__(self, max_requests: int = 100, window_seconds: int = 60):
         """
-        初始化限流器
+        
         
         Args:
-            max_requests: 时间窗口内最大请求数
-            window_seconds: 时间窗口大小（秒）
+            max_requests: 
+            window_seconds: 
         """
         self.max_requests = max_requests
         self.window_seconds = window_seconds
@@ -40,24 +40,24 @@ class RateLimiter:
     
     def is_allowed(self, identifier: str) -> Tuple[bool, int]:
         """
-        检查是否允许请求
+        
         
         Args:
-            identifier: 请求标识符（如用户ID、IP地址等）
+            identifier: IDIP
             
         Returns:
-            (是否允许, 剩余请求数)
+            (, )
         """
         now = time.time()
         window_start = now - self.window_seconds
         
-        # 清理过期请求
+        # 
         self.requests[identifier] = [
             ts for ts in self.requests[identifier]
             if ts > window_start
         ]
         
-        # 检查是否超过限制
+        # 
         if len(self.requests[identifier]) >= self.max_requests:
             remaining = 0
         else:
@@ -68,7 +68,7 @@ class RateLimiter:
         return allowed, remaining
 
 
-# 全局限流器实例
+# 
 _default_limiter = RateLimiter(max_requests=100, window_seconds=60)
 
 
@@ -78,15 +78,15 @@ def rate_limit(
     identifier_func: Optional[Callable[..., str]] = None
 ):
     """
-    限流装饰器
+    
     
     Args:
-        max_requests: 时间窗口内最大请求数
-        window_seconds: 时间窗口大小（秒）
-        identifier_func: 获取请求标识符的函数（可选）
+        max_requests: 
+        window_seconds: 
+        identifier_func: 
         
     Returns:
-        装饰后的函数
+        
         
     Examples:
         >>> @rate_limit(max_requests=10, window_seconds=60)
@@ -98,7 +98,7 @@ def rate_limit(
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            # 获取标识符（默认使用函数名）
+            # 
             if identifier_func:
                 identifier = identifier_func(*args, **kwargs)
             else:

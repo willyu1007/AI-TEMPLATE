@@ -1,213 +1,44 @@
-# [Task Name] - 实施计划
-
-> **创建时间**: YYYY-MM-DD  
-> **任务类型**: [feature|bugfix|refactor|docs|other]  
-> **状态**: 🟡 进行中
-
 ---
-
-## 执行摘要
-
-### 目标
-
-[简要说明要实现什么功能或解决什么问题，1-2句话]
-
-### 范围
-
-**✅ 包含**:
-- [范围内的工作1]
-- [范围内的工作2]
-- [范围内的工作3]
-
-**❌ 不包含**:
-- [明确排除的工作1]
-- [明确排除的工作2]
-
+audience: human
+language: en
+version: template
+purpose: Workdoc plan template
 ---
+# Workdoc Plan Template
 
-## 当前状态分析
+## 1. Summary
+- **Task Name**: <task-name>
+- **Owner(s)**: <names>
+- **Language**: Refer to `config/language.yaml` (default: English).
+- **Timeline**: <start> ¡ú <end>
+- **Goal**: <objective>
 
-### 现状
+## 2. Scope
+- In scope:
+  - <item>
+- Out of scope:
+  - <item>
 
-[描述当前系统状态、已有功能、代码结构等]
+## 3. Phases
+| Phase | Description | Exit Criteria |
+|-------|-------------|---------------|
+| P0 | Discovery | Context captured, guardrails loaded |
+| P1 | Build | Feature implemented, tests added |
+| P2 | Stabilize | Docs updated, guardrails verified |
 
-### 问题
+## 4. Risks & Mitigations
+- Risk: <description>
+  - Mitigation: <plan>
 
-1. **[问题1标题]**
-   - 现象：[具体表现]
-   - 影响：[影响范围]
-   
-2. **[问题2标题]**
-   - 现象：[具体表现]
-   - 影响：[影响范围]
+## 5. Success Metrics
+- <metric> (target)
+- <metric> (target)
 
----
+## 6. Dependencies
+- <team/file/script>
 
-## 实施阶段
+## 7. References
+- Related PR/issue/workdoc links
+- Relevant docs (agent.md sections, guides)
 
-### Phase 1: [阶段名称]
-
-**目标**: [简述这个阶段要完成什么]
-
-**任务清单**:
-
-#### Task 1.1: [任务名称]
-- **描述**: [详细说明]
-- **验收标准**:
-  - [ ] [可验证的标准1]
-  - [ ] [可验证的标准2]
-- **涉及文件**:
-  - `path/to/file1.py`
-  - `path/to/file2.py`
-- **风险**: [风险评估：low|medium|high]
-
-#### Task 1.2: [任务名称]
-- **描述**: [详细说明]
-- **验收标准**:
-  - [ ] [可验证的标准1]
-- **涉及文件**:
-  - `path/to/file3.py`
-- **风险**: low
-
----
-
-### Phase 2: [阶段名称]
-
-**目标**: [简述这个阶段要完成什么]
-
-**任务清单**:
-
-#### Task 2.1: [任务名称]
-- ...
-
----
-
-### Phase N: 验收与文档
-
-**目标**: 最终验收和文档更新
-
-**任务清单**:
-
-#### Task N.1: 完整测试
-- **描述**: 运行所有测试，确保功能正常
-- **验收标准**:
-  - [ ] 所有单元测试通过
-  - [ ] 所有集成测试通过
-  - [ ] 测试覆盖率≥80%
-- **涉及文件**: `tests/`
-
-#### Task N.2: 文档更新
-- **描述**: 更新相关文档
-- **验收标准**:
-  - [ ] README.md更新
-  - [ ] CHANGELOG.md记录
-  - [ ] API文档更新（如适用）
-- **涉及文件**: `doc/`, `README.md`
-
----
-
-## 风险管理
-
-### 高风险项
-
-#### 风险1: [风险名称]
-- **概率**: high|medium|low
-- **影响**: high|medium|low
-- **描述**: [详细说明]
-- **缓解措施**: [如何降低风险]
-- **应急预案**: [如果发生如何处理]
-
-#### 风险2: [风险名称]
-- ...
-
-### 中风险项
-
-#### 风险3: [风险名称]
-- ...
-
----
-
-## 成功指标
-
-### 功能指标
-- [ ] [具体可测量的功能指标1]
-- [ ] [具体可测量的功能指标2]
-
-### 质量指标
-- [ ] 测试覆盖率≥80%
-- [ ] 所有校验通过（make validate）
-- [ ] 无高优先级linter错误
-
-### 性能指标（如适用）
-- [ ] [响应时间≤Xms]
-- [ ] [吞吐量≥X req/s]
-
-### 文档指标
-- [ ] 所有新增代码有注释
-- [ ] 所有公开API有文档
-- [ ] CHANGELOG已更新
-
----
-
-## 时间线
-
-| Phase | 任务数 | 状态 |
-|-------|--------|------|
-| Phase 1: [名称] | 3 | ⏳ 待开始 |
-| Phase 2: [名称] | 2 | ⏳ 待开始 |
-| Phase N: 验收与文档 | 2 | ⏳ 待开始 |
-
----
-
-## 依赖关系
-
-### 上游依赖
-- **[依赖项1]**: [说明为什么依赖，当前状态]
-- **[依赖项2]**: [说明]
-
-### 下游影响
-- **[影响项1]**: [这个任务会影响哪些模块/功能]
-- **[影响项2]**: [说明]
-
----
-
-## 技术选型（如适用）
-
-### 选择方案A
-
-**优势**:
-- [优势1]
-- [优势2]
-
-**劣势**:
-- [劣势1]
-
-**决策**: ✅ 选择此方案
-
-**理由**: [为什么选择]
-
-### 备选方案B（未选择）
-
-**优势**:
-- [优势]
-
-**劣势**:
-- [劣势]
-
-**为何未选**: [原因]
-
----
-
-## 相关资源
-
-- **设计文档**: [路径或链接]
-- **契约文档**: [路径]
-- **相关Issue**: [链接]
-- **参考资料**: [链接]
-
----
-
-## 备注
-
-[其他需要记录的信息]
-
+Fill everything in English (or the configured language) and keep sentences actionable.

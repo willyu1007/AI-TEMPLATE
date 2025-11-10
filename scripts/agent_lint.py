@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-agent_lint.py - agent.md YAML前言校验工具（使用统一基础Lint框架）
+agent_lint.py - agent.md YAMLLint
 
-功能：
-1. 遍历仓库内所有agent.md文件
-2. 提取YAML Front Matter
-3. 进行基础必填字段校验
-4. 使用schemas/agent.schema.yaml进行Schema校验（如jsonschema已安装）
-5. 校验context_routes中引用的路径
-6. 校验trigger_config配置
 
-用法：
+1. agent.md
+2. YAML Front Matter
+3. 
+4. schemas/agent.schema.yamlSchemajsonschema
+5. context_routes
+6. trigger_config
+
+
     python scripts/agent_lint.py
     python scripts/agent_lint.py --json
     python scripts/agent_lint.py --markdown
@@ -25,28 +25,28 @@ import yaml
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
-# 导入基础Lint类
+# Lint
 from base_lint import BaseLinter, LintIssue, Severity, run_linter
 
-# 路径设置
+# 
 HERE = Path(__file__).parent.absolute()
 REPO_ROOT = HERE.parent
 SCHEMA_PATH = REPO_ROOT / "schemas" / "agent.schema.yaml"
 
-# YAML Front Matter正则
+# YAML Front Matter
 YAML_FRONT_MATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*", re.DOTALL | re.MULTILINE)
 
 
 class AgentLinter(BaseLinter):
-    """agent.md文件校验器"""
+    """agent.md"""
     
     @property
     def name(self) -> str:
-        """Linter名称"""
+        """Linter"""
         return "Agent"
     
     def __init__(self, repo_root: Optional[Path] = None):
-        """初始化"""
+        """"""
         super().__init__(repo_root)
         self.schema = self._load_schema()
         self.has_jsonschema = self._check_jsonschema()
@@ -54,18 +54,18 @@ class AgentLinter(BaseLinter):
         self.trigger_rules = self._load_trigger_rules()
     
     def _load_schema(self) -> Optional[Dict[str, Any]]:
-        """加载agent.schema.yaml"""
+        """agent.schema.yaml"""
         if not SCHEMA_PATH.exists():
             return None
         try:
             with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
                 return yaml.safe_load(f)
         except Exception as e:
-            print(f"[warn] 无法加载Schema: {e}", file=sys.stderr)
+            print(f"[warn] Schema: {e}", file=sys.stderr)
             return None
     
     def _check_jsonschema(self) -> bool:
-        """检查jsonschema是否可用"""
+        """jsonschema"""
         try:
             import jsonschema
             return True
@@ -73,7 +73,7 @@ class AgentLinter(BaseLinter):
             return False
     
     def _load_trigger_rules(self) -> Optional[set]:
-        """加载agent-triggers.yaml中的触发规则ID列表"""
+        """agent-triggers.yamlID"""
         triggers_path = self.repo_root / "doc_agent" / "orchestration" / "agent-triggers.yaml"
         if not triggers_path.exists():
             return None
@@ -83,11 +83,11 @@ class AgentLinter(BaseLinter):
                 config = yaml.safe_load(f)
                 return set(config.get("triggers", {}).keys())
         except Exception as e:
-            print(f"[warn] 无法加载agent-triggers.yaml: {e}", file=sys.stderr)
+            print(f"[warn] agent-triggers.yaml: {e}", file=sys.stderr)
             return None
     
     def _extract_yaml_front_matter(self, md_text: str) -> Optional[Dict[str, Any]]:
-        """从Markdown文件中提取YAML Front Matter"""
+        """MarkdownYAML Front Matter"""
         match = YAML_FRONT_MATTER_RE.match(md_text)
         if not match:
             return None
@@ -95,42 +95,42 @@ class AgentLinter(BaseLinter):
         try:
             return yaml.safe_load(match.group(1))
         except yaml.YAMLError as e:
-            raise ValueError(f"YAML解析错误: {e}")
+            raise ValueError(f"YAML: {e}")
     
     def _validate_basic_fields(self, yaml_data: Dict[str, Any], file_path: str) -> None:
-        """基础字段校验（必填检查）"""
+        """"""
         for field in self.required_fields:
             if field not in yaml_data or not yaml_data[field]:
                 self.add_issue(LintIssue(
                     file=file_path,
                     severity=Severity.ERROR,
-                    message=f"缺失必填字段: {field}",
-                    fix=f"在YAML Front Matter中添加 {field} 字段"
+                    message=f": {field}",
+                    fix=f"YAML Front Matter {field} "
                 ))
         
-        # spec_version格式检查
+        # spec_version
         if "spec_version" in yaml_data:
             if not re.match(r"^\d+\.\d+$", str(yaml_data["spec_version"])):
                 self.add_issue(LintIssue(
                     file=file_path,
                     severity=Severity.ERROR,
-                    message=f"spec_version格式错误: {yaml_data['spec_version']}",
-                    fix="spec_version应为'X.Y'格式，如'1.0'"
+                    message=f"spec_version: {yaml_data['spec_version']}",
+                    fix="spec_version'X.Y''1.0'"
                 ))
         
-        # agent_id格式检查
+        # agent_id
         if "agent_id" in yaml_data:
             agent_id = yaml_data["agent_id"]
             if agent_id != "repo" and not agent_id.startswith("modules."):
                 self.add_issue(LintIssue(
                     file=file_path,
                     severity=Severity.WARNING,
-                    message=f"agent_id格式不规范: {agent_id}",
-                    fix="建议格式: 'repo'或'modules.<entity>.<instance>'"
+                    message=f"agent_id: {agent_id}",
+                    fix=": 'repo''modules.<entity>.<instance>'"
                 ))
     
     def _validate_with_schema(self, yaml_data: Dict[str, Any], file_path: str) -> None:
-        """使用jsonschema验证数据"""
+        """jsonschema"""
         if not self.has_jsonschema or not self.schema:
             return
         
@@ -141,20 +141,20 @@ class AgentLinter(BaseLinter):
             self.add_issue(LintIssue(
                 file=file_path,
                 severity=Severity.ERROR,
-                message=f"Schema校验失败: {e.message}",
+                message=f"Schema: {e.message}",
                 rule="schema",
-                fix=f"检查字段: {'.'.join(str(p) for p in e.path)}"
+                fix=f": {'.'.join(str(p) for p in e.path)}"
             ))
         except Exception as e:
             self.add_issue(LintIssue(
                 file=file_path,
                 severity=Severity.WARNING,
-                message=f"Schema校验异常: {e}",
+                message=f"Schema: {e}",
                 rule="schema"
             ))
     
     def _check_context_routes(self, yaml_data: Dict[str, Any], file_path: str) -> None:
-        """检查context_routes的路径是否存在"""
+        """context_routes"""
         if "context_routes" not in yaml_data:
             return
         
@@ -162,15 +162,15 @@ class AgentLinter(BaseLinter):
         if not isinstance(routes, dict):
             return
         
-        # 检查always_read路径
+        # always_read
         if "always_read" in routes:
             for path in routes["always_read"]:
                 if not path.startswith("/"):
                     self.add_issue(LintIssue(
                         file=file_path,
                         severity=Severity.WARNING,
-                        message=f"路径应以/开头: {path}",
-                        fix="路径应相对于仓库根目录，以/开头"
+                        message=f"/: {path}",
+                        fix="/"
                     ))
                 else:
                     full_path = self.repo_root / path.lstrip("/")
@@ -178,11 +178,11 @@ class AgentLinter(BaseLinter):
                         self.add_issue(LintIssue(
                             file=file_path,
                             severity=Severity.WARNING,
-                            message=f"always_read路径不存在: {path}",
-                            fix=f"确保文件存在: {full_path}"
+                            message=f"always_read: {path}",
+                            fix=f": {full_path}"
                         ))
         
-        # 检查on_demand路径
+        # on_demand
         if "on_demand" in routes:
             for item in routes["on_demand"]:
                 if "paths" in item:
@@ -192,7 +192,7 @@ class AgentLinter(BaseLinter):
                             self.add_issue(LintIssue(
                                 file=file_path,
                                 severity=Severity.WARNING,
-                                message=f"[{topic}] 路径应以/开头: {path}"
+                                message=f"[{topic}] /: {path}"
                             ))
                         else:
                             full_path = self.repo_root / path.lstrip("/")
@@ -200,10 +200,10 @@ class AgentLinter(BaseLinter):
                                 self.add_issue(LintIssue(
                                     file=file_path,
                                     severity=Severity.WARNING,
-                                    message=f"[{topic}] 路径不存在: {path}"
+                                    message=f"[{topic}] : {path}"
                                 ))
         
-        # 检查by_scope路径
+        # by_scope
         if "by_scope" in routes:
             for item in routes["by_scope"]:
                 scope = item.get('scope', 'unknown')
@@ -213,7 +213,7 @@ class AgentLinter(BaseLinter):
                             self.add_issue(LintIssue(
                                 file=file_path,
                                 severity=Severity.WARNING,
-                                message=f"[{scope}] 路径应以/开头: {path}"
+                                message=f"[{scope}] /: {path}"
                             ))
                         else:
                             full_path = self.repo_root / path.lstrip("/")
@@ -221,41 +221,41 @@ class AgentLinter(BaseLinter):
                                 self.add_issue(LintIssue(
                                     file=file_path,
                                     severity=Severity.WARNING,
-                                    message=f"[{scope}] 路径不存在: {path}"
+                                    message=f"[{scope}] : {path}"
                                 ))
     
     def _check_trigger_config(self, yaml_data: Dict[str, Any], file_path: str) -> None:
-        """校验trigger_config字段"""
+        """trigger_config"""
         if "trigger_config" not in yaml_data:
-            return  # 可选字段
+            return  # 
         
         if not self.trigger_rules:
-            return  # 无法加载触发规则
+            return  # 
         
         trigger_config = yaml_data["trigger_config"]
         
-        # 检查rules字段
+        # rules
         if "rules" in trigger_config:
             for rule_id in trigger_config["rules"]:
                 if rule_id not in self.trigger_rules:
                     self.add_issue(LintIssue(
                         file=file_path,
                         severity=Severity.WARNING,
-                        message=f"引用了不存在的触发规则: {rule_id}",
-                        fix="检查doc_agent/orchestration/agent-triggers.yaml中的规则ID"
+                        message=f": {rule_id}",
+                        fix="doc_agent/orchestration/agent-triggers.yamlID"
                     ))
         
-        # 检查exclude_rules字段
+        # exclude_rules
         if "exclude_rules" in trigger_config:
             for rule_id in trigger_config["exclude_rules"]:
                 if rule_id not in self.trigger_rules:
                     self.add_issue(LintIssue(
                         file=file_path,
                         severity=Severity.WARNING,
-                        message=f"exclude_rules引用了不存在的规则: {rule_id}"
+                        message=f"exclude_rules: {rule_id}"
                     ))
         
-        # 检查custom_triggers中的文档路径
+        # custom_triggers
         if "custom_triggers" in trigger_config:
             for custom in trigger_config["custom_triggers"]:
                 if "load_documents" in custom:
@@ -267,42 +267,42 @@ class AgentLinter(BaseLinter):
                                 self.add_issue(LintIssue(
                                     file=file_path,
                                     severity=Severity.WARNING,
-                                    message=f"custom_triggers文档路径不存在: {path}"
+                                    message=f"custom_triggers: {path}"
                                 ))
     
     def _check_agent_file(self, agent_path: Path) -> None:
-        """校验单个agent.md文件"""
+        """agent.md"""
         rel_path = str(agent_path.relative_to(self.repo_root))
         
         try:
             with open(agent_path, "r", encoding="utf-8") as f:
                 content = f.read()
             
-            # 提取YAML Front Matter
+            # YAML Front Matter
             yaml_data = self._extract_yaml_front_matter(content)
             if not yaml_data:
                 self.add_issue(LintIssue(
                     file=rel_path,
                     severity=Severity.ERROR,
-                    message="未找到YAML Front Matter",
-                    fix="agent.md文件应以 --- 开头并包含YAML前言"
+                    message="YAML Front Matter",
+                    fix="agent.md --- YAML"
                 ))
                 return
             
-            # 基础字段校验
+            # 
             self._validate_basic_fields(yaml_data, rel_path)
             
-            # Schema校验（如果可用）
+            # Schema
             self._validate_with_schema(yaml_data, rel_path)
             
-            # context_routes路径校验
+            # context_routes
             self._check_context_routes(yaml_data, rel_path)
             
-            # trigger_config校验
+            # trigger_config
             self._check_trigger_config(yaml_data, rel_path)
             
         except ValueError as e:
-            # YAML解析错误
+            # YAML
             self.add_issue(LintIssue(
                 file=rel_path,
                 severity=Severity.ERROR,
@@ -312,14 +312,14 @@ class AgentLinter(BaseLinter):
             self.add_issue(LintIssue(
                 file=rel_path,
                 severity=Severity.ERROR,
-                message=f"读取文件失败: {e}"
+                message=f": {e}"
             ))
     
     def _find_agent_files(self) -> List[Path]:
-        """查找所有agent.md文件"""
+        """agent.md"""
         agent_files = []
         
-        # 根目录的agent.md
+        # agent.md
         root_agent = self.repo_root / "agent.md"
         if root_agent.exists():
             agent_files.append(root_agent)
@@ -330,12 +330,12 @@ class AgentLinter(BaseLinter):
             for agent_path in modules_dir.rglob("agent.md"):
                 agent_files.append(agent_path)
         
-        # 其他目录的agent.md（如ai/, config/, tools/等）
+        # agent.mdai/, config/, tools/
         for pattern in ["*/agent.md", "*/*/agent.md"]:
             for agent_path in self.repo_root.glob(pattern):
-                # 避免重复
+                # 
                 if agent_path not in agent_files:
-                    # 排除node_modules, .git, temp等
+                    # node_modules, .git, temp
                     if not any(part.startswith(".") or part in ["node_modules", "temp", "tmp"] 
                               for part in agent_path.parts):
                         agent_files.append(agent_path)
@@ -343,29 +343,29 @@ class AgentLinter(BaseLinter):
         return agent_files
     
     def check(self) -> bool:
-        """执行检查"""
-        # 检查jsonschema是否可用
+        """"""
+        # jsonschema
         if self.has_jsonschema:
-            print("\n✅ jsonschema已安装，将进行Schema校验")
+            print("\n✅ jsonschemaSchema")
         else:
-            print("\n⚠️  jsonschema未安装，仅进行基础校验")
-            print("   提示：pip install jsonschema 可启用完整校验")
+            print("\n⚠️  jsonschema")
+            print("   pip install jsonschema ")
         
-        # 查找所有agent.md文件
+        # agent.md
         agent_files = self._find_agent_files()
         
         if not agent_files:
-            print("\n未找到任何agent.md文件")
+            print("\nagent.md")
             return True
         
-        print(f"\n找到 {len(agent_files)} 个agent.md文件：")
+        print(f"\n {len(agent_files)} agent.md")
         for agent_path in agent_files:
             rel_path = agent_path.relative_to(self.repo_root)
             print(f"  - {rel_path}")
         
-        # 校验每个文件
+        # 
         self.print_separator()
-        print("开始校验")
+        print("")
         self.print_separator()
         
         for agent_path in agent_files:
@@ -376,7 +376,7 @@ class AgentLinter(BaseLinter):
 
 
 def main():
-    """主函数"""
+    """"""
     return run_linter(AgentLinter)
 
 

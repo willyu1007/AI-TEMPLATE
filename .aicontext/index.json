@@ -2,7 +2,7 @@
   "docs": [
     {
       "path": ".aicontext/banned_patterns.md",
-      "hash": "a6ef74d056da68dd",
+      "hash": "ebfab86688697060",
       "summary": "- 直接写入密钥/PII - 全局性\"格式化大改\" - 未经计划的大范围跨模块重构",
       "keywords": [
         "pii"
@@ -11,21 +11,21 @@
     },
     {
       "path": ".aicontext/index.json",
-      "hash": "bcfc7c70387d3854",
+      "hash": "3c5bfdfe694a7810",
       "summary": null,
       "keywords": null,
       "deps": null
     },
     {
       "path": ".aicontext/module_index.json",
-      "hash": "641fe5894db9bb85",
+      "hash": "cb75966317570390",
       "summary": null,
       "keywords": null,
       "deps": null
     },
     {
       "path": ".aicontext/project_onepager.md",
-      "hash": "919ee037210c7127",
+      "hash": "33aeeeb040235f94",
       "summary": "> 本文件是 AI Agent 了解项目的快速入口。请根据实际项目填写。 [描述项目要解决的核心问题和目标] **示例**： - 目标：构建一个高效的任务管理系统，提升团队协作效率 - 问题：现有工具缺乏灵活性和自动化能力 [定义项目成功的可量化指标] **示例**： - 用户增长：月活用户 10,000+ - 性能：API 响应时间 P95 < 200ms - 质量：测试覆盖率 ≥ 80% [列出主要技术选型] **示例**： - 前端：Vue 3 + TypeScript",
       "keywords": [
         "agent",
@@ -38,14 +38,14 @@
     },
     {
       "path": ".aicontext/snapshot.json",
-      "hash": "b9bb1521aeb2eb7c",
+      "hash": "6e1bb482a3fc6e25",
       "summary": null,
       "keywords": null,
       "deps": null
     },
     {
       "path": ".aicontext/style_guide.md",
-      "hash": "a0058d724e434591",
+      "hash": "2994d932cee34e24",
       "summary": "- 代码：小函数、纯函数优先；单一职责；避免重复。 - 提交：动词开头（fix/add/refactor/doc/test/chore）；一条提交只做一类事。",
       "keywords": [
         "style",
@@ -58,42 +58,63 @@
     },
     {
       "path": "modules/common/agent.md",
-      "hash": "4148a3b725a43510",
+      "hash": "c813dba0f4557b11",
       "summary": "--- spec_version: \"1.0\" agent_id: \"modules.common.v1\" role: \"Provide common utilities and infrastructure code - Shared across all modules\" level: 1 module_type: \"0_Infrastructure/Common\" ownership: code_paths: include: - modules/common/util",
       "keywords": [
-        "common",
         "modules",
+        "common",
+        "contract",
         "doc",
-        "business",
-        "contract"
+        "business"
       ],
       "deps": [
-        "__init__.py",
-        "/modules/common/doc/CHANGELOG.md",
-        "/doc/process/testing.md",
+        "/modules/common/doc/CONTRACT.md",
         "/modules/common/README.md",
-        "/modules/common/doc/CONTRACT.md"
+        "/modules/common/doc/CHANGELOG.md"
       ]
     },
     {
       "path": "modules/common/README.md",
-      "hash": "85ab5226bfd55902",
-      "summary": "提供跨模块共享的通用代码，避免代码重复，提高代码复用性和可维护性。 - 多个模块需要使用的工具函数 - 共享的数据模型和接口定义 - 通用的中间件和拦截器 - 全局常量和配置辅助函数 - 已确定需要共享的代码范围 - 已评估代码对模块间依赖的影响 --- ```text common/ ├── utils/          # 通用工具函数 │   ├── __init__.py │   ├── string_utils.py    # 字符串处理 │   ├── date",
+      "hash": "b440fc2813734c89",
+      "summary": "Shared utilities, models, middleware, constants, and interfaces used by multiple feature modules. Keep it small, stable, and business-agnostic. ```text modules/common/ |-- utils/         # string/date/validation/encryption helpers |-- model",
+      "keywords": [
+        "modules",
+        "common",
+        "middleware",
+        "tests",
+        "feature"
+      ],
+      "deps": [
+        "__init__.py",
+        "agent.md",
+        "modules/common/doc/CHANGELOG.md"
+      ]
+    },
+    {
+      "path": "modules/common/USAGE.md",
+      "hash": "43b9e7c95601c96c",
+      "summary": "--- audience: ai language: en version: summary purpose: Quick usage guide for common module full_version: /modules/common/README.md --- > **For AI Agents** - Essential APIs and usage (~150 lines) > **Full Guide**: [README.md](README.md) (64",
       "keywords": [
         "common",
         "modules",
+        "python",
         "import",
-        "utils",
         "user"
       ],
-      "deps": [
-        "modules/example/README.md",
-        "modules/common/doc/CONTRACT.md",
-        "__init__.py",
-        "modules/common/README.md",
-        "agent.md",
-        "tests/README.md"
-      ]
+      "deps": []
+    },
+    {
+      "path": "modules/common/doc/BUGS.md",
+      "hash": "32c9cad0787dea0d",
+      "summary": "No issues tracked for the template. Use this file to log real bugs in English.",
+      "keywords": [
+        "log",
+        "bug",
+        "common",
+        "module",
+        "issues"
+      ],
+      "deps": []
     },
     {
       "path": "modules/common/doc/CHANGELOG.md",
@@ -112,34 +133,72 @@
     },
     {
       "path": "modules/common/doc/CONTRACT.md",
-      "hash": "85168d1436ff8b5b",
-      "summary": "> **Language**: English (AI-optimized documentation) > **Last Updated**: 2025-11-09 > **Version**: 1.0.0 --- The `common` module provides shared utilities, models, middleware, and constants used across all modules. This module contains zero",
+      "hash": "dd9ee68710a0b938",
+      "summary": "Internal helpers only; no external API. Refer to `doc_human/templates/module-templates/CONTRACT.md.template` when documenting real modules.",
       "keywords": [
-        "str",
+        "contract",
+        "module",
+        "templates",
         "common",
-        "import",
-        "modules",
-        "python"
+        "internal"
+      ],
+      "deps": []
+    },
+    {
+      "path": "modules/common/doc/PROGRESS.md",
+      "hash": "e022a12867624f7a",
+      "summary": "| Date | Update | Owner | Evidence | |------|--------|-------|----------| | 2025-11-05 | Template content populated | Repo Maintainer | initial commit | Future updates go here in English.",
+      "keywords": [
+        "progress",
+        "common",
+        "module",
+        "date",
+        "update"
+      ],
+      "deps": []
+    },
+    {
+      "path": "modules/common/doc/RUNBOOK.md",
+      "hash": "6701ceed80a43550",
+      "summary": "Shared library; no runtime service. Checklist: - Run `pytest tests/common/ -v`. - Update docs/templates and ensure English language compliance. - Regenerate docs via `make docgen`. - If guardrails fail, fix before other modules consume the ",
+      "keywords": [
+        "common",
+        "docs",
+        "runbook",
+        "module",
+        "shared"
+      ],
+      "deps": []
+    },
+    {
+      "path": "modules/common/doc/TEST_PLAN.md",
+      "hash": "16c6b03afdbf246b",
+      "summary": "Demonstration module for shared utilities. Tests live under `tests/common/`. - Unit tests: pytest for utils/models, Go/TS examples as needed. - Integration tests: scripts that exercise middleware and interfaces. - Coverage target: ¡Ý90%. - ",
+      "keywords": [
+        "tests",
+        "common",
+        "module",
+        "language",
+        "test"
       ],
       "deps": [
-        "/modules/common/doc/CHANGELOG.md",
-        "__init__.py"
+        "config/language.yaml"
       ]
     },
     {
       "path": "tools/openapi.json",
-      "hash": "b3a703cd14db264c",
+      "hash": "74ec5e4a358dd0c6",
       "summary": null,
       "keywords": null,
       "deps": null
     },
     {
       "path": "tools/codegen/contract.json",
-      "hash": "814681add2355541",
+      "hash": "09be24b2a9941721",
       "summary": null,
       "keywords": null,
       "deps": null
     }
   ],
-  "generated_at": "2025-11-09T15:08:56.264649"
+  "generated_at": "2025-11-10T13:45:17.396162"
 }

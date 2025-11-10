@@ -1,0 +1,8 @@
+# Repository language configuration
+language: en
+notes:
+  - "Set to 'en' for English, 'zh' for Chinese, etc."
+  - "During project initialization, remind contributors to write comments in this language."
+  - "Use this language when communicating with users or producing temporary or intermediate documents."
+  - "Write project and development documentation in English to ensure semantic accuracy."
+  - "Automation scripts can read this file to enforce language consistency checks."

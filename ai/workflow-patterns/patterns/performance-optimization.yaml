@@ -1,276 +1,40 @@
-# AI工作流模式：性能优化
-# 此文件为AI优化文档，轻量化设计（约190行）
-# 人类完整参考：../examples/performance-optimization-example.md
-
 pattern_id: "performance-optimization"
-version: "1.0"
-name: "性能优化标准工作流"
-description: "系统化的性能问题定位和优化流程"
+version: "1.1"
+name: "Performance Optimization Workflow"
+description: "Profile, optimize, and verify performance improvements"
 complexity: "medium"
-estimated_time: "2-4小时"
-ai_optimized: true
+estimated_time: "2-4 hours"
 category: "optimization"
-
-# 前置条件
+ai_optimized: true
 prerequisites:
-  - "明确性能问题（响应慢/吞吐低/资源占用高）"
-  - "有基准数据（优化前性能指标）"
-  - "有监控和profiling工具"
-
-# 工作流步骤
+  - "Baseline metrics captured"
 workflow:
   - step: 1
-    name: "性能问题确认"
-    description: "量化性能问题"
-    estimated_time: "15-20分钟"
-    
-    ai_prompt_template: |
-      性能问题：{performance_issue}
-      受影响功能：{affected_features}
-      请分析：
-      1. 性能指标（响应时间/吞吐/资源）
-      2. 问题严重程度
-      3. 影响范围
-    
+    name: "Profile"
+    description: "Use tracing/logging tools"
     documents_to_load:
-      - path: /observability/metrics/
-        priority: high
-      - path: /doc/modules/{module}/doc/RUNBOOK.md
-        priority: medium
-    
-    expected_output:
-      - "性能基线数据"
-      - "问题量化指标"
-      - "优化目标（如响应时间<200ms）"
-    
-    validation:
-      - "有明确的性能指标"
-      - "优化目标可衡量"
-    
-    common_issues:
-      - issue: "缺少基准数据"
-        solution: "先采集当前性能数据作为基线"
-      - issue: "优化目标模糊"
-        solution: "设定具体数值目标（如响应时间、QPS）"
-
+      - /doc_human/guides/HEALTH_MONITORING_GUIDE.md
   - step: 2
-    name: "瓶颈定位"
-    description: "找出性能瓶颈"
-    estimated_time: "30-60分钟"
-    
-    ai_prompt_template: |
-      使用profiling工具定位瓶颈：
-      1. 代码profiling
-      2. 数据库查询分析
-      3. 网络延迟检查
-      4. 内存/CPU分析
-    
+    name: "Optimize"
+    description: "Apply code/db changes"
     documents_to_load:
-      - path: /doc/flows/DAG_GUIDE.md
-        priority: medium
-        description: "查看数据流"
-    
-    expected_output:
-      - "瓶颈代码/查询定位"
-      - "资源瓶颈识别"
-      - "优化优先级排序"
-    
-    validation:
-      - "瓶颈明确（具体到代码/SQL）"
-      - "量化瓶颈影响"
-    
-    common_issues:
-      - issue: "瓶颈不明显"
-        solution: "增加日志，使用专业profiling工具"
-      - issue: "多个瓶颈"
-        solution: "按影响程度排序，逐个优化"
-
+      - /doc_agent/coding/AI_CODING_GUIDE.md
   - step: 3
-    name: "优化实施"
-    description: "实施性能优化"
-    estimated_time: "1-2小时"
-    
-    ai_prompt_template: |
-      优化方案：{optimization_approach}
-      瓶颈点：{bottleneck}
-      请实施优化
-    
+    name: "Validate"
+    description: "Benchmark + guardrails"
     documents_to_load:
-      - path: /doc/process/AI_CODING_GUIDE.md
-        priority: high
-    
-    expected_output:
-      - "优化代码"
-      - "性能测试结果"
-    
-    validation:
-      - "性能提升明显"
-      - "功能不受影响"
-      - "无新问题"
-    
-    common_issues:
-      - issue: "优化后性能没提升"
-        solution: "重新profiling，确认是否优化了真正的瓶颈"
-      - issue: "优化引入Bug"
-        solution: "回退，使用更保守的优化方案"
-
+      - /doc_agent/quickstart/guardrail-quickstart.md
   - step: 4
-    name: "性能测试"
-    description: "验证优化效果"
-    estimated_time: "20-30分钟"
-    
-    ai_prompt_template: |
-      性能测试：
-      1. 基准测试（对比优化前后）
-      2. 负载测试
-      3. 压力测试
-    
+    name: "Document"
+    description: "Update runbook + workdoc"
     documents_to_load:
-      - path: /doc/process/testing.md
-        priority: high
-      - path: /evals/baseline.json
-        priority: medium
-    
-    expected_output:
-      - "性能测试报告"
-      - "优化前后对比"
-    
-    validation:
-      - "达到优化目标"
-      - "无回归问题"
-      - "负载下稳定"
-    
-    common_issues:
-      - issue: "优化效果不稳定"
-        solution: "多次测试取平均，排除环境因素"
-
-  - step: 5
-    name: "监控配置"
-    description: "配置持续监控"
-    estimated_time: "15-20分钟"
-    
-    ai_prompt_template: |
-      配置监控：
-      1. 性能指标监控
-      2. 告警阈值设置
-      3. Dashboard配置
-    
-    documents_to_load:
-      - path: /observability/metrics/
-        priority: high
-      - path: /observability/alerts/prometheus_alerts.yml
-        priority: medium
-    
-    expected_output:
-      - "监控指标配置"
-      - "告警规则"
-    
-    validation:
-      - "关键指标有监控"
-      - "告警阈值合理"
-
-  - step: 6
-    name: "文档更新"
-    description: "记录优化过程"
-    estimated_time: "15-20分钟"
-    
-    ai_prompt_template: |
-      更新文档：
-      1. CHANGELOG.md（优化记录）
-      2. RUNBOOK.md（性能基线）
-      3. 优化报告
-    
-    expected_output:
-      - "文档已更新"
-      - "优化经验沉淀"
-
-# 常见陷阱
+      - /modules/<name>/doc/RUNBOOK.md
 pitfalls:
-  - issue: "过早优化"
-    impact: "浪费时间在非瓶颈上"
-    solution: "先profiling定位瓶颈，再优化"
-    severity: "medium"
-  
-  - issue: "只优化代码，忽视架构"
-    impact: "优化效果有限"
-    solution: "考虑缓存、异步、批处理等架构优化"
-    severity: "medium"
-  
-  - issue: "忽视数据库查询优化"
-    impact: "数据库常是瓶颈"
-    solution: "使用EXPLAIN分析查询，添加索引"
-    severity: "high"
-  
-  - issue: "缺少性能监控"
-    impact: "无法持续跟踪"
-    solution: "配置监控和告警"
-    severity: "medium"
-
-# 质量检查清单
+  - issue: "Missing baseline"
+    solution: "Capture metrics before changes"
 quality_checklist:
-  - "[ ] 性能问题量化"
-  - "[ ] 瓶颈定位准确"
-  - "[ ] 优化目标明确"
-  - "[ ] 优化实施完成"
-  - "[ ] 性能提升达标"
-  - "[ ] 功能无回归"
-  - "[ ] 监控已配置"
-  - "[ ] 文档已更新"
-
-# 常见优化技巧
-optimization_techniques:
-  code_level:
-    - "算法优化（降低时间复杂度）"
-    - "数据结构优化"
-    - "避免重复计算"
-    - "并行处理"
-  database:
-    - "添加索引"
-    - "查询优化（避免N+1）"
-    - "连接池配置"
-    - "读写分离"
-  architecture:
-    - "缓存（Redis/Memcached）"
-    - "异步处理（消息队列）"
-    - "CDN加速"
-    - "负载均衡"
-
-# 估时参考
-time_breakdown:
-  problem_confirmation: "15-20分钟"
-  bottleneck_identification: "30-60分钟"
-  optimization: "1-2小时"
-  performance_testing: "20-30分钟"
-  monitoring_setup: "15-20分钟"
-  documentation: "15-20分钟"
-  total: "2-4小时"
-
-# 性能指标参考
-performance_metrics:
-  response_time:
-    excellent: "<100ms"
-    good: "<200ms"
-    acceptable: "<500ms"
-    poor: ">500ms"
-  throughput:
-    description: "QPS（每秒请求数）"
-    target: "根据业务需求"
-  resource:
-    cpu: "<70%"
-    memory: "<80%"
-    disk_io: "监控IOPS"
-
-# 参考资源
+  - "[ ] Baseline + new metrics recorded"
+  - "[ ] Tests/guardrails pass"
+  - "[ ] Docs updated"
 references:
-  detailed_guide: "/ai/workflow-patterns/examples/performance-optimization-example.md"
-  related_patterns:
-    - "refactoring (优化可能需要重构)"
-    - "database-migration (数据库优化)"
-
-# 成功标准
-success_criteria:
-  - "所有6个步骤完成"
-  - "所有质量检查清单项通过"
-  - "性能提升达到目标"
-  - "监控和告警配置完成"
-
+  - /observability/README.md

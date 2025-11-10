@@ -1,40 +1,40 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "🔍 开始完整验证流程..."
+echo "🔍 ..."
 echo ""
 
 FAILED=0
 
-# [1/7] 契约存在性与 JSON 校验
+# [1/7]  JSON 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "[1/7] 契约存在性与 JSON 校验"
+echo "[1/7]  JSON "
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 if test -f tools/codegen/contract.json; then
-    echo "✓ 契约文件存在"
+    echo "✓ "
     if python - <<'PY'
 import json, sys
 try:
     json.load(open('tools/codegen/contract.json'))
-    print("✓ contract.json 解析成功")
+    print("✓ contract.json ")
 except Exception as e:
-    print(f"❌ contract.json 解析失败: {e}")
+    print(f"❌ contract.json : {e}")
     sys.exit(1)
 PY
     then
-        echo "✓ 契约 JSON 校验通过"
+        echo "✓  JSON "
     else
         FAILED=1
     fi
 else
-    echo "❌ 契约文件不存在"
+    echo "❌ "
     FAILED=1
 fi
 echo ""
 
-# [2/7] DAG 校验
+# [2/7] DAG 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "[2/7] DAG 校验"
+echo "[2/7] DAG "
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 if python scripts/dag_check.py; then
     echo ""
@@ -43,9 +43,9 @@ else
     echo ""
 fi
 
-# [3/7] 契约兼容性检查
+# [3/7] 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "[3/7] 契约兼容性检查"
+echo "[3/7] "
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 if python scripts/contract_compat_check.py; then
     echo ""
@@ -54,9 +54,9 @@ else
     echo ""
 fi
 
-# [4/7] 运行时配置校验
+# [4/7] 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "[4/7] 运行时配置校验"
+echo "[4/7] "
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 if python scripts/runtime_config_check.py; then
     echo ""
@@ -65,9 +65,9 @@ else
     echo ""
 fi
 
-# [5/7] 迁移脚本检查
+# [5/7] 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "[5/7] 迁移脚本检查"
+echo "[5/7] "
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 if python scripts/migrate_check.py; then
     echo ""
@@ -76,9 +76,9 @@ else
     echo ""
 fi
 
-# [6/7] 一致性检查
+# [6/7] 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "[6/7] 一致性检查"
+echo "[6/7] "
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 if python scripts/consistency_check.py; then
     echo ""
@@ -87,29 +87,29 @@ else
     echo ""
 fi
 
-# [7/7] DB 规范存在
+# [7/7] DB 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "[7/7] DB 规范存在性"
+echo "[7/7] DB "
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-# 兼容Phase 3后的路径
+# Phase 3
 if test -f doc/db/DB_SPEC.yaml; then
-    echo "✓ DB_SPEC.yaml 存在"
+    echo "✓ DB_SPEC.yaml "
 elif test -f docs/db/DB_SPEC.yaml; then
-    echo "✓ DB_SPEC.yaml 存在（旧路径）"
+    echo "✓ DB_SPEC.yaml "
 else
-    echo "❌ DB_SPEC.yaml 不存在"
+    echo "❌ DB_SPEC.yaml "
     FAILED=1
 fi
 echo ""
 
-# 总结
+# 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 if [ $FAILED -eq 0 ]; then
-    echo "✅ 所有验证通过"
+    echo "✅ "
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     exit 0
 else
-    echo "❌ 验证失败"
+    echo "❌ "
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     exit 1
 fi

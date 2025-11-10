@@ -1,52 +1,40 @@
-# 模块实例目录
-
-> 自动生成时间: 2025-11-07 17:59:18
-> 来源: doc/orchestration/registry.yaml
-> 生成命令: `make module_doc_gen`
-
 ---
-
-## 目标
-
-本文档提供所有模块实例的索引和简介，包括：
-- 模块类型定义
-- 模块实例列表（按层级分组）
-- 实例状态、版本、责任人
-- 依赖关系图
-
+audience: human
+language: en
+version: reference
+purpose: Document existing module instances
 ---
+# Module Instances Guide
 
-## 模块类型
+## Purpose
+Track every module built from the template and describe its contracts, ownership, and health.
 
-### 1级模块类型
-#### 1_example - 示例模块类型
-- **描述**: 一级基础模块，用于演示模块结构和规范
-- **I/O契约**: 标准HTTP请求/响应，详见modules/example/doc/CONTRACT.md
+## Definition
+- A **module instance** is a concrete implementation created from a module type (see `doc_agent/specs/MODULE_TYPES.md`) and kept under `modules/<name>/`.
+- Each instance must include: `agent.md`, `doc/CONTRACT.md`, runbook (`doc/RUNBOOK.md`), active workdoc, tests, and health metrics hooks.
+- Module types stay abstract; module instances apply those contracts to a domain such as `1_user` or `4_sales_aggregator`.
+- Register new instances immediately after running `make ai_begin MODULE=<name>` and keep ownership plus escalation data current.
 
----
+## Required Fields (per module)
+- Name + directory path.
+- Owners + escalation contacts.
+- Contracts/interfaces (link to `CONTRACT.md`).
+- Docs: runbook, progress log, test plan, test data.
+- Guardrails enabled (db, contract, workflow).
 
-## 模块实例
+## Maintenance Workflow
+1. When scaffolding a module (`make ai_begin MODULE=name`), register it here.
+2. Update entries whenever ownership or contracts change.
+3. Link to workdocs for active initiatives.
+4. Mark deprecated modules and describe migration plans.
 
-（暂无模块实例）
----
+## Checklist
+- [ ] Module agent file updated.
+- [ ] Documentation templates filled and referenced here.
+- [ ] Tests + health metrics linked.
+- [ ] Language consistency verified.
 
-## 依赖关系图
-
----
-
-## 说明
-
-### 状态标记
-- 🟢 active: 活跃开发中
-- 🟡 wip: 工作进行中（未完成）
-- 🔴 deprecated: 已弃用
-- ⚫ archived: 已归档
-
-### 更新方式
-1. 修改`doc/orchestration/registry.yaml`
-2. 运行`make module_doc_gen`重新生成本文档
-
-### 相关文档
-- 模块类型详细说明: [MODULE_TYPES.md](MODULE_TYPES.md)
-- 模块初始化规范: [MODULE_INIT_GUIDE.md](MODULE_INIT_GUIDE.md)
-- 编排注册表: [../orchestration/registry.yaml](../orchestration/registry.yaml)
+## References
+- `modules/<name>/doc/*.md`
+- `doc_human/templates/module-templates/`
+- `doc_agent/policies/DOC_ROLES.md`

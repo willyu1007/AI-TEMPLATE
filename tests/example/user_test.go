@@ -1,28 +1,28 @@
-// Go 测试示例
-// 这是一个 Go 测试文件示例
-// 实际使用时根据项目结构调整
+// Go 
+//  Go 
+// 
 
 package example_test
 
 import (
 	"testing"
 	"github.com/stretchr/testify/assert"
-	// "your-project/modules/example"  // 实际导入路径
+	// "your-project/modules/example"  // 
 )
 
-// TestUserCreation 测试用户创建 [示例]
+// TestUserCreation  []
 func TestUserCreation(t *testing.T) {
-	// 测试：创建用户应该成功
+	// 
 	// user, err := example.CreateUser("test@example.com")
 	// 
 	// assert.NoError(t, err)
 	// assert.NotNil(t, user)
 	// assert.Equal(t, "test@example.com", user.Email)
 	
-	assert.True(t, true, "用户创建测试通过")  // 占位
+	assert.True(t, true, "")  // 
 }
 
-// TestValidateEmail 测试邮箱验证（表格驱动） [示例]
+// TestValidateEmail  []
 func TestValidateEmail(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -46,12 +46,12 @@ func TestValidateEmail(t *testing.T) {
 			// 	assert.Equal(t, tt.want, got)
 			// }
 			
-			assert.True(t, true, tt.name)  // 占位
+			assert.True(t, true, tt.name)  // 
 		})
 	}
 }
 
-// TestUserService_WithMock 测试使用 Mock [示例]
+// TestUserService_WithMock  Mock []
 func TestUserService_WithMock(t *testing.T) {
 	// type MockRepository struct {
 	// 	mock.Mock
@@ -66,10 +66,10 @@ func TestUserService_WithMock(t *testing.T) {
 	// assert.NoError(t, err)
 	// mockRepo.AssertExpectations(t)
 	
-	assert.True(t, true, "Mock 测试通过")  // 占位
+	assert.True(t, true, "Mock ")  // 
 }
 
-// BenchmarkUserCreation 基准测试 [示例]
+// BenchmarkUserCreation  []
 func BenchmarkUserCreation(b *testing.B) {
 	// service := example.NewUserService()
 	for i := 0; i < b.N; i++ {
@@ -77,14 +77,14 @@ func BenchmarkUserCreation(b *testing.B) {
 	}
 }
 
-// ExampleCreateUser 示例测试（文档） [示例]
+// ExampleCreateUser  []
 func ExampleCreateUser() {
 	// user, _ := example.CreateUser("test@example.com")
 	// fmt.Println(user.Email)
 	// Output: test@example.com
 }
 
-// Helper 函数示例
+// Helper 
 func setupTestDB(t *testing.T) {
 	t.Helper()
 	// db, err := sql.Open("sqlite3", ":memory:")
@@ -95,13 +95,13 @@ func setupTestDB(t *testing.T) {
 }
 
 /*
-运行测试命令：
+
 go test ./tests/example/
 go test -v ./tests/example/
 go test -cover ./tests/example/
 go test -race ./tests/example/
 go test -bench=. ./tests/example/
 
-参考：agent.md §6.3 Go 测试
+agent.md §6.3 Go 
 */
 

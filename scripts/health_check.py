@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-health_check.py - Repository Health Check主检查脚本
+health_check.py - Repository Health Check
 
-功能：
-1. 读取HEALTH_CHECK_MODEL.yaml评分模型
-2. 执行5个维度的健康度检查
-3. 计算加权总分（100分制）
-4. 生成多格式报告（console/markdown/json/html）
-5. 提供智能推荐建议
 
-5个维度：
-- Code Quality (25分): 代码质量、测试覆盖率、复杂度、类型安全
-- Documentation (20分): 模块文档覆盖、文档时效性、质量、同步
-- Architecture (20分): 依赖清晰度、模块耦合度、契约稳定性、注册表一致性
-- AI Friendliness (20分): agent.md轻量化、文档职责分离、模块文档完整、工作流友好、自动化覆盖
-- Operations (15分): 迁移完整性、配置规范、可观测性、安全卫生
+1. HEALTH_CHECK_MODEL.yaml
+2. 5
+3. 100
+4. console/markdown/json/html
+5. 
 
-用法：
+5
+- Code Quality (25): 
+- Documentation (20): 
+- Architecture (20): 
+- AI Friendliness (20): agent.md
+- Operations (15): 
+
+
     python scripts/health_check.py
     python scripts/health_check.py --format json
     python scripts/health_check.py --output report.md
@@ -43,7 +43,7 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
-# 路径设置
+# 
 HERE = Path(__file__).parent.absolute()
 REPO_ROOT = HERE.parent
 MODEL_PATH = REPO_ROOT / "doc_agent" / "specs" / "HEALTH_CHECK_MODEL.yaml"
@@ -51,10 +51,10 @@ HISTORY_PATH = REPO_ROOT / "ai" / "maintenance_reports" / "health-history.json"
 
 
 class HealthCheckEngine:
-    """仓库健康度检查引擎"""
+    """"""
     
     def __init__(self, model_path: Path = MODEL_PATH):
-        """初始化健康度检查引擎"""
+        """"""
         self.model_path = model_path
         self.model = self._load_model()
         self.results = {
@@ -66,23 +66,23 @@ class HealthCheckEngine:
         }
     
     def _load_model(self) -> Dict[str, Any]:
-        """加载健康度评分模型"""
+        """"""
         if not self.model_path.exists():
-            print(f"❌ 健康度模型文件不存在: {self.model_path}", file=sys.stderr)
+            print(f"❌ : {self.model_path}", file=sys.stderr)
             sys.exit(1)
         
         try:
             with open(self.model_path, 'r', encoding='utf-8') as f:
                 model = yaml.safe_load(f)
-            print(f"✓ 健康度模型已加载: {self.model_path.name}")
+            print(f"✓ : {self.model_path.name}")
             return model
         except Exception as e:
-            print(f"❌ 加载健康度模型失败: {e}", file=sys.stderr)
+            print(f"❌ : {e}", file=sys.stderr)
             sys.exit(1)
     
     def check_code_quality(self) -> Dict[str, Any]:
-        """检查代码质量维度（25分）"""
-        print("\n🔍 检查维度 1/5: Code Quality...")
+        """25"""
+        print("\n🔍  1/5: Code Quality...")
         
         dimension = self.model["dimensions"]["code_quality"]
         metrics = dimension["metrics"]
@@ -120,9 +120,9 @@ class HealthCheckEngine:
         }
     
     def _check_linter_pass_rate(self, metric_config: Dict) -> Dict:
-        """检查Linter通过率"""
+        """Linter"""
         try:
-            # 运行python_scripts_lint
+            # python_scripts_lint
             result = subprocess.run(
                 ["python3", "scripts/python_scripts_lint.py"],
                 cwd=REPO_ROOT,
@@ -131,29 +131,29 @@ class HealthCheckEngine:
                 timeout=30
             )
             
-            # 解析输出统计通过率
+            # 
             output = result.stdout
-            if "通过" in output or "passed" in output.lower():
-                # 提取通过/总数信息
+            if "" in output or "passed" in output.lower():
+                # /
                 lines = output.split('\n')
                 passed = 0
                 total = 0
                 for line in lines:
-                    if "通过" in line or "passed" in line.lower():
-                        # 简单假设：如果显示通过，则100%通过
+                    if "" in line or "passed" in line.lower():
+                        # 100%
                         passed = 1
                         total = 1
                         break
                 
                 if total == 0:
-                    # 假设通过
+                    # 
                     passed, total = 1, 1
                 
                 pass_rate = (passed / total) * 100 if total > 0 else 0
             else:
                 pass_rate = 0
             
-            # 根据评分表计算得分
+            # 
             scoring = metric_config["scoring"]
             score = self._calculate_score_from_threshold(pass_rate, scoring, reverse=False)
             
@@ -177,7 +177,7 @@ class HealthCheckEngine:
             }
     
     def _check_test_coverage(self, metric_config: Dict) -> Dict:
-        """检查测试覆盖率"""
+        """"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/test_coverage_check.py", "--json"],
@@ -216,7 +216,7 @@ class HealthCheckEngine:
             }
     
     def _check_code_complexity(self, metric_config: Dict) -> Dict:
-        """检查代码复杂度"""
+        """"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/complexity_check.py", "--json"],
@@ -255,7 +255,7 @@ class HealthCheckEngine:
             }
     
     def _check_type_safety(self, metric_config: Dict) -> Dict:
-        """检查类型安全"""
+        """"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/type_contract_check.py"],
@@ -265,8 +265,8 @@ class HealthCheckEngine:
                 timeout=30
             )
             
-            # 假设有类型注解（简化）
-            type_percentage = 70  # 假设70%有类型
+            # 
+            type_percentage = 70  # 70%
             
             scoring = metric_config["scoring"]
             score = self._calculate_score_from_threshold(type_percentage, scoring, reverse=False)
@@ -291,8 +291,8 @@ class HealthCheckEngine:
             }
     
     def check_documentation(self) -> Dict[str, Any]:
-        """检查文档维度（20分）"""
-        print("\n📚 检查维度 2/5: Documentation...")
+        """20"""
+        print("\n📚  2/5: Documentation...")
         
         dimension = self.model["dimensions"]["documentation"]
         metrics = dimension["metrics"]
@@ -330,9 +330,9 @@ class HealthCheckEngine:
         }
     
     def _check_module_doc_coverage(self, metric_config: Dict) -> Dict:
-        """检查模块文档覆盖率"""
+        """"""
         try:
-            # 调用module_health_check.py
+            # module_health_check.py
             result = subprocess.run(
                 ["python3", "scripts/module_health_check.py", "--json"],
                 cwd=REPO_ROOT,
@@ -370,7 +370,7 @@ class HealthCheckEngine:
             }
     
     def _check_doc_freshness(self, metric_config: Dict) -> Dict:
-        """检查文档时效性"""
+        """"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/doc_freshness_check.py", "--json"],
@@ -409,7 +409,7 @@ class HealthCheckEngine:
             }
     
     def _check_doc_quality(self, metric_config: Dict) -> Dict:
-        """检查文档质量"""
+        """"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/doc_style_check.py"],
@@ -419,8 +419,8 @@ class HealthCheckEngine:
                 timeout=30
             )
             
-            # 解析通过的检查项数量
-            checks_passed = 5  # 假设5/7通过
+            # 
+            checks_passed = 5  # 5/7
             
             scoring = metric_config["scoring"]
             score = scoring.get(checks_passed, 0)
@@ -445,7 +445,7 @@ class HealthCheckEngine:
             }
     
     def _check_doc_sync(self, metric_config: Dict) -> Dict:
-        """检查文档同步"""
+        """"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/doc_script_sync_check.py"],
@@ -455,7 +455,7 @@ class HealthCheckEngine:
                 timeout=30
             )
             
-            sync_rate = 90 if result.returncode == 0 else 70  # 假设值
+            sync_rate = 90 if result.returncode == 0 else 70  # 
             
             scoring = metric_config["scoring"]
             score = self._calculate_score_from_threshold(sync_rate, scoring, reverse=False)
@@ -480,8 +480,8 @@ class HealthCheckEngine:
             }
     
     def check_architecture(self) -> Dict[str, Any]:
-        """检查架构维度（20分）"""
-        print("\n🏗️ 检查维度 3/5: Architecture...")
+        """20"""
+        print("\n🏗️  3/5: Architecture...")
         
         dimension = self.model["dimensions"]["architecture"]
         metrics = dimension["metrics"]
@@ -519,9 +519,9 @@ class HealthCheckEngine:
         }
     
     def _check_dependency_clarity(self, metric_config: Dict) -> Dict:
-        """检查依赖清晰度"""
+        """"""
         try:
-            # 运行DAG检查
+            # DAG
             dag_result = subprocess.run(
                 ["python3", "scripts/dag_check.py"],
                 cwd=REPO_ROOT,
@@ -530,7 +530,7 @@ class HealthCheckEngine:
                 timeout=30
             )
             
-            # 运行依赖检查
+            # 
             deps_result = subprocess.run(
                 ["python3", "scripts/deps_manager.py"],
                 cwd=REPO_ROOT,
@@ -539,7 +539,7 @@ class HealthCheckEngine:
                 timeout=30
             )
             
-            # 计算通过的检查数（假设）
+            # 
             checks_passed = 4 if dag_result.returncode == 0 else 3
             
             scoring = metric_config["scoring"]
@@ -565,7 +565,7 @@ class HealthCheckEngine:
             }
     
     def _check_module_coupling(self, metric_config: Dict) -> Dict:
-        """检查模块耦合度"""
+        """"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/coupling_check.py", "--json"],
@@ -604,7 +604,7 @@ class HealthCheckEngine:
             }
     
     def _check_contract_stability(self, metric_config: Dict) -> Dict:
-        """检查契约稳定性"""
+        """"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/contract_compat_check.py"],
@@ -639,7 +639,7 @@ class HealthCheckEngine:
             }
     
     def _check_registry_consistency(self, metric_config: Dict) -> Dict:
-        """检查注册表一致性"""
+        """"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/registry_check.py"],
@@ -674,8 +674,8 @@ class HealthCheckEngine:
             }
     
     def check_ai_friendliness(self) -> Dict[str, Any]:
-        """检查AI友好度维度（20分）⭐ 新维度"""
-        print("\n🤖 检查维度 4/5: AI Friendliness...")
+        """AI20⭐ """
+        print("\n🤖  4/5: AI Friendliness...")
         
         dimension = self.model["dimensions"]["ai_friendliness"]
         metrics = dimension["metrics"]
@@ -718,7 +718,7 @@ class HealthCheckEngine:
         }
     
     def _check_agent_md_lightweight(self, metric_config: Dict) -> Dict:
-        """检查agent.md轻量化"""
+        """agent.md"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/ai_friendliness_check.py", "--check", "lightweight", "--json"],
@@ -764,7 +764,7 @@ class HealthCheckEngine:
             }
     
     def _check_doc_role_clarity(self, metric_config: Dict) -> Dict:
-        """检查文档职责清晰度"""
+        """"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/ai_friendliness_check.py", "--check", "clarity", "--json"],
@@ -803,7 +803,7 @@ class HealthCheckEngine:
             }
     
     def _check_module_doc_completeness(self, metric_config: Dict) -> Dict:
-        """检查模块文档完整性"""
+        """"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/module_health_check.py", "--json"],
@@ -842,10 +842,10 @@ class HealthCheckEngine:
             }
     
     def _check_workflow_ai_friendly(self, metric_config: Dict) -> Dict:
-        """检查工作流AI友好度"""
+        """AI"""
         try:
-            # 检查工作流模式和触发器
-            checks_passed = 3  # 假设3/4通过
+            # 
+            checks_passed = 3  # 3/4
             
             scoring = metric_config["scoring"]
             if checks_passed >= 4:
@@ -877,7 +877,7 @@ class HealthCheckEngine:
             }
     
     def _check_script_automation(self, metric_config: Dict) -> Dict:
-        """检查脚本自动化覆盖"""
+        """"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/ai_friendliness_check.py", "--check", "automation", "--json"],
@@ -923,8 +923,8 @@ class HealthCheckEngine:
             }
     
     def check_operations(self) -> Dict[str, Any]:
-        """检查运维维度（15分）"""
-        print("\n⚙️ 检查维度 5/5: Operations...")
+        """15"""
+        print("\n⚙️  5/5: Operations...")
         
         dimension = self.model["dimensions"]["operations"]
         metrics = dimension["metrics"]
@@ -962,7 +962,7 @@ class HealthCheckEngine:
         }
     
     def _check_migration_completeness(self, metric_config: Dict) -> Dict:
-        """检查迁移完整性"""
+        """"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/migrate_check.py"],
@@ -997,7 +997,7 @@ class HealthCheckEngine:
             }
     
     def _check_config_compliance(self, metric_config: Dict) -> Dict:
-        """检查配置合规性"""
+        """"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/config_lint.py"],
@@ -1032,7 +1032,7 @@ class HealthCheckEngine:
             }
     
     def _check_observability_coverage(self, metric_config: Dict) -> Dict:
-        """检查可观测性覆盖"""
+        """"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/observability_check.py", "--json"],
@@ -1071,7 +1071,7 @@ class HealthCheckEngine:
             }
     
     def _check_security_hygiene(self, metric_config: Dict) -> Dict:
-        """检查安全卫生"""
+        """"""
         try:
             result = subprocess.run(
                 ["python3", "scripts/secret_scan.py", "--json"],
@@ -1110,7 +1110,7 @@ class HealthCheckEngine:
             }
     
     def _calculate_score_from_threshold(self, value: float, scoring: Dict, reverse: bool = False) -> float:
-        """根据阈值表计算得分"""
+        """"""
         sorted_thresholds = sorted(scoring.items(), key=lambda x: x[0], reverse=not reverse)
         
         for threshold, score in sorted_thresholds:
@@ -1124,13 +1124,13 @@ class HealthCheckEngine:
         return 0
     
     def calculate_total_score(self) -> Tuple[float, str]:
-        """计算总分和等级"""
+        """"""
         total = 0
         for dimension_result in self.results["dimensions"].values():
             weighted_score = dimension_result["actual_score"] * dimension_result["weight"] / (dimension_result["max_points"] * dimension_result["weight"])
             total += dimension_result["actual_score"]
         
-        # 确定等级
+        # 
         grade_levels = self.model["scoring"]["grade_levels"]
         grade = "⚠️ Needs Improvement"
         for level_name, level_config in grade_levels.items():
@@ -1142,13 +1142,13 @@ class HealthCheckEngine:
         return round(total, 1), grade
     
     def generate_recommendations(self):
-        """生成智能推荐"""
+        """"""
         rules = self.model.get("recommendations", {}).get("rules", [])
         recommendations = []
         
         for rule in rules:
             condition = rule["condition"]
-            # 简单解析条件（实际需要更复杂的表达式解析）
+            # 
             if self._evaluate_condition(condition):
                 recommendations.append({
                     "priority": rule["priority"],
@@ -1159,47 +1159,47 @@ class HealthCheckEngine:
         return recommendations
     
     def _evaluate_condition(self, condition: str) -> bool:
-        """评估推荐条件"""
-        # TODO: 实现完整的条件评估逻辑
-        # 这里简化处理，根据实际得分判断
-        return False  # 默认不触发
+        """"""
+        # TODO: 
+        # 
+        return False  # 
     
     def run_all_checks(self):
-        """运行所有维度的检查"""
+        """"""
         print("=" * 70)
-        print("🏥 Repository Health Check - 开始检查...")
+        print("🏥 Repository Health Check - ...")
         print("=" * 70)
         
-        # 检查5个维度
+        # 5
         self.results["dimensions"]["code_quality"] = self.check_code_quality()
         self.results["dimensions"]["documentation"] = self.check_documentation()
         self.results["dimensions"]["architecture"] = self.check_architecture()
         self.results["dimensions"]["ai_friendliness"] = self.check_ai_friendliness()
         self.results["dimensions"]["operations"] = self.check_operations()
         
-        # 计算总分
+        # 
         total_score, grade = self.calculate_total_score()
         self.results["total_score"] = total_score
         self.results["grade"] = grade
         
-        # 生成推荐
+        # 
         self.results["recommendations"] = self.generate_recommendations()
         
         print("\n" + "=" * 70)
-        print(f"✅ 健康度检查完成！")
+        print(f"✅ ")
         print("=" * 70)
     
     def print_console_report(self):
-        """打印控制台报告"""
+        """"""
         print("\n" + "=" * 70)
         print("📊 HEALTH CHECK REPORT")
         print("=" * 70)
         
-        # 总分
+        # 
         print(f"\n🎯 Overall Score: {self.results['total_score']}/100")
         print(f"🏆 Grade: {self.results['grade']}")
         
-        # 各维度详情
+        # 
         print("\n📈 Dimension Scores:\n")
         for dim_name, dim_result in self.results["dimensions"].items():
             percentage = dim_result["percentage"]
@@ -1208,16 +1208,16 @@ class HealthCheckEngine:
                   f"({percentage:5.1f}%) "
                   f"{'✅' if percentage >= 80 else '⚠️'}")
         
-        # 推荐（如果有）
+        # 
         if self.results["recommendations"]:
             print("\n💡 Recommendations:\n")
-            for rec in self.results["recommendations"][:5]:  # 只显示前5条
+            for rec in self.results["recommendations"][:5]:  # 5
                 print(f"  [{rec['priority'].upper()}] {rec['message']}")
         
         print("\n" + "=" * 70)
     
     def save_json_report(self, output_path: Optional[Path] = None):
-        """保存JSON报告"""
+        """JSON"""
         if output_path is None:
             output_path = REPO_ROOT / "ai" / "maintenance_reports" / f"health-report-{datetime.now().strftime('%Y%m%d')}.json"
         else:
@@ -1230,10 +1230,10 @@ class HealthCheckEngine:
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(self.results, f, indent=2, ensure_ascii=False)
         
-        print(f"\n💾 JSON报告已保存: {output_path.relative_to(REPO_ROOT)}")
+        print(f"\n💾 JSON: {output_path.relative_to(REPO_ROOT)}")
     
     def save_markdown_report(self, output_path: Optional[Path] = None):
-        """保存Markdown报告"""
+        """Markdown"""
         if output_path is None:
             output_path = REPO_ROOT / "ai" / "maintenance_reports" / f"health-summary-{datetime.now().strftime('%Y%m%d')}.md"
         else:
@@ -1277,26 +1277,26 @@ class HealthCheckEngine:
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(md_content)
         
-        print(f"📄 Markdown报告已保存: {output_path.relative_to(REPO_ROOT)}")
+        print(f"📄 Markdown: {output_path.relative_to(REPO_ROOT)}")
 
 
 def main():
-    """主函数"""
+    """"""
     import argparse
     from datetime import datetime
     
     parser = argparse.ArgumentParser(description="Repository Health Check")
     parser.add_argument("--format", choices=["console", "json", "markdown", "all"], 
-                       default="console", help="输出格式")
-    parser.add_argument("--output", type=str, help="输出文件路径（可选）")
+                       default="console", help="")
+    parser.add_argument("--output", type=str, help="")
     
     # Phase 14.2+ Enhanced parameters
     parser.add_argument("--strict", action="store_true", 
-                       help="启用严格模式（零容忍+阻断规则）")
+                       help="+")
     parser.add_argument("--detailed", action="store_true",
-                       help="生成详细报告（含问题定位和修复建议）")
+                       help="")
     parser.add_argument("--blocker-fail", action="store_true",
-                       help="检测到blocker问题时返回exit code 1")
+                       help="blockerexit code 1")
     
     args = parser.parse_args()
     
@@ -1337,13 +1337,13 @@ def main():
         except ImportError:
             print("⚠️ StrictChecker not available, skipping strict mode checks\n")
     
-    # 创建检查引擎
+    # 
     engine = HealthCheckEngine()
     
-    # 运行所有检查
+    # 
     engine.run_all_checks()
     
-    # 输出报告
+    # 
     if args.format in ["console", "all"]:
         engine.print_console_report()
     
@@ -1361,16 +1361,16 @@ def main():
             from issue_reporter import IssueReporter
             # Note: This requires updating all check methods to return Issue objects
             # For now, print a placeholder message
-            print("\n📊 详细报告功能将在所有检查工具更新后可用")
-            print("   当前可用: issue_model.py, issue_reporter.py, strict_checker.py")
+            print("\n📊 ")
+            print("   : issue_model.py, issue_reporter.py, strict_checker.py")
         except ImportError:
             print("⚠️ IssueReporter not available")
     
-    # 根据分数决定退出码
+    # 
     if engine.results["total_score"] < 70:
-        sys.exit(1)  # 失败
+        sys.exit(1)  # 
     else:
-        sys.exit(0)  # 成功
+        sys.exit(0)  # 
 
 
 if __name__ == "__main__":

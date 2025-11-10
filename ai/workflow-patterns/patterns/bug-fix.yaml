@@ -1,275 +1,51 @@
-# AI工作流模式：Bug修复
-# 此文件为AI优化文档，轻量化设计（约180行）
-# 人类完整参考：../examples/bug-fix-example.md
-
 pattern_id: "bug-fix"
-version: "1.0"
-name: "Bug修复标准工作流"
-description: "系统化的Bug定位和修复流程"
+version: "1.1"
+name: "Bug Fix Workflow"
+description: "Reproduce, fix, and verify issues without regressing other modules"
 complexity: "low"
-estimated_time: "30-90分钟"
-ai_optimized: true
+estimated_time: "30-90 minutes"
 category: "debugging"
-
-# 前置条件
+ai_optimized: true
 prerequisites:
-  - "Bug描述清晰（现象、复现步骤）"
-  - "可访问相关日志和错误信息"
-  - "了解受影响的模块"
-
-# 工作流步骤
+  - "Workdoc entry created"
+  - "Logs/tests linked to the bug"
 workflow:
   - step: 1
-    name: "Bug重现"
-    description: "在本地环境复现Bug"
-    estimated_time: "10-15分钟"
-    
-    ai_prompt_template: |
-      Bug描述：{bug_description}
-      复现步骤：{reproduction_steps}
-      请帮我在本地环境复现
-    
+    name: "Reproduce"
+    description: "Capture failing scenario + guardrail history"
     documents_to_load:
-      - path: /doc/modules/{module}/doc/BUGS.md
-        priority: high
-      - path: /doc/modules/{module}/doc/RUNBOOK.md
-        priority: medium
-    
+      - /doc_human/templates/workdoc-context.md
     expected_output:
-      - "本地可稳定复现Bug"
-      - "了解触发条件"
-    
-    validation:
-      - "Bug现象与描述一致"
-      - "可稳定复现（成功率≥80%）"
-    
-    common_issues:
-      - issue: "无法复现"
-        solution: "检查环境差异（数据、配置、版本），查看生产日志"
-      - issue: "复现不稳定"
-        solution: "分析触发条件，寻找时序或并发问题"
-
+      - "Reproduction steps"
   - step: 2
-    name: "根因分析"
-    description: "定位Bug根本原因"
-    estimated_time: "15-30分钟"
-    
-    ai_prompt_template: |
-      Bug现象：{symptoms}
-      错误信息：{error_message}
-      相关日志：{logs}
-      请分析根本原因
-    
+    name: "Fix"
+    description: "Implement minimal change, keep comments/logs in English"
     documents_to_load:
-      - path: /doc/modules/{module}/core/
-        priority: high
-        description: "查看相关代码"
-      - path: /doc/modules/{module}/doc/CONTRACT.md
-        priority: medium
-    
+      - /doc_agent/coding/AI_CODING_GUIDE.md
     expected_output:
-      - "定位到具体代码行或逻辑"
-      - "理解Bug产生机制"
-      - "评估影响范围"
-    
-    validation:
-      - "根因明确（不是表面现象）"
-      - "可解释Bug产生过程"
-    
-    common_issues:
-      - issue: "找不到错误代码"
-        solution: "添加调试日志，使用断点调试，查看调用栈"
-      - issue: "多个可疑点"
-        solution: "逐个排除，使用二分法定位"
-
+      - "Patched code"
   - step: 3
-    name: "修复实现"
-    description: "编写修复代码"
-    estimated_time: "10-20分钟"
-    
-    ai_prompt_template: |
-      根因：{root_cause}
-      修复方案：{fix_approach}
-      请实现修复
-    
+    name: "Test"
+    description: "Add regression test + run suite"
     documents_to_load:
-      - path: /doc/process/AI_CODING_GUIDE.md
-        priority: high
-      - path: /doc/modules/{module}/doc/CONTRACT.md
-        priority: medium
-    
+      - /doc_agent/coding/TEST_STANDARDS.md
     expected_output:
-      - "修复代码（最小化改动）"
-      - "不引入新问题"
-    
-    validation:
-      - "修复有效（Bug不再出现）"
-      - "不破坏现有功能"
-      - "代码清晰易懂"
-    
-    common_issues:
-      - issue: "修复后引入新Bug"
-        solution: "运行完整测试套件，检查副作用"
-      - issue: "改动过大"
-        solution: "寻找最小修复方案，避免重构"
-
+      - "Test file + passing run"
   - step: 4
-    name: "编写回归测试"
-    description: "防止Bug再次出现"
-    estimated_time: "15-20分钟"
-    
-    ai_prompt_template: |
-      为Bug编写测试用例：
-      Bug场景：{bug_scenario}
-      预期行为：{expected_behavior}
-    
+    name: "Document"
+    description: "Update BUGS/CHANGELOG/workdoc"
     documents_to_load:
-      - path: /doc/process/testing.md
-        priority: high
-      - path: /tests/{module}/
-        priority: medium
-    
+      - /doc_human/templates/module-templates/BUGS.md.template
     expected_output:
-      - "tests/{module}/test_bug_{id}.py|.ts|.go"
-      - "测试覆盖Bug场景"
-    
-    validation:
-      - "测试修复前失败"
-      - "测试修复后通过"
-      - "测试清晰描述Bug场景"
-    
-    common_issues:
-      - issue: "不知道如何写测试"
-        solution: "将复现步骤转换为测试用例"
-      - issue: "测试不稳定"
-        solution: "隔离外部依赖，使用Mock"
-
-  - step: 5
-    name: "文档更新"
-    description: "更新BUGS.md和CHANGELOG.md"
-    estimated_time: "5-10分钟"
-    
-    ai_prompt_template: |
-      更新Bug记录：
-      Bug ID：{bug_id}
-      状态：已修复
-      根因：{root_cause}
-      修复：{fix_description}
-    
-    documents_to_load:
-      - path: /doc/modules/{module}/doc/BUGS.md
-        priority: high
-      - path: /doc/modules/{module}/doc/CHANGELOG.md
-        priority: medium
-    
-    expected_output:
-      - "BUGS.md (标记为已修复)"
-      - "CHANGELOG.md (记录修复)"
-    
-    validation:
-      - "Bug记录完整"
-      - "包含根因和修复方案"
-    
-    common_issues:
-      - issue: "不知道写什么"
-        solution: "按照BUGS.md模板，记录现象、根因、修复、测试"
-
-  - step: 6
-    name: "验证和回归测试"
-    description: "完整测试验证"
-    estimated_time: "10-15分钟"
-    
-    ai_prompt_template: |
-      运行完整测试：
-      1. 新增测试
-      2. 相关模块测试
-      3. 集成测试
-    
-    expected_output:
-      - "所有测试通过"
-      - "Bug确认修复"
-    
-    validation:
-      - "Bug场景不再出现"
-      - "无回归问题"
-      - "测试覆盖率未降低"
-
-# 常见陷阱
+      - "Doc updates"
 pitfalls:
-  - issue: "只修复表面现象，未找到根因"
-    impact: "Bug再次出现"
-    solution: "深入分析，找到真正原因"
-    severity: "high"
-  
-  - issue: "改动过大，引入新Bug"
-    impact: "修复成本增加"
-    solution: "最小化修复，集中解决问题"
-    severity: "medium"
-  
-  - issue: "没有添加回归测试"
-    impact: "Bug可能再次出现"
-    solution: "每个Bug必须有对应测试"
-    severity: "high"
-  
-  - issue: "忘记更新文档"
-    impact: "知识丢失，他人遇到同样问题"
-    solution: "修复后立即更新BUGS.md"
-    severity: "low"
-
-# 质量检查清单
+  - issue: "Unclear reproduction steps"
+    solution: "Record CLI commands/logs in workdoc context"
 quality_checklist:
-  - "[ ] Bug可本地复现"
-  - "[ ] 根因明确"
-  - "[ ] 修复代码最小化"
-  - "[ ] Bug不再出现"
-  - "[ ] 回归测试已添加"
-  - "[ ] 所有测试通过"
-  - "[ ] BUGS.md已更新"
-  - "[ ] CHANGELOG.md已更新"
-  - "[ ] 无新引入问题"
-
-# 估时参考（按Bug复杂度）
-time_breakdown:
-  simple:
-    total: "30-45分钟"
-    description: "简单逻辑错误，明确根因"
-  medium:
-    total: "45-90分钟"
-    description: "需要调试分析，根因不明显"
-  complex:
-    total: "1.5-3小时"
-    description: "涉及多模块，并发问题，难以复现"
-
-# Bug类型参考
-bug_types:
-  logic_error: "逻辑错误（最常见）"
-  null_pointer: "空指针/未定义"
-  race_condition: "并发竞争"
-  memory_leak: "内存泄漏"
-  performance: "性能问题"
-  security: "安全漏洞"
-
-# 调试技巧
-debugging_tips:
-  - "添加详细日志"
-  - "使用断点调试"
-  - "二分法定位"
-  - "查看调用栈"
-  - "对比正常和异常场景"
-  - "检查边界条件"
-
-# 参考资源
+  - "[ ] Bug logged"
+  - "[ ] Regression test added"
+  - "[ ] Guardrails rerun"
+  - "[ ] Docs updated in English"
 references:
-  detailed_guide: "/ai/workflow-patterns/examples/bug-fix-example.md"
-  related_patterns:
-    - "performance-optimization (如是性能Bug)"
-  templates:
-    - "/doc/modules/TEMPLATES/BUGS.md"
-
-# 成功标准
-success_criteria:
-  - "所有6个步骤完成"
-  - "所有质量检查清单项通过"
-  - "Bug修复且有测试保护"
-  - "文档完整"
-
+  - /doc_human/templates/workdoc-context.md
+  - /doc_human/templates/module-templates/BUGS.md.template

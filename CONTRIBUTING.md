@@ -1,294 +1,97 @@
-# 贡献指南
+# Contributing Guide
 
-## 目标
-说明如何为 Agent Repo 模板贡献代码、报告问题和提出改进建议，确保贡献流程清晰高效。
+This repository is designed for AI-assisted teams, so contributions must stay lightweight, traceable, and testable. Follow the rules below and reference `agent.md` whenever something is unclear.
 
-## 适用场景
-- 发现 Bug 需要修复
-- 有功能改进建议
-- 希望贡献代码或文档
-- 需要了解贡献流程
+## Scope
+- Report reproducible bugs.
+- Suggest improvements to documentation, guardrails, or automation.
+- Submit code for modules, scripts, or docs.
 
-## 前置条件
-- 已 Fork 本仓库
-- 已阅读 `agent.md` 了解开发流程
-- 已设置本地开发环境
+## Before You Start
+1. Fork the repository and sync it with upstream.
+2. Read `agent.md` (especially routing, guardrails, and code review sections).
+3. Configure your environment: Python 3.11+, Docker, Make, and the tools listed in `requirements.txt`.
+4. Respect the configured language (`config/language.yaml`); comments and docs must follow that language.
 
----
+## Reporting Issues
+Use GitHub Issues and include:
+- Clear description and motivation.
+- Steps to reproduce (commands, expected vs actual behavior).
+- Environment info (OS, Python version, tool versions).
+- Logs or screenshots if available.
 
-## 报告问题
+## Suggesting Features
+1. Describe the user value and workflows affected.
+2. Provide constraints or guardrails that must remain.
+3. Propose an implementation outline or point to related scripts/docs.
+4. Tag whether it requires updates to `agent.md`, guardrails, or doc roles.
 
-### 提交 Issue 前
-1. 搜索现有 Issues，避免重复
-2. 使用最新版本重现问题
-3. 准备详细的复现步骤
-
-### Issue 模板
-```markdown
-## 问题描述
-[清晰描述遇到的问题]
-
-## 复现步骤
-1. 执行命令：`make xxx`
-2. 看到错误：...
-3. 期望结果：...
-
-## 环境信息
-- OS: Windows 10 / macOS 14 / Ubuntu 22.04
-- Python: 3.11
-- 相关工具版本: ...
-
-## 错误日志
-    ```
-    [粘贴错误信息]
-    ```
-
-## 截图
-[如适用]
+## Submitting Code
+```bash
+git clone git@github.com:<you>/templateai.git
+cd templateai
+git remote add upstream git@github.com:TemplateAI/AI-TEMPLATE.git
+git checkout -b feature/<topic>
 ```
 
----
-
-## 功能建议
-
-### 建议模板
-```markdown
-## 功能描述
-[描述建议的新功能]
-
-## 使用场景
-[说明哪些场景需要这个功能]
-
-## 预期效果
-[说明实现后的效果]
-
-## 可选实现方案
-[如有想法，可以提供]
+### Development Workflow
+```bash
+make ai_begin MODULE=my_feature   # if starting a module
+<implement feature>
+make dev_check                    # run before every commit
 ```
 
----
+### Coding Standards
+- Python: PEP 8 + repository lint rules.
+- TypeScript: ESLint + Prettier (see `package.json` if available).
+- Go: `gofmt` + go test.
+- Always run `make dev_check` before pushing.
 
-## 提交代码
-
-### 准备工作
+### Commit Format
 ```
-# 1. Fork 仓库
-# 2. 克隆你的 fork
-git clone https://github.com/your-username/agent-repo-template.git
-cd agent-repo-template
-
-# 3. 添加上游仓库
-git remote add upstream https://github.com/original-org/agent-repo-template.git
-
-# 4. 创建开发分支
-git checkout -b feature/your-feature-name
+<type>(<scope>): <summary>
 ```
+Types: `feat`, `fix`, `docs`, `refactor`, `build`, `test`, `chore`. Scope is optional but recommended (`scripts`, `guardrail`, `module/<name>`).
 
-### 开发流程
+## Pull Request Checklist
+- [ ] Linked Issue or motivation.
+- [ ] Tests updated/added.
+- [ ] Documentation updated (AI doc + human doc if relevant).
+- [ ] `make dev_check` output attached or summarized.
+- [ ] Guardrail/trigger changes explained clearly.
 
-#### 1. 遵循 agent.md 流程
-```
-# 如果是新模块
-make ai_begin MODULE=your_module
+## Code Review Expectations
+**As an author**
+- Respond to every comment.
+- Keep commits focused; rebase or fixup when requested.
+- Update documentation roles if you add/remove docs.
 
-# 更新计划
-vim modules/your_module/plan.md
+**As a reviewer**
+- Validate guardrail coverage and test depth.
+- Confirm documentation follows `audience/language/purpose` front matter.
+- Request clarifications when automation or routing changes are under-explained.
 
-# 实现功能
-# ... 编写代码 ...
+## High-Value Contributions
+1. Stronger automation checks (doc freshness, route validation, graph health).
+2. Additional workflow patterns for AI coding agents.
+3. Better module templates and test data scaffolds.
+4. Observability and maintenance tooling that shortens incident resolution.
 
-# 添加测试
-# ... 编写测试 ...
+## Merge Requirements
+1. CI passes.
+2. At least one maintainer approval.
+3. Docs updated and language compliant.
+4. Guardrails/tests in place for risky areas.
+5. No unresolved review threads.
 
-# 运行检查
-make dev_check
-```
+## Conduct
+- Be respectful and concise.
+- Attack problems, not people.
+- Escalate sensitive topics privately.
 
-#### 2. 代码规范
-- **Python**: 遵循 PEP 8，使用 pylint
-- **TypeScript**: 遵循 ESLint 规则
-- **Go**: 遵循 Go 官方风格，使用 gofmt
+## Contact
+- Issues: GitHub Issues tab.
+- Discussions: GitHub Discussions.
+- Email: project maintainers (see `README.md`).
 
-**风格指南**: `.aicontext/style_guide.md`
-
-#### 3. 提交信息
-```
-# 格式：<type>(<scope>): <subject>
-
-# 示例
-git commit -m "feat(scripts): 添加依赖自动检测功能"
-git commit -m "fix(dag_check): 修复环路检测算法"
-git commit -m "docs(readme): 更新快速开始说明"
-```
-
-**类型**：
-- `feat`: 新功能
-- `fix`: Bug 修复
-- `docs`: 文档
-- `refactor`: 重构
-- `test`: 测试
-- `chore`: 构建/工具
-
-#### 4. 测试要求
-```
-# 必须满足
-- [ ] 新功能有单元测试
-- [ ] 测试覆盖率 ≥80%（核心代码）
-- [ ] 所有测试通过
-- [ ] make dev_check 通过
-```
-
-### 提交 PR
-
-#### 1. 推送分支
-```
-git push origin feature/your-feature-name
-```
-
-#### 2. 创建 PR
-- 使用 PR 模板填写完整信息
-- 链接相关 Issue
-- 添加截图（如适用）
-
-#### 3. PR 标题
-```
-<type>(<scope>): <subject>
-
-示例：
-feat(scripts): 添加依赖自动检测功能
-fix(dag_check): 修复环路检测算法
-```
-
-#### 4. PR 描述
-使用 `.github/PULL_REQUEST_TEMPLATE.md` 模板：
-- 变更说明
-- 影响范围
-- 测试结果
-- 自审
-- 文档更新
-
-### Code Review
-
-#### 作为提交者
-- 响应 review 评论
-- 及时修复问题
-- 更新 PR 说明（如需要）
-
-#### 作为审查者
-参考 `agent.md` §11 代码审查流程：
-- 🏗️ Repo 级：架构变更
-- 📦 模块级：功能开发
-- ⚙️ 代码级：代码质量
-
----
-
-## 贡献类型
-
-### 代码贡献
-- 新增脚本/工具
-- Bug 修复
-- 性能优化
-- 测试补充
-
-### 文档贡献
-- 修正错误
-- 补充说明
-- 翻译（如需要）
-- 示例代码
-
-### 其他贡献
-- 问题反馈
-- 功能建议
-- 使用反馈
-- 传播推广
-
----
-
-## 贡献重点方向
-
-### 高价值贡献
-1. **完善测试示例**
-   - 更多语言的测试示例
-   - 更多测试场景
-
-2. **增强自动化工具**
-   - 更智能的依赖检测
-   - 更多的代码质量检查
-   - 更好的错误提示
-
-3. **丰富模板文档**
-   - 更多行业的 PRD 示例
-   - 更多场景的 RUNBOOK 模板
-
-4. **CI/CD 集成**
-   - 更多 CI 平台支持
-   - 部署脚本示例
-
-### 待改进领域
-- 多语言支持（Rust, Java等）
-- 性能测试框架
-- 安全扫描增强
-- 文档生成工具
-
----
-
-## ✅ PR 合并标准
-
-### 必须满足
-1. ✅ CI 全部通过
-2. ✅ 至少 1 人审查通过
-3. ✅ 所有讨论已解决
-4. ✅ 文档已更新
-5. ✅ 测试覆盖充分
-
-### 审查周期
-- 小型 PR（<100 行）：1-2 天
-- 中型 PR（100-500 行）：2-3 天
-- 大型 PR（>500 行）：3-5 天（建议拆分）
-
----
-
-## 贡献者
-
-感谢所有贡献者！
-
-[贡献者列表将在此处展示]
-
----
-
-## 联系方式
-
-- **Issues**: [GitHub Issues](https://github.com/your-org/agent-repo-template/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-org/agent-repo-template/discussions)
-- **Email**: [联系邮箱]
-
----
-
-## 行为准则
-
-### 基本原则
-- 尊重他人
-- 建设性沟通
-- 包容多样性
-- 专注技术讨论
-
-### 不可接受的行为
-- 人身攻击
-- 骚扰
-- 发布他人隐私
-- 不专业行为
-
----
-
-## 相关资源
-
-- **开发指南**: `agent.md`
-- **快速开始**: `QUICK_START.md`
-- **模板使用**: `TEMPLATE_USAGE.md`
-- **PR 规则**: `agent.md` §10.5
-- **代码审查**: `agent.md` §11
-
----
-
-**感谢你的贡献！** 🎉
-
+Thank you for keeping the repository AI-friendly and deterministic!

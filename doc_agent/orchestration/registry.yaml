@@ -2,38 +2,22 @@
 audience: ai
 language: en
 version: config
-purpose: Documentation for registry
+purpose: Module registry configuration
 ---
-# Module Registry
-# Version: 1.1
-# Purpose: Maintains all module types, instances, and dependencies
-# Maintenance: Semi-automated (auto-generate draft + manual review)
-
 version: '1.1'
-generated_at: '2025-11-09'
-description: Module types, instances, and dependency registry
-last_updated_by: Phase 14.0.4 - English conversion
-
-# Module Type Definitions
-# Reference: doc/modules/MODULE_TYPES.md
+generated_at: '2025-11-10'
+description: Module types, instances, and dependencies (English only)
 module_types:
   - id: 0_infrastructure_common
     name: Infrastructure - Common Utilities
     level: 1
-    description: Level-1 infrastructure module providing shared utilities (functions, models, middleware, constants)
-    io_contract: Function calls, see modules/common/doc/CONTRACT.md
-
+    description: Shared utilities (string/date helpers, validation, encryption, middleware, constants, repository interfaces)
+    io_contract: Function calls documented in modules/common/doc/CONTRACT.md
   - id: 1_example
     name: Example Module Type
     level: 1
-    description: Level-1 base module for demonstrating module structure and standards
-    io_contract: Standard HTTP request/response, see modules/example/doc/CONTRACT.md
-
-# Module Instances
-# Each instance is a concrete implementation of a module type
-# 
-# Note: example module moved to doc/modules/example/ as reference documentation
-# It is not a business module, only for reference during module initialization
+    description: Documentation-only example for onboarding
+    io_contract: Sample HTTP contract
 module_instances:
   - id: common.v1
     type: 0_infrastructure_common
@@ -43,67 +27,27 @@ module_instances:
     agent_md: modules/common/agent.md
     readme: modules/common/README.md
     dependencies:
-      imports: []  # 基础设施模块，无依赖
-      exports_to: ["*"]  # 所有模块都可以使用
-    description: >
-      提供跨模块共享的通用代码，包括字符串工具、日期时间工具、数据验证、
-      加密解密、数据模型（分页、API响应）、中间件（认证、限流、日志）、
-      常量（错误码、状态）、仓储接口等。零业务逻辑，纯技术基础设施。
+      imports: []
+      exports_to: ["*"]
+    description: Provides reusable helpers, middleware, constants, and interfaces. Contains no business logic.
     created_at: "2025-11-09"
-    created_by: Phase 14.0.1
     notes: |
-      从 /common/ 移动到 /modules/common/ (Phase 14.0.1)
-      导入路径更新: from common.* -> from modules.common.*
-      
-      核心原则：
-      1. 零业务逻辑，仅技术能力
-      2. 至少2个模块使用才放入common
-      3. 向后兼容，破坏性变更需要@deprecated
-      4. 测试覆盖率 ≥90%
-      
-      使用指南：
-      - Python: from modules.common.utils import validate_email
-      - 快速参考: modules/common/README.md
-      - API文档: modules/common/doc/CONTRACT.md
-  
-  # When real business modules exist, continue registration here
-  # Example format:
-  # - id: user_auth.v1
-  #   type: 1_Assign
-  #   path: modules/user_auth
-  #   level: 1
-  #   status: dev
-  #   ...
-
-# Reference Modules (not involved in runtime orchestration)
+      Moved from /common to /modules/common (Phase 14). Import path: from modules.common import ...
+      Principles:
+      1. No business rules; only technical helpers.
+      2. Add code only when ¡Ý2 modules use it.
+      3. Maintain backward compatibility (use @deprecated when needed).
+      4. Keep coverage ¡Ý90%.
 reference_modules:
   - id: example.reference
     type: 1_example
-    path: doc/modules/example  # Moved to doc directory
-    purpose: Module initialization reference template
-    description: Complete module structure example with agent.md, README.md, doc/, and all required files
-    usage: Reference this structure and content when creating new modules
-    agent_md: doc/modules/example/agent.md
-    readme: doc/modules/example/README.md
-    created_by: Phase 4
-    notes: |
-      This module is for reference only, not involved in actual business logic.
-      Located under doc/modules/ to avoid being mistaken as a business module by scanning tools.
-      
-      Reference content:
-      - agent.md: Complete YAML Front Matter example
-      - README.md: Module documentation structure
-      - doc/: 6 standard documents (BUGS, CHANGELOG, CONTRACT, PROGRESS, RUNBOOK, TEST_PLAN)
-      
-      Usage:
-      When creating a new module, refer to doc/modules/MODULE_INIT_GUIDE.md
-      and check the actual implementation in doc/modules/example/.
-
-# Maintenance Instructions
-# 1. When adding new module, run: make registry_gen
-# 2. Review generated registry.yaml.draft
-# 3. Fill in TODO-marked content
-# 4. Merge to this file or rename
-# 5. Run: make registry_check for validation
-# 6. Run: make module_doc_gen to generate MODULE_INSTANCES.md
-
+    path: doc/modules/example
+    purpose: Reference template for new modules
+    description: Shows the expected structure (agent.md, README, docs, tests).
+    notes: "Documentation only; not part of runtime orchestration."
+maintenance:
+  steps:
+    - "make registry_gen"
+    - "review and merge into this file"
+    - "run make registry_check"
+    - "update doc_human/guides/MODULE_INSTANCES.md"

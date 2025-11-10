@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-迁移脚本检查：验证 up/down 成对存在
+ up/down 
 """
 import sys
 import pathlib
@@ -13,26 +13,26 @@ if sys.platform == "win32":
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 def find_migrations():
-    """查找所有迁移脚本"""
+    """"""
     migrations_dir = pathlib.Path('migrations')
     
     if not migrations_dir.exists():
-        print("⚠️  migrations/ 目录不存在")
+        print("⚠️  migrations/ ")
         return {}, {}
     
     up_files = {}
     down_files = {}
     
-    # 查找 up 脚本
+    #  up 
     for up_file in migrations_dir.glob('*_up.sql'):
-        # 提取版本号（假设格式：001_xxx_up.sql）
+        # 001_xxx_up.sql
         match = re.match(r'(\d+)_(.+)_up\.sql', up_file.name)
         if match:
             version = match.group(1)
             name = match.group(2)
             up_files[version] = (name, up_file)
     
-    # 查找 down 脚本
+    #  down 
     for down_file in migrations_dir.glob('*_down.sql'):
         match = re.match(r'(\d+)_(.+)_down\.sql', down_file.name)
         if match:
@@ -43,14 +43,14 @@ def find_migrations():
     return up_files, down_files
 
 def check_paired_migrations(up_files, down_files):
-    """检查迁移脚本是否成对"""
+    """"""
     all_versions = set(up_files.keys()) | set(down_files.keys())
     
     if not all_versions:
-        print("⚠️  未找到迁移脚本")
+        print("⚠️  ")
         return True
     
-    print(f"📊 找到 {len(all_versions)} 个迁移版本\n")
+    print(f"📊  {len(all_versions)} \n")
     
     errors = []
     
@@ -63,29 +63,29 @@ def check_paired_migrations(up_files, down_files):
             down_name, down_path = down_info
             
             if up_name == down_name:
-                print(f"✓ {version}_{up_name}: up/down 成对")
+                print(f"✓ {version}_{up_name}: up/down ")
             else:
-                error = f"版本 {version} 的 up/down 名称不匹配: {up_name} vs {down_name}"
+                error = f" {version}  up/down : {up_name} vs {down_name}"
                 print(f"❌ {error}")
                 errors.append(error)
         elif up_info:
-            error = f"版本 {version} 缺少 down 脚本: {up_info[1]}"
+            error = f" {version}  down : {up_info[1]}"
             print(f"❌ {error}")
             errors.append(error)
         else:
-            error = f"版本 {version} 缺少 up 脚本: {down_info[1]}"
+            error = f" {version}  up : {down_info[1]}"
             print(f"❌ {error}")
             errors.append(error)
     
     return len(errors) == 0, errors
 
 def check_migration_syntax():
-    """基础语法检查（可选）"""
-    # 可以添加 SQL 语法检查，这里暂时跳过
+    """"""
+    #  SQL 
     return True
 
 def main():
-    print("🔍 开始迁移脚本检查...\n")
+    print("🔍 ...\n")
     
     up_files, down_files = find_migrations()
     is_paired, errors = check_paired_migrations(up_files, down_files)
@@ -93,10 +93,10 @@ def main():
     print("\n" + "="*50)
     
     if is_paired:
-        print("✅ 迁移脚本检查通过")
+        print("✅ ")
         sys.exit(0)
     else:
-        print("❌ 迁移脚本检查失败")
+        print("❌ ")
         for error in errors:
             print(f"  - {error}")
         sys.exit(1)

@@ -1,4 +1,4 @@
-# OpenTelemetry 配置
+# OpenTelemetry 
 exporter:
   jaeger:
     endpoint: jaeger:14250

@@ -1,7 +1,7 @@
 """
-基础模型类
 
-提供所有数据模型的基础功能和通用字段。
+
+
 """
 
 from datetime import datetime, timezone
@@ -12,9 +12,9 @@ from dataclasses import dataclass, field, asdict
 @dataclass
 class BaseModel:
     """
-    基础模型类
     
-    所有数据模型应继承此类，提供通用的序列化和验证功能。
+    
+    
     
     Examples:
         >>> class User(BaseModel):
@@ -27,19 +27,19 @@ class BaseModel:
     
     def to_dict(self) -> Dict[str, Any]:
         """
-        转换为字典
+        
         
         Returns:
-            包含所有字段的字典
+            
         """
         return asdict(self)
     
     def to_json(self) -> str:
         """
-        转换为 JSON 字符串
+         JSON 
         
         Returns:
-            JSON 格式的字符串
+            JSON 
         """
         import json
         return json.dumps(self.to_dict(), default=str, ensure_ascii=False)
@@ -47,13 +47,13 @@ class BaseModel:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]):
         """
-        从字典创建实例
+        
         
         Args:
-            data: 字典数据
+            data: 
             
         Returns:
-            模型实例
+            
         """
         return cls(**data)
 
@@ -61,9 +61,9 @@ class BaseModel:
 @dataclass
 class TimestampMixin:
     """
-    时间戳混入类
     
-    提供创建时间和更新时间字段。
+    
+    
     
     Examples:
         >>> @dataclass
@@ -78,6 +78,6 @@ class TimestampMixin:
     updated_at: Optional[datetime] = None
     
     def touch(self):
-        """更新 updated_at 字段为当前时间"""
+        """ updated_at """
         self.updated_at = datetime.now(timezone.utc)
 

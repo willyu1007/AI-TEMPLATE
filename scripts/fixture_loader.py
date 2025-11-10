@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Fixtures加载工具 - Phase 7实现
+Fixtures - Phase 7
 
-功能:
-1. 模块感知：读取agent.md的test_data配置
-2. 场景加载：支持minimal/standard/full等场景
-3. 环境适配：读取数据库环境配置
-4. SQL执行：加载.sql文件到数据库
-5. 清理功能：清空测试数据
+:
+1. agent.mdtest_data
+2. minimal/standard/full
+3. 
+4. SQL.sql
+5. 
 
-用法:
+:
   python scripts/fixture_loader.py --module <module_name> --fixture <scenario>
   python scripts/fixture_loader.py --module <module_name> --cleanup
   python scripts/fixture_loader.py --list-modules
   python scripts/fixture_loader.py --module <module_name> --list-fixtures
 
-示例:
+:
   python scripts/fixture_loader.py --module example --fixture minimal
   python scripts/fixture_loader.py --module example --cleanup
 """
@@ -35,7 +35,7 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
-# 数据库连接（可选依赖）
+# 
 try:
     import psycopg2
     from psycopg2 import sql
@@ -43,7 +43,7 @@ try:
 except ImportError:
     HAS_PSYCOPG2 = False
 
-# ANSI颜色
+# ANSI
 GREEN = '\033[92m'
 YELLOW = '\033[93m'
 RED = '\033[91m'
@@ -52,7 +52,7 @@ RESET = '\033[0m'
 
 
 def find_repo_root() -> Path:
-    """查找仓库根目录"""
+    """"""
     current = Path(__file__).resolve().parent
     while current != current.parent:
         if (current / 'agent.md').exists():
@@ -63,24 +63,24 @@ def find_repo_root() -> Path:
 
 def get_db_config(repo_root: Path, env: str = None) -> Optional[Dict]:
     """
-    获取数据库配置
     
-    优先级:
-    1. 环境变量 DATABASE_URL
-    2. 环境变量 DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
-    3. config/环境配置文件
+    
+    :
+    1.  DATABASE_URL
+    2.  DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
+    3. config/
     
     Args:
-        repo_root: 仓库根目录
-        env: 环境名称（dev/test/prod），默认从APP_ENV读取
+        repo_root: 
+        env: dev/test/prodAPP_ENV
     
     Returns:
-        数据库配置字典或None
+        None
     """
-    # 从环境变量获取
+    # 
     db_url = os.getenv('DATABASE_URL')
     if db_url:
-        # 解析DATABASE_URL（格式：postgresql://user:pass@host:port/dbname）
+        # DATABASE_URLpostgresql://user:pass@host:port/dbname
         try:
             import re
             match = re.match(r'postgresql://([^:]+):([^@]+)@([^:]+):(\d+)/(.+)', db_url)
@@ -95,7 +95,7 @@ def get_db_config(repo_root: Path, env: str = None) -> Optional[Dict]:
         except:
             pass
     
-    # 从独立环境变量获取
+    # 
     if all(os.getenv(key) for key in ['DB_HOST', 'DB_NAME', 'DB_USER']):
         return {
             'host': os.getenv('DB_HOST'),
@@ -105,7 +105,7 @@ def get_db_config(repo_root: Path, env: str = None) -> Optional[Dict]:
             'password': os.getenv('DB_PASSWORD', '')
         }
     
-    # 从配置文件获取（简化版，仅读取db相关配置）
+    # db
     env = env or os.getenv('APP_ENV', 'dev')
     config_file = repo_root / 'config' / f'{env}.yaml'
     
@@ -123,15 +123,15 @@ def get_db_config(repo_root: Path, env: str = None) -> Optional[Dict]:
                         'password': db_config.get('password', '')
                     }
         except Exception as e:
-            print(f"{YELLOW}⚠{RESET}  读取配置文件失败: {e}")
+            print(f"{YELLOW}⚠{RESET}  : {e}")
     
     return None
 
 
 def connect_to_db(db_config: Dict):
-    """连接到PostgreSQL数据库"""
+    """PostgreSQL"""
     if not HAS_PSYCOPG2:
-        raise ImportError("需要安装 psycopg2: pip install psycopg2-binary")
+        raise ImportError(" psycopg2: pip install psycopg2-binary")
     
     try:
         conn = psycopg2.connect(
@@ -143,16 +143,16 @@ def connect_to_db(db_config: Dict):
         )
         return conn
     except Exception as e:
-        raise ConnectionError(f"数据库连接失败: {e}")
+        raise ConnectionError(f": {e}")
 
 
 def parse_agent_yaml(agent_file: Path) -> Optional[Dict]:
-    """解析agent.md的YAML Front Matter"""
+    """agent.mdYAML Front Matter"""
     try:
         with open(agent_file, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # 提取YAML Front Matter（在---之间）
+        # YAML Front Matter---
         yaml_match = re.match(r'^---\s*\n(.*?)\n---\s*\n', content, re.DOTALL)
         if not yaml_match:
             return None
@@ -160,18 +160,18 @@ def parse_agent_yaml(agent_file: Path) -> Optional[Dict]:
         yaml_content = yaml_match.group(1)
         return yaml.safe_load(yaml_content)
     except Exception as e:
-        print(f"{RED}✗{RESET} 解析agent.md失败: {e}")
+        print(f"{RED}✗{RESET} agent.md: {e}")
         return None
 
 
 def find_module_path(repo_root: Path, module_name: str) -> Optional[Path]:
-    """查找模块路径（支持modules/和doc/modules/）"""
-    # 优先查找modules/目录（业务模块）
+    """modules/doc/modules/"""
+    # modules/
     module_path = repo_root / 'modules' / module_name
     if module_path.exists() and (module_path / 'agent.md').exists():
         return module_path
     
-    # 查找doc/modules/目录（参考模块）
+    # doc/modules/
     doc_module_path = repo_root / 'doc' / 'modules' / module_name
     if doc_module_path.exists() and (doc_module_path / 'agent.md').exists():
         return doc_module_path
@@ -180,10 +180,10 @@ def find_module_path(repo_root: Path, module_name: str) -> Optional[Path]:
 
 
 def list_available_modules(repo_root: Path) -> List[Tuple[str, str, bool]]:
-    """列举所有可用的模块（名称, 路径, 是否配置test_data）"""
+    """, , test_data"""
     modules = []
     
-    # 扫描modules/目录
+    # modules/
     modules_dir = repo_root / 'modules'
     if modules_dir.exists():
         for module_path in modules_dir.iterdir():
@@ -192,7 +192,7 @@ def list_available_modules(repo_root: Path) -> List[Tuple[str, str, bool]]:
                 has_test_data = bool(agent_data and agent_data.get('test_data', {}).get('enabled'))
                 modules.append((module_path.name, str(module_path), has_test_data))
     
-    # 扫描doc/modules/目录（参考模块）
+    # doc/modules/
     doc_modules_dir = repo_root / 'doc' / 'modules'
     if doc_modules_dir.exists():
         for module_path in doc_modules_dir.iterdir():
@@ -205,7 +205,7 @@ def list_available_modules(repo_root: Path) -> List[Tuple[str, str, bool]]:
 
 
 def list_fixtures(module_path: Path) -> List[str]:
-    """列举模块的所有Fixtures"""
+    """Fixtures"""
     fixtures_dir = module_path / 'fixtures'
     if not fixtures_dir.exists():
         return []
@@ -219,7 +219,7 @@ def list_fixtures(module_path: Path) -> List[str]:
 
 
 def read_test_data_md(module_path: Path) -> Optional[Dict]:
-    """读取TEST_DATA.md并提取Fixtures信息"""
+    """TEST_DATA.mdFixtures"""
     test_data_file = module_path / 'doc' / 'TEST_DATA.md'
     if not test_data_file.exists():
         return None
@@ -228,11 +228,11 @@ def read_test_data_md(module_path: Path) -> Optional[Dict]:
         with open(test_data_file, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # 简单解析：提取场景名称和文件路径
+        # 
         fixtures_info = {}
         
-        # 查找Fixtures概览表格
-        table_match = re.search(r'\| 场景名称 \| 文件路径 \|.*?\n\|[-| ]+\|\n(.*?)(?:\n\n|\Z)', content, re.DOTALL)
+        # Fixtures
+        table_match = re.search(r'\|  \|  \|.*?\n\|[-| ]+\|\n(.*?)(?:\n\n|\Z)', content, re.DOTALL)
         if table_match:
             table_rows = table_match.group(1).strip().split('\n')
             for row in table_rows:
@@ -244,73 +244,73 @@ def read_test_data_md(module_path: Path) -> Optional[Dict]:
         
         return fixtures_info
     except Exception as e:
-        print(f"{YELLOW}⚠{RESET}  无法读取TEST_DATA.md: {e}")
+        print(f"{YELLOW}⚠{RESET}  TEST_DATA.md: {e}")
         return None
 
 
 def load_fixture_sql(sql_file: Path, dry_run: bool = False, db_config: Dict = None) -> Tuple[bool, int]:
     """
-    加载SQL文件到数据库
+    SQL
     
     Args:
-        sql_file: SQL文件路径
-        dry_run: 是否为dry-run模式（仅检查，不执行）
-        db_config: 数据库配置（可选）
+        sql_file: SQL
+        dry_run: dry-run
+        db_config: 
     
     Returns:
-        (成功标志, 语句数量)
+        (, )
     """
     if not sql_file.exists():
-        print(f"{RED}✗{RESET} SQL文件不存在: {sql_file}")
+        print(f"{RED}✗{RESET} SQL: {sql_file}")
         return False, 0
     
     try:
         with open(sql_file, 'r', encoding='utf-8') as f:
             sql_content = f.read()
         
-        # 计算SQL语句数量
+        # SQL
         statements = [s.strip() for s in sql_content.split(';') if s.strip()]
         stmt_count = len(statements)
         
         if dry_run:
-            print(f"{BLUE}ℹ{RESET}  [DRY-RUN] 将执行 {stmt_count} 条SQL语句:")
-            for i, stmt in enumerate(statements[:5], 1):  # 只显示前5条
+            print(f"{BLUE}ℹ{RESET}  [DRY-RUN]  {stmt_count} SQL:")
+            for i, stmt in enumerate(statements[:5], 1):  # 5
                 first_line = stmt.split('\n')[0]
                 print(f"         {i}. {first_line[:60]}...")
             if stmt_count > 5:
-                print(f"         ... 还有 {stmt_count - 5} 条语句")
-            print(f"{BLUE}ℹ{RESET}  [DRY-RUN] SQL文件: {sql_file}")
+                print(f"         ...  {stmt_count - 5} ")
+            print(f"{BLUE}ℹ{RESET}  [DRY-RUN] SQL: {sql_file}")
             
             if not db_config:
-                print(f"\n{YELLOW}⚠{RESET}  提示：配置数据库连接后可实际执行")
-                print(f"     方式1: 环境变量 DATABASE_URL")
-                print(f"     方式2: 环境变量 DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD")
-                print(f"     方式3: config/<env>.yaml 中的 database.postgres 配置")
+                print(f"\n{YELLOW}⚠{RESET}  ")
+                print(f"     1:  DATABASE_URL")
+                print(f"     2:  DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD")
+                print(f"     3: config/<env>.yaml  database.postgres ")
             
             return True, stmt_count
         
-        # 实际执行SQL
+        # SQL
         if not db_config:
-            print(f"{RED}✗{RESET} 错误：未配置数据库连接")
-            print(f"{BLUE}ℹ{RESET}  请配置数据库连接或使用 --dry-run 模式")
-            print(f"     或手动执行: psql -f {sql_file}")
+            print(f"{RED}✗{RESET} ")
+            print(f"{BLUE}ℹ{RESET}   --dry-run ")
+            print(f"     : psql -f {sql_file}")
             return False, 0
         
         if not HAS_PSYCOPG2:
-            print(f"{RED}✗{RESET} 错误：未安装 psycopg2")
-            print(f"{BLUE}ℹ{RESET}  运行: pip install psycopg2-binary")
+            print(f"{RED}✗{RESET}  psycopg2")
+            print(f"{BLUE}ℹ{RESET}  : pip install psycopg2-binary")
             return False, 0
         
-        print(f"{BLUE}ℹ{RESET}  连接数据库...")
-        print(f"     主机: {db_config['host']}:{db_config['port']}")
-        print(f"     数据库: {db_config['database']}")
-        print(f"     用户: {db_config['user']}")
+        print(f"{BLUE}ℹ{RESET}  ...")
+        print(f"     : {db_config['host']}:{db_config['port']}")
+        print(f"     : {db_config['database']}")
+        print(f"     : {db_config['user']}")
         
         conn = connect_to_db(db_config)
-        conn.autocommit = False  # 使用事务
+        conn.autocommit = False  # 
         cursor = conn.cursor()
         
-        print(f"\n{BLUE}ℹ{RESET}  执行 {stmt_count} 条SQL语句...\n")
+        print(f"\n{BLUE}ℹ{RESET}   {stmt_count} SQL...\n")
         
         executed_count = 0
         for i, stmt in enumerate(statements, 1):
@@ -325,17 +325,17 @@ def load_fixture_sql(sql_file: Path, dry_run: bool = False, db_config: Dict = No
                 
             except Exception as e:
                 print(f"{RED}✗{RESET}")
-                print(f"\n{RED}✗{RESET} SQL执行失败: {e}")
-                print(f"{YELLOW}⚠{RESET}  回滚事务...")
+                print(f"\n{RED}✗{RESET} SQL: {e}")
+                print(f"{YELLOW}⚠{RESET}  ...")
                 conn.rollback()
                 cursor.close()
                 conn.close()
                 return False, executed_count
         
-        # 提交事务
-        print(f"\n{BLUE}ℹ{RESET}  提交事务...")
+        # 
+        print(f"\n{BLUE}ℹ{RESET}  ...")
         conn.commit()
-        print(f"{GREEN}✓{RESET} 事务提交成功，共执行 {executed_count} 条语句")
+        print(f"{GREEN}✓{RESET}  {executed_count} ")
         
         cursor.close()
         conn.close()
@@ -343,200 +343,200 @@ def load_fixture_sql(sql_file: Path, dry_run: bool = False, db_config: Dict = No
         return True, stmt_count
         
     except Exception as e:
-        print(f"{RED}✗{RESET} 加载SQL文件失败: {e}")
+        print(f"{RED}✗{RESET} SQL: {e}")
         return False, 0
 
 
 def cleanup_fixtures(module_path: Path, module_name: str, dry_run: bool = False) -> bool:
     """
-    清理模块的测试数据
     
-    注意：需要根据TEST_DATA.md中定义的表来生成DELETE语句
+    
+    TEST_DATA.mdDELETE
     """
     test_data_file = module_path / 'doc' / 'TEST_DATA.md'
     if not test_data_file.exists():
-        print(f"{YELLOW}⚠{RESET}  找不到TEST_DATA.md，无法确定需要清理的表")
+        print(f"{YELLOW}⚠{RESET}  TEST_DATA.md")
         return False
     
     if dry_run:
-        print(f"{BLUE}ℹ{RESET}  [DRY-RUN] 将清理模块 {module_name} 的测试数据")
-        print(f"{BLUE}ℹ{RESET}  [DRY-RUN] 请手动执行: DELETE FROM <table_name>;")
+        print(f"{BLUE}ℹ{RESET}  [DRY-RUN]  {module_name} ")
+        print(f"{BLUE}ℹ{RESET}  [DRY-RUN] : DELETE FROM <table_name>;")
         return True
     
-    # TODO: 实现实际的清理逻辑
-    print(f"{YELLOW}⚠{RESET}  清理功能尚未实现，请手动清理数据库")
-    print(f"     建议: 根据TEST_DATA.md中的表定义手动执行DELETE语句")
+    # TODO: 
+    print(f"{YELLOW}⚠{RESET}  ")
+    print(f"     : TEST_DATA.mdDELETE")
     
     return True
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Fixtures加载工具 - 模块感知的测试数据管理',
+        description='Fixtures - ',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-示例:
-  # 列举所有模块
+:
+  # 
   python scripts/fixture_loader.py --list-modules
   
-  # 列举模块的Fixtures
+  # Fixtures
   python scripts/fixture_loader.py --module example --list-fixtures
   
-  # 加载Fixtures（dry-run模式）
+  # Fixturesdry-run
   python scripts/fixture_loader.py --module example --fixture minimal --dry-run
   
-  # 加载Fixtures（实际执行，需要数据库连接）
+  # Fixtures
   python scripts/fixture_loader.py --module example --fixture minimal
   
-  # 清理测试数据
+  # 
   python scripts/fixture_loader.py --module example --cleanup
         """
     )
     
-    parser.add_argument('--module', type=str, help='模块名称')
-    parser.add_argument('--fixture', type=str, help='Fixture场景名称（minimal/standard/full等）')
-    parser.add_argument('--cleanup', action='store_true', help='清理模块的测试数据')
-    parser.add_argument('--list-modules', action='store_true', help='列举所有可用的模块')
-    parser.add_argument('--list-fixtures', action='store_true', help='列举模块的所有Fixtures')
-    parser.add_argument('--dry-run', action='store_true', help='Dry-run模式（仅检查，不执行）')
+    parser.add_argument('--module', type=str, help='')
+    parser.add_argument('--fixture', type=str, help='Fixtureminimal/standard/full')
+    parser.add_argument('--cleanup', action='store_true', help='')
+    parser.add_argument('--list-modules', action='store_true', help='')
+    parser.add_argument('--list-fixtures', action='store_true', help='Fixtures')
+    parser.add_argument('--dry-run', action='store_true', help='Dry-run')
     
     args = parser.parse_args()
     
     repo_root = find_repo_root()
     
-    # 列举所有模块
+    # 
     if args.list_modules:
-        print(f"\n{BLUE}可用的模块：{RESET}\n")
+        print(f"\n{BLUE}{RESET}\n")
         modules = list_available_modules(repo_root)
         if not modules:
-            print(f"{YELLOW}⚠{RESET}  未找到任何模块")
+            print(f"{YELLOW}⚠{RESET}  ")
             return 0
         
         for name, path, has_test_data in modules:
             status = f"{GREEN}✓{RESET}" if has_test_data else f"{YELLOW}✗{RESET}"
             print(f"  {status} {name}")
-            print(f"      路径: {path}")
+            print(f"      : {path}")
             if has_test_data:
-                print(f"      测试数据: 已配置")
+                print(f"      : ")
             else:
-                print(f"      测试数据: 未配置")
+                print(f"      : ")
             print()
         
         return 0
     
-    # 需要指定模块
+    # 
     if not args.module:
-        print(f"{RED}✗{RESET} 错误：需要指定 --module 参数")
-        print(f"用法: python scripts/fixture_loader.py --module <module_name> [--fixture <scenario>|--cleanup|--list-fixtures]")
-        print(f"或者: python scripts/fixture_loader.py --list-modules")
+        print(f"{RED}✗{RESET}  --module ")
+        print(f": python scripts/fixture_loader.py --module <module_name> [--fixture <scenario>|--cleanup|--list-fixtures]")
+        print(f": python scripts/fixture_loader.py --list-modules")
         return 1
     
-    # 查找模块路径
+    # 
     module_path = find_module_path(repo_root, args.module)
     if not module_path:
-        print(f"{RED}✗{RESET} 错误：找不到模块 '{args.module}'")
-        print(f"{BLUE}ℹ{RESET}  使用 --list-modules 查看所有可用模块")
+        print(f"{RED}✗{RESET}  '{args.module}'")
+        print(f"{BLUE}ℹ{RESET}   --list-modules ")
         return 1
     
-    # 读取agent.md
+    # agent.md
     agent_data = parse_agent_yaml(module_path / 'agent.md')
     if not agent_data:
-        print(f"{RED}✗{RESET} 错误：无法解析模块的agent.md")
+        print(f"{RED}✗{RESET} agent.md")
         return 1
     
-    # 检查test_data配置
+    # test_data
     test_data_config = agent_data.get('test_data', {})
     if not test_data_config.get('enabled'):
-        print(f"{YELLOW}⚠{RESET}  警告：模块 '{args.module}' 未启用test_data")
-        print(f"{BLUE}ℹ{RESET}  提示：在agent.md中添加 test_data.enabled: true")
+        print(f"{YELLOW}⚠{RESET}   '{args.module}' test_data")
+        print(f"{BLUE}ℹ{RESET}  agent.md test_data.enabled: true")
     
-    # 列举Fixtures
+    # Fixtures
     if args.list_fixtures:
-        print(f"\n{BLUE}模块 '{args.module}' 的Fixtures：{RESET}\n")
+        print(f"\n{BLUE} '{args.module}' Fixtures{RESET}\n")
         fixtures = list_fixtures(module_path)
         if not fixtures:
-            print(f"{YELLOW}⚠{RESET}  未找到任何Fixtures（fixtures/*.sql）")
+            print(f"{YELLOW}⚠{RESET}  Fixturesfixtures/*.sql")
             return 0
         
-        # 读取TEST_DATA.md获取详细信息
+        # TEST_DATA.md
         test_data_info = read_test_data_md(module_path)
         
         for fixture in fixtures:
             print(f"  • {GREEN}{fixture}{RESET}")
             sql_file = module_path / 'fixtures' / f'{fixture}.sql'
             if sql_file.exists():
-                print(f"      文件: {sql_file.relative_to(repo_root)}")
-                # 读取文件统计
+                print(f"      : {sql_file.relative_to(repo_root)}")
+                # 
                 try:
                     with open(sql_file, 'r', encoding='utf-8') as f:
                         content = f.read()
                         stmt_count = len([s for s in content.split(';') if s.strip()])
-                        print(f"      语句数: {stmt_count}")
+                        print(f"      : {stmt_count}")
                 except:
                     pass
                 
-                # 从TEST_DATA.md获取用途
+                # TEST_DATA.md
                 if test_data_info and fixture in test_data_info:
-                    print(f"      说明: {test_data_info[fixture].get('description', 'N/A')}")
+                    print(f"      : {test_data_info[fixture].get('description', 'N/A')}")
             print()
         
         return 0
     
-    # 清理测试数据
+    # 
     if args.cleanup:
-        print(f"\n{BLUE}清理模块 '{args.module}' 的测试数据...{RESET}\n")
+        print(f"\n{BLUE} '{args.module}' ...{RESET}\n")
         success = cleanup_fixtures(module_path, args.module, dry_run=args.dry_run)
         if success:
-            print(f"\n{GREEN}✓{RESET} 清理完成")
+            print(f"\n{GREEN}✓{RESET} ")
         else:
-            print(f"\n{RED}✗{RESET} 清理失败")
+            print(f"\n{RED}✗{RESET} ")
         return 0 if success else 1
     
-    # 加载Fixtures
+    # Fixtures
     if not args.fixture:
-        print(f"{RED}✗{RESET} 错误：需要指定 --fixture 参数")
-        print(f"用法: python scripts/fixture_loader.py --module {args.module} --fixture <scenario>")
-        print(f"或者: python scripts/fixture_loader.py --module {args.module} --list-fixtures")
+        print(f"{RED}✗{RESET}  --fixture ")
+        print(f": python scripts/fixture_loader.py --module {args.module} --fixture <scenario>")
+        print(f": python scripts/fixture_loader.py --module {args.module} --list-fixtures")
         return 1
     
-    # 查找Fixture文件
+    # Fixture
     sql_file = module_path / 'fixtures' / f'{args.fixture}.sql'
     if not sql_file.exists():
-        print(f"{RED}✗{RESET} 错误：找不到Fixture文件: {sql_file}")
-        print(f"{BLUE}ℹ{RESET}  使用 --list-fixtures 查看可用的Fixtures")
+        print(f"{RED}✗{RESET} Fixture: {sql_file}")
+        print(f"{BLUE}ℹ{RESET}   --list-fixtures Fixtures")
         return 1
     
-    # 获取数据库配置（如果不是dry-run模式）
+    # dry-run
     db_config = None
     if not args.dry_run:
-        print(f"{BLUE}ℹ{RESET}  获取数据库配置...")
+        print(f"{BLUE}ℹ{RESET}  ...")
         db_config = get_db_config(repo_root)
         if db_config:
-            print(f"{GREEN}✓{RESET} 数据库配置已加载")
+            print(f"{GREEN}✓{RESET} ")
         else:
-            print(f"{YELLOW}⚠{RESET}  未找到数据库配置，将仅在dry-run模式下运行")
-            print(f"{BLUE}ℹ{RESET}  配置数据库连接的方式：")
-            print(f"     1. 环境变量 DATABASE_URL")
-            print(f"     2. 环境变量 DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD")
-            print(f"     3. config/<env>.yaml 中的 database.postgres 配置")
-            args.dry_run = True  # 强制进入dry-run模式
+            print(f"{YELLOW}⚠{RESET}  dry-run")
+            print(f"{BLUE}ℹ{RESET}  ")
+            print(f"     1.  DATABASE_URL")
+            print(f"     2.  DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD")
+            print(f"     3. config/<env>.yaml  database.postgres ")
+            args.dry_run = True  # dry-run
     
-    # 加载Fixture
-    print(f"\n{BLUE}加载Fixture '{args.fixture}' 到模块 '{args.module}'...{RESET}\n")
-    print(f"模块路径: {module_path.relative_to(repo_root)}")
-    print(f"SQL文件: {sql_file.relative_to(repo_root)}")
+    # Fixture
+    print(f"\n{BLUE}Fixture '{args.fixture}'  '{args.module}'...{RESET}\n")
+    print(f": {module_path.relative_to(repo_root)}")
+    print(f"SQL: {sql_file.relative_to(repo_root)}")
     print()
     
     if args.dry_run:
-        print(f"{YELLOW}⚠{RESET}  DRY-RUN模式：仅检查，不执行\n")
+        print(f"{YELLOW}⚠{RESET}  DRY-RUN\n")
     
     success, stmt_count = load_fixture_sql(sql_file, dry_run=args.dry_run, db_config=db_config)
     
     if success:
-        print(f"\n{GREEN}✓{RESET} Fixture加载完成（{stmt_count} 条语句）")
+        print(f"\n{GREEN}✓{RESET} Fixture{stmt_count} ")
         return 0
     else:
-        print(f"\n{RED}✗{RESET} Fixture加载失败")
+        print(f"\n{RED}✗{RESET} Fixture")
         return 1
 
 

@@ -1,4 +1,4 @@
-# Jaeger 配置 (Kubernetes ConfigMap)
+# Jaeger  (Kubernetes ConfigMap)
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,7 +8,7 @@ data:
     sampling:
       default_strategy:
         type: probabilistic
-        param: 0.001  # 0.1% 采样率
+        param: 0.001  # 0.1% 
     storage:
       type: elasticsearch
       elasticsearch:

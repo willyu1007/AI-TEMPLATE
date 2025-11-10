@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-一致性检查：校验模块必备文档、索引哈希一致性
+
 """
 import sys
 import json
@@ -13,32 +13,32 @@ if sys.platform == "win32":
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 def load_json(path):
-    """加载 JSON 文件"""
+    """ JSON """
     try:
         with open(path, 'r', encoding='utf-8') as f:
             return json.load(f)
     except Exception as e:
-        print(f"❌ 无法加载 {path}: {e}")
+        print(f"❌  {path}: {e}")
         return None
 
 def check_snapshot_consistency():
-    """检查快照哈希一致性"""
+    """"""
     snapshot = load_json('.aicontext/snapshot.json')
     
     if not snapshot:
-        print("❌ snapshot.json 不存在或无法加载")
+        print("❌ snapshot.json ")
         return False
     
     snapshot_hash = snapshot.get('snapshot_hash')
     if not snapshot_hash:
-        print("❌ snapshot.json 缺少 snapshot_hash")
+        print("❌ snapshot.json  snapshot_hash")
         return False
     
     print(f"✓ snapshot_hash: {snapshot_hash}")
     return True
 
 def check_module_docs():
-    """检查模块必备文档"""
+    """"""
     required_docs = [
         'README.md',
         'plan.md',
@@ -53,7 +53,7 @@ def check_module_docs():
     modules_dir = pathlib.Path('modules')
     
     if not modules_dir.exists():
-        print("⚠️  modules/ 目录不存在")
+        print("⚠️  modules/ ")
         return True
     
     all_passed = True
@@ -62,7 +62,7 @@ def check_module_docs():
         if not module_dir.is_dir():
             continue
         
-        print(f"\n检查模块: {module_dir.name}")
+        print(f"\n: {module_dir.name}")
         missing = []
         
         for doc in required_docs:
@@ -71,42 +71,42 @@ def check_module_docs():
                 missing.append(doc)
         
         if missing:
-            print(f"  ❌ 缺少文档: {', '.join(missing)}")
+            print(f"  ❌ : {', '.join(missing)}")
             all_passed = False
         else:
-            print(f"  ✓ 文档齐全")
+            print(f"  ✓ ")
     
     return all_passed
 
 def check_key_references():
-    """检查关键引用存在"""
+    """"""
     checks = [
-        ('doc/flows/dag.yaml', 'DAG 配置'),
-        ('db/engines/postgres/docs/DB_SPEC.yaml', '数据库规范'),
-        ('doc/process/ENV_SPEC.yaml', '环境规范'),
-        ('.aicontext/index.json', '文档索引'),
-        ('.aicontext/module_index.json', '模块索引'),
+        ('doc/flows/dag.yaml', 'DAG '),
+        ('db/engines/postgres/docs/DB_SPEC.yaml', ''),
+        ('doc/process/ENV_SPEC.yaml', ''),
+        ('.aicontext/index.json', ''),
+        ('.aicontext/module_index.json', ''),
     ]
     
-    print("\n检查关键文件:")
+    print("\n:")
     all_passed = True
     
     for path, desc in checks:
         if pathlib.Path(path).exists():
             print(f"  ✓ {desc}: {path}")
         else:
-            print(f"  ❌ {desc} 缺失: {path}")
+            print(f"  ❌ {desc} : {path}")
             all_passed = False
     
     return all_passed
 
 def main():
-    print("🔍 开始一致性检查...\n")
+    print("🔍 ...\n")
     
     checks = [
-        ("快照哈希", check_snapshot_consistency()),
-        ("模块文档", check_module_docs()),
-        ("关键引用", check_key_references())
+        ("", check_snapshot_consistency()),
+        ("", check_module_docs()),
+        ("", check_key_references())
     ]
     
     print("\n" + "="*50)
@@ -114,11 +114,11 @@ def main():
     failed_checks = [name for name, passed in checks if not passed]
     
     if not failed_checks:
-        print("✅ 一致性检查全部通过")
+        print("✅ ")
         sys.exit(0)
     else:
-        print(f"❌ 一致性检查失败: {', '.join(failed_checks)}")
-        print("💡 请运行 'make docgen' 更新索引或补齐缺失文档")
+        print(f"❌ : {', '.join(failed_checks)}")
+        print("💡  'make docgen' ")
         sys.exit(1)
 
 if __name__ == '__main__':

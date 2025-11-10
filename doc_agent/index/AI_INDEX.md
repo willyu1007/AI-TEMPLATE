@@ -51,10 +51,19 @@ Auto-discovery via agent.md, intelligent triggers (16 rules), and workflow patte
 
 ---
 
-## Essential Workflows (6)
+## Essential Workflows (7)
 
-### 1. Module Creation
+### 0. Lifecycle Overview
 ```bash
+load /doc_agent/flows/repo-lifecycle.md  # Stage map + handoff rules
+```
+
+### 1. Initialization
+```bash
+# Read protocols before scaffolding
+load /doc_agent/init/project-init.md
+load /doc_agent/init/module-init.md
+
 make ai_begin MODULE=<name>  # Generates 8 docs + tests
 ```
 
@@ -85,6 +94,12 @@ make workdoc_create TASK=<name>  # Context recovery: 2-5min
 ```bash
 make health_check        # 5-dimension check (100 points)
 make health_show_quick_wins  # Quick improvements
+```
+
+### 7. Maintenance Loop
+```bash
+load /doc_agent/flows/maintenance-loop.md
+make health_report_detailed
 ```
 
 ---
@@ -122,7 +137,7 @@ make coupling_check                  # Module coupling analysis
 - **Token cost**: ~130 tokens
 
 ### On-Demand (Load via context_routes)
-- **High priority**: goals.md, safety.md, MODULE_TYPES.md, DB_SPEC.yaml, guardrails
+- **High priority**: goals.md, safety.md, MODULE_TYPES.md, DB_SPEC.yaml, guardrails, flows/repo-lifecycle.md
 - **Medium priority**: testing.md, triggers.yaml, AI_CODING_GUIDE.md, dataflow
 - **Low priority**: CONVENTIONS.md, directory.md (rarely needed)
 
@@ -153,6 +168,8 @@ make coupling_check                  # Module coupling analysis
 - **Full Safety**: safety.md (233 lines)
 - **Complete Workflows**: agent.md (350 lines)
 - **Module Development**: MODULE_INIT_GUIDE.md (1049 lines, split into resources/)
+- **Initialization Protocols**: init/project-init.md & init/module-init.md (load before scaffolding)
+- **Maintenance Loop**: flows/maintenance-loop.md (post-release cadence)
 - **Database Changes**: DB_CHANGE_GUIDE.md (split into resources/)
 - **Full Reference**: [AI_INDEX_DETAILS.md](AI_INDEX_DETAILS.md) (complete version)
 

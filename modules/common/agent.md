@@ -90,90 +90,42 @@ context_routes:
 merge_strategy: "child_overrides_parent"
 
 ---
+# Common Module Agent Guide
 
-# Common Module - Agent Guide
+> Shared technical helpers live in `modules/common`. This agent keeps scope narrow so business modules remain decoupled.
 
-## Purpose
-Provides cross-module shared utilities, models, middleware, and constants. This module contains no business logic, only technical infrastructure.
+## Scope
+- Provide reusable utilities, models, middleware, and constants.
+- Enforce zero business logic and backward compatibility.
+- Require >=90 percent unit test coverage across exported helpers.
 
-## Key Principles
-1. **Zero Business Logic**: Only generic, reusable technical utilities
-2. **Backward Compatibility**: All changes must maintain API stability
-3. **High Test Coverage**: ≥90% required for all code
-4. **No Module Dependencies**: Cannot import from any business module
+## Context Shortcuts
+| Need | Load | Purpose |
+| --- | --- | --- |
+| Quick reference | `/modules/common/README.md` | Lists available helpers |
+| Contract | `/modules/common/doc/CONTRACT.md` | Supported APIs and types |
+| Changelog | `/modules/common/doc/CHANGELOG.md` | Deprecations or upgrades |
 
-## Quick Reference
+## Working Rules
+1. Add code only when at least two modules need the helper.
+2. Update the contract and README whenever you add or deprecate symbols.
+3. Keep imports one-way: business modules can depend on `modules.common`, not the other way around.
 
-### Available Utilities
-- **String Utils**: `camel_to_snake`, `snake_to_camel`, `truncate_string`, `normalize_string`
-- **Date Utils**: `now_utc`, `format_datetime`, `parse_datetime`, `time_ago`
-- **Validation**: `validate_email`, `validate_phone`, `validate_url`, `validate_uuid`
-- **Encryption**: `hash_password`, `verify_password`, `encrypt_data`, `decrypt_data`
-- **Models**: `BaseModel`, `PaginationParams`, `PaginationResult`, `ApiResponse`
-- **Middleware**: `require_auth`, `rate_limit`, `setup_logging`
-- **Constants**: `ErrorCode`, `Status`, `UserStatus`, `OrderStatus`
-
-### Usage Example
-```python
-# Import utilities
-from modules.common.utils import validate_email, now_utc
-from modules.common.models import PaginationParams
-from modules.common.constants import ErrorCode
-
-# Use in your code
-if not validate_email(email):
-    raise ValueError(ErrorCode.INVALID_EMAIL.value)
-
-params = PaginationParams(page=1, page_size=20)
-```
-
-## Modification Guidelines
-
-### When to Add Code
-✅ **Add to common/** when:
-- At least 2 modules need this functionality
-- Code is stable and generic
-- No business logic involved
-
-❌ **Don't add** when:
-- Only one module uses it
-- Contains business rules
-- Module-specific logic
-
-### Adding New Functions
-1. Determine the category (utils/models/middleware/constants/interfaces)
-2. Implement with full unit tests (≥90% coverage)
-3. Update `/modules/common/README.md` quick reference
-4. Update `/modules/common/doc/CONTRACT.md` API documentation
-5. Add entry to `__init__.py` for easy import
-6. Run `pytest tests/common/ --cov=modules.common`
-
-### Deprecation Process
-1. Mark function with `@deprecated` decorator
-2. Keep old version for at least one release cycle
-3. Document migration path in CHANGELOG.md
-4. Update all known callers
-5. Remove in next major version
-
-## Verification Commands
+## Commands
 ```bash
-# Run common module tests
-pytest tests/common/ -v --cov=modules.common
-
-# Check coverage
-pytest tests/common/ --cov=modules.common --cov-report=html
-
-# Verify no circular dependencies
-grep -r "from modules\." modules/common/
-# (Should return no results)
-
-# Run full dev check
+pytest tests/common/ --cov=modules.common
 make dev_check
 ```
 
-## Related Documents
-- Full Documentation: `/modules/common/README.md`
-- API Contract: `/modules/common/doc/CONTRACT.md`
-- Change History: `/modules/common/doc/CHANGELOG.md`
-- Testing Guide: `/doc/process/testing.md`
+## Safety
+- No business rules, persistence logic, or network calls inside this module.
+- Maintain backward compatible signatures; add wrappers when changing behavior.
+- Document deprecation plans in the changelog and PR summary.
+
+## References
+- `/modules/common/README.md`
+- `/modules/common/doc/CONTRACT.md`
+- `/modules/common/doc/CHANGELOG.md`
+
+Coverage targets and policies live in the contract; no extra version tag needed here.
 

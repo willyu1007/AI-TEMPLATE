@@ -1,12 +1,12 @@
 {
   "dashboard": {
-    "title": "应用监控仪表盘",
+    "title": "",
     "tags": ["app", "monitoring"],
     "timezone": "browser",
     "panels": [
       {
         "id": 1,
-        "title": "请求速率",
+        "title": "",
         "type": "graph",
         "targets": [
           {
@@ -23,12 +23,12 @@
       },
       {
         "id": 2,
-        "title": "错误率",
+        "title": "",
         "type": "graph",
         "targets": [
           {
             "expr": "rate(http_requests_total{status=~\"5..\"}[5m])",
-            "legendFormat": "错误请求"
+            "legendFormat": ""
           }
         ],
         "gridPos": {
@@ -40,12 +40,12 @@
       },
       {
         "id": 3,
-        "title": "请求延迟 (P95)",
+        "title": " (P95)",
         "type": "graph",
         "targets": [
           {
             "expr": "histogram_quantile(0.95, http_request_duration_seconds_bucket)",
-            "legendFormat": "P95 延迟"
+            "legendFormat": "P95 "
           }
         ],
         "gridPos": {
@@ -57,12 +57,12 @@
       },
       {
         "id": 4,
-        "title": "活跃连接数",
+        "title": "",
         "type": "graph",
         "targets": [
           {
             "expr": "active_connections",
-            "legendFormat": "活跃连接"
+            "legendFormat": ""
           }
         ],
         "gridPos": {
