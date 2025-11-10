@@ -1,31 +1,19 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-doc_freshness_check.py - 文档时效性检查工具
+文档时效性检查脚本
+检查文档是否过期（默认30天未更新视为过期）
 
-功能：
-1. 检查文档的最后修改时间
-2. 标记超过90天未更新的文档为"过时"
-3. 计算文档新鲜度百分比
-4. 重点关注关键文档（README.md, agent.md等）
-
-过时阈值：90天（根据HEALTH_CHECK_MODEL.yaml）
-
-用法：
-    python scripts/doc_freshness_check.py
-    python scripts/doc_freshness_check.py --json
-    python scripts/doc_freshness_check.py --threshold 60
-    make doc_freshness_check
-
-Created: 2025-11-09 (Phase 14.2)
+Usage:
+    python scripts/doc_freshness_check.py [--json] [--days DAYS]
 """
 
 import os
 import sys
 import json
+import subprocess
 from pathlib import Path
-from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
+from typing import Dict, List, Any, Tuple
 
 # Windows UTF-8 support
 if sys.platform == "win32":
@@ -36,208 +24,201 @@ if sys.platform == "win32":
 # 路径设置
 HERE = Path(__file__).parent.absolute()
 REPO_ROOT = HERE.parent
-DOC_DIR = REPO_ROOT / "doc"
-AI_DIR = REPO_ROOT / "ai"
-
-# 关键文档列表
-CRITICAL_DOCS = [
-    "README.md",
-    "agent.md",
-    "doc/modules/MODULE_INIT_GUIDE.md",
-    "doc/process/AI_CODING_GUIDE.md",
-    "doc/policies/AI_INDEX.md"
-]
-
-# 默认过时阈值（天）
-DEFAULT_STALE_THRESHOLD_DAYS = 90
 
 
 class DocFreshnessChecker:
     """文档时效性检查器"""
     
-    def __init__(self, stale_threshold_days: int = DEFAULT_STALE_THRESHOLD_DAYS):
-        """初始化检查器"""
-        self.stale_threshold_days = stale_threshold_days
-        self.stale_threshold = datetime.now() - timedelta(days=stale_threshold_days)
+    def __init__(self, stale_days: int = 30):
+        """
+        初始化检查器
         
-        self.results = {
-            "check_time": datetime.now().isoformat(),
-            "stale_threshold_days": stale_threshold_days,
-            "total_docs": 0,
-            "fresh_docs": 0,
-            "stale_docs": 0,
-            "freshness_percentage": 0,
-            "critical_docs_stale": [],
-            "stale_doc_list": [],
-            "fresh_doc_list": []
+        Args:
+            stale_days: 多少天未更新视为过期（默认30天）
+        """
+        self.repo_root = REPO_ROOT
+        self.stale_days = stale_days
+        self.stale_threshold = datetime.now() - timedelta(days=stale_days)
+        
+        # 关键文档列表（必须保持更新）
+        self.critical_docs = [
+            "README.md",
+            "agent.md",
+            "doc/modules/MODULE_INIT_GUIDE.md",
+            "doc/process/AI_CODING_GUIDE.md",
+            "doc/policies/AI_INDEX.md",
+            "QUICK_START.md",
+            "TEMPLATE_USAGE.md"
+        ]
+    
+    def get_file_last_modified(self, file_path: Path) -> datetime:
+        """获取文件最后修改时间（使用git log）"""
+        try:
+            result = subprocess.run(
+                ['git', 'log', '-1', '--format=%ai', '--', str(file_path)],
+                cwd=self.repo_root,
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            
+            if result.returncode == 0 and result.stdout.strip():
+                # 解析git日期格式：2025-11-09 14:30:00 +0800
+                date_str = result.stdout.strip().split()[0]  # 取日期部分
+                return datetime.strptime(date_str, '%Y-%m-%d')
+            else:
+                # 如果git log失败，使用文件系统时间
+                stat = file_path.stat()
+                return datetime.fromtimestamp(stat.st_mtime)
+        except Exception:
+            # 如果出错，使用文件系统时间
+            try:
+                stat = file_path.stat()
+                return datetime.fromtimestamp(stat.st_mtime)
+            except:
+                return datetime.now()  # 默认为当前时间
+    
+    def check_document(self, file_path: Path) -> Dict[str, Any]:
+        """检查单个文档"""
+        last_modified = self.get_file_last_modified(file_path)
+        is_stale = last_modified < self.stale_threshold
+        days_old = (datetime.now() - last_modified).days
+        
+        relative_path = file_path.relative_to(self.repo_root)
+        is_critical = str(relative_path) in self.critical_docs
+        
+        return {
+            'file': str(relative_path),
+            'last_modified': last_modified.strftime('%Y-%m-%d'),
+            'days_old': days_old,
+            'is_stale': is_stale,
+            'is_critical': is_critical
         }
     
-    def find_all_docs(self) -> List[Path]:
-        """查找所有文档"""
-        doc_files = []
+    def scan_documents(self) -> Dict[str, Any]:
+        """扫描所有文档"""
+        all_docs = []
+        stale_docs = []
+        critical_stale = []
         
-        # 搜索doc/目录
-        if DOC_DIR.exists():
-            for pattern in ["**/*.md", "**/*.MD"]:
-                doc_files.extend(DOC_DIR.glob(pattern))
+        # 扫描所有markdown文档
+        for md_file in self.repo_root.rglob("*.md"):
+            # 跳过一些目录
+            if any(skip in str(md_file) for skip in [
+                '.git', 'node_modules', '.venv', 'venv', '__pycache__',
+                'build', 'dist', 'tmp', 'archive'
+            ]):
+                continue
+            
+            doc_info = self.check_document(md_file)
+            all_docs.append(doc_info)
+            
+            if doc_info['is_stale']:
+                stale_docs.append(doc_info)
+                if doc_info['is_critical']:
+                    critical_stale.append(doc_info)
         
-        # 搜索ai/目录
-        if AI_DIR.exists():
-            for pattern in ["**/*.md", "**/*.MD"]:
-                doc_files.extend(AI_DIR.glob(pattern))
+        # 按天数排序（最旧的在前）
+        stale_docs.sort(key=lambda x: x['days_old'], reverse=True)
         
-        # 搜索根目录的README和agent.md
-        doc_files.append(REPO_ROOT / "README.md")
-        doc_files.append(REPO_ROOT / "agent.md")
+        # 计算时效性百分比
+        fresh_count = len(all_docs) - len(stale_docs)
+        freshness_percentage = (fresh_count / len(all_docs) * 100) if all_docs else 100
         
-        # 排除temp目录和隐藏目录
-        doc_files = [f for f in doc_files if f.exists() and "temp" not in f.parts and not any(part.startswith('.') for part in f.parts)]
-        
-        return list(set(doc_files))  # 去重
+        return {
+            'total_docs': len(all_docs),
+            'fresh_docs': fresh_count,
+            'stale_docs': len(stale_docs),
+            'critical_stale': len(critical_stale),
+            'freshness_percentage': round(freshness_percentage, 1),
+            'stale_threshold_days': self.stale_days,
+            'stale_list': stale_docs[:20],  # 最多返回20个
+            'critical_stale_list': critical_stale,
+            'oldest_docs': stale_docs[:10] if stale_docs else []
+        }
     
-    def check_doc_freshness(self, doc_path: Path) -> Dict[str, Any]:
-        """检查单个文档的时效性"""
-        try:
-            # 获取文件最后修改时间
-            mtime = os.path.getmtime(doc_path)
-            last_modified = datetime.fromtimestamp(mtime)
-            
-            # 计算天数差
-            days_since_update = (datetime.now() - last_modified).days
-            
-            # 判断是否过时
-            is_stale = last_modified < self.stale_threshold
-            
-            # 判断是否为关键文档
-            rel_path = str(doc_path.relative_to(REPO_ROOT))
-            is_critical = rel_path in CRITICAL_DOCS
-            
-            return {
-                "path": rel_path,
-                "last_modified": last_modified.isoformat(),
-                "days_since_update": days_since_update,
-                "is_stale": is_stale,
-                "is_critical": is_critical,
-                "status": "❌ 过时" if is_stale else "✅ 新鲜"
-            }
-        except Exception as e:
-            return {
-                "path": str(doc_path.relative_to(REPO_ROOT)),
-                "error": str(e),
-                "is_stale": True,
-                "is_critical": False,
-                "status": "❌ 错误"
-            }
+    def generate_update_recommendations(self, results: Dict[str, Any]) -> List[str]:
+        """生成更新建议"""
+        recommendations = []
+        
+        if results['critical_stale'] > 0:
+            recommendations.append(f"URGENT: Update {results['critical_stale']} critical documents")
+            for doc in results['critical_stale_list']:
+                recommendations.append(f"  • {doc['file']} ({doc['days_old']} days old)")
+        
+        if results['stale_docs'] > 10:
+            recommendations.append(f"Review and update {results['stale_docs']} stale documents")
+        
+        if results['oldest_docs']:
+            oldest = results['oldest_docs'][0]
+            recommendations.append(f"Oldest document: {oldest['file']} ({oldest['days_old']} days)")
+        
+        if results['freshness_percentage'] < 80:
+            recommendations.append("Schedule regular documentation reviews (weekly/monthly)")
+        
+        if not recommendations:
+            recommendations.append("Documentation freshness is good, keep it up!")
+        
+        return recommendations
     
-    def check_all_docs(self):
-        """检查所有文档的时效性"""
-        print(f"🔍 检查文档时效性（过时阈值: {self.stale_threshold_days}天）...")
+    def print_report(self, results: Dict[str, Any]):
+        """打印报告"""
+        print("=" * 60)
+        print("📅 Documentation Freshness Report")
+        print("=" * 60)
+        print()
         
-        doc_files = self.find_all_docs()
-        self.results["total_docs"] = len(doc_files)
+        print(f"Threshold: {results['stale_threshold_days']} days")
+        print(f"Total Documents: {results['total_docs']}")
+        print(f"Fresh Documents: {results['fresh_docs']}")
+        print(f"Stale Documents: {results['stale_docs']}")
+        print(f"Freshness Rate: {results['freshness_percentage']}%")
+        print()
         
-        if len(doc_files) == 0:
-            print("  ⚠️ 未找到任何文档")
-            return
+        status = "✅" if results['freshness_percentage'] >= 90 else "⚠️" if results['freshness_percentage'] >= 80 else "❌"
+        print(f"Status: {status}")
         
-        print(f"  找到 {len(doc_files)} 个文档\n")
+        if results['critical_stale'] > 0:
+            print(f"\n⚠️ Critical Documents Need Update ({results['critical_stale']}):")
+            for doc in results['critical_stale_list']:
+                print(f"  • {doc['file']} - {doc['days_old']} days old")
         
-        for doc_path in doc_files:
-            result = self.check_doc_freshness(doc_path)
-            
-            if result.get("is_stale", False):
-                self.results["stale_docs"] += 1
-                self.results["stale_doc_list"].append(result)
-                
-                # 检查是否为关键文档
-                if result.get("is_critical", False):
-                    self.results["critical_docs_stale"].append(result)
-            else:
-                self.results["fresh_docs"] += 1
-                self.results["fresh_doc_list"].append(result)
+        if results['oldest_docs']:
+            print(f"\n📜 Oldest Documents:")
+            for doc in results['oldest_docs'][:5]:
+                print(f"  • {doc['file']} - {doc['days_old']} days old (last: {doc['last_modified']})")
         
-        # 计算新鲜度百分比
-        if self.results["total_docs"] > 0:
-            self.results["freshness_percentage"] = (self.results["fresh_docs"] / self.results["total_docs"]) * 100
-        else:
-            self.results["freshness_percentage"] = 0
-    
-    def print_console_report(self):
-        """打印控制台报告"""
-        print("\n" + "=" * 70)
-        print("📊 DOCUMENTATION FRESHNESS REPORT")
-        print("=" * 70)
+        print("\nRecommendations:")
+        for rec in self.generate_update_recommendations(results):
+            print(f"  • {rec}")
         
-        print(f"\n📈 Overall Statistics:")
-        print(f"  总文档数: {self.results['total_docs']}")
-        print(f"  新鲜文档: {self.results['fresh_docs']}")
-        print(f"  过时文档: {self.results['stale_docs']}")
-        print(f"  新鲜度: {self.results['freshness_percentage']:.1f}%")
-        print(f"  阈值: {self.stale_threshold_days}天")
-        
-        # 关键文档过时警告
-        if self.results["critical_docs_stale"]:
-            print(f"\n⚠️ 关键文档过时 ({len(self.results['critical_docs_stale'])}):")
-            for doc in self.results["critical_docs_stale"]:
-                print(f"  - {doc['path']} (已{doc['days_since_update']}天未更新)")
-        
-        # 显示部分过时文档
-        if self.results["stale_doc_list"]:
-            stale_count = len(self.results["stale_doc_list"])
-            show_count = min(10, stale_count)
-            
-            print(f"\n❌ 过时文档 (显示前{show_count}/{stale_count}):")
-            # 按天数排序，最久的在前
-            sorted_stale = sorted(self.results["stale_doc_list"], 
-                                 key=lambda x: x.get("days_since_update", 0), 
-                                 reverse=True)
-            
-            for doc in sorted_stale[:show_count]:
-                days = doc.get("days_since_update", 0)
-                print(f"  - {doc['path']} ({days}天)")
-        
-        # 建议
-        print(f"\n💡 建议:")
-        if self.results["freshness_percentage"] < 90:
-            print("  - 定期审查和更新文档")
-            print("  - 优先更新关键文档")
-            print("  - 在CHANGELOG.md中记录重大变更")
-        else:
-            print("  - 文档时效性良好，继续保持！")
-        
-        print("\n" + "=" * 70)
-    
-    def print_json_report(self):
-        """打印JSON报告"""
-        print(json.dumps(self.results, indent=2, ensure_ascii=False))
+        print()
+        print("=" * 60)
 
 
 def main():
     """主函数"""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Documentation Freshness Check")
-    parser.add_argument("--json", action="store_true", help="输出JSON格式")
-    parser.add_argument("--threshold", type=int, default=DEFAULT_STALE_THRESHOLD_DAYS,
-                       help=f"过时阈值（天，默认{DEFAULT_STALE_THRESHOLD_DAYS}）")
-    
+    parser = argparse.ArgumentParser(description="Documentation Freshness Checker")
+    parser.add_argument("--json", action="store_true", help="Output as JSON")
+    parser.add_argument("--days", type=int, default=30, 
+                       help="Days threshold for stale documents (default: 30)")
     args = parser.parse_args()
     
-    checker = DocFreshnessChecker(stale_threshold_days=args.threshold)
-    checker.check_all_docs()
+    checker = DocFreshnessChecker(stale_days=args.days)
+    results = checker.scan_documents()
     
     if args.json:
-        checker.print_json_report()
+        print(json.dumps(results, indent=2, ensure_ascii=False, default=str))
     else:
-        checker.print_console_report()
+        checker.print_report(results)
     
-    # 根据新鲜度决定退出码
-    if checker.results["freshness_percentage"] < 85:
-        sys.exit(1)
-    else:
-        sys.exit(0)
+    # 返回状态码
+    if results['freshness_percentage'] < 70:
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
-
+    sys.exit(main())

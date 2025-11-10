@@ -133,6 +133,81 @@ def check_global_directories() -> Tuple[bool, List[str]]:
     return len(issues) == 0, issues
 
 
+def _check_app_directory(app_path: pathlib.Path) -> Tuple[bool, List[str]]:
+    """检查单个app目录的所有项目"""
+    all_issues = []
+    
+    # 检查目录结构
+    print("[2] 检查 app/ 目录结构...")
+    structure_ok, structure_issues = check_app_structure(app_path)
+    if structure_issues:
+        for issue in structure_issues:
+            print(f"  ⚠️  {issue}")
+            all_issues.append(issue)
+    else:
+        print(f"  ✓ 目录结构完整")
+    print()
+    
+    # 检查业务逻辑
+    print("[3] 检查 app/ 是否包含业务逻辑...")
+    logic_ok, logic_issues = check_business_logic_in_app(app_path)
+    if logic_issues:
+        for issue in logic_issues[:5]:  # 只显示前5个
+            print(f"  ⚠️  {issue}")
+        if len(logic_issues) > 5:
+            print(f"  ... 还有 {len(logic_issues) - 5} 个问题")
+        all_issues.extend(logic_issues)
+    else:
+        print(f"  ✓ 未发现业务逻辑")
+    print()
+    
+    # 检查路由引用
+    print("[4] 检查 app/ 路由配置...")
+    routes_ok, routes_issues = check_routes_reference_modules(app_path)
+    if routes_issues:
+        for issue in routes_issues:
+            print(f"  ⚠️  {issue}")
+            all_issues.append(issue)
+    else:
+        print(f"  ✓ 路由配置正确")
+    print()
+    
+    return len(all_issues) == 0, all_issues
+
+
+def _check_apps_directory() -> Tuple[bool, List[str]]:
+    """检查apps多应用目录"""
+    all_issues = []
+    
+    print("[2] 检查 apps/ 目录结构...")
+    for app_subdir in pathlib.Path('apps').iterdir():
+        if app_subdir.is_dir():
+            app_name = app_subdir.name
+            print(f"  检查应用: {app_name}")
+            structure_ok, structure_issues = check_app_structure(app_subdir)
+            if structure_issues:
+                for issue in structure_issues:
+                    print(f"    ⚠️  {issue}")
+                    all_issues.append(f"{app_name}: {issue}")
+            else:
+                print(f"    ✓ 目录结构完整")
+            
+            logic_ok, logic_issues = check_business_logic_in_app(app_subdir)
+            if logic_issues:
+                for issue in logic_issues[:3]:
+                    print(f"    ⚠️  {issue}")
+                all_issues.extend([f"{app_name}: {issue}" for issue in logic_issues])
+            
+            routes_ok, routes_issues = check_routes_reference_modules(app_subdir)
+            if routes_issues:
+                for issue in routes_issues:
+                    print(f"    ⚠️  {issue}")
+                    all_issues.append(f"{app_name}: {issue}")
+    print()
+    
+    return len(all_issues) == 0, all_issues
+
+
 def main():
     """主函数"""
     print("检查应用层结构...\n")
@@ -151,66 +226,15 @@ def main():
         print(f"  ✓ 互斥性检查通过")
     print()
     
-    # 2. 检查目录结构
+    # 2-4. 检查app或apps目录
     if app_exists:
-        print("[2] 检查 app/ 目录结构...")
-        structure_ok, structure_issues = check_app_structure(pathlib.Path('app'))
-        if structure_issues:
-            for issue in structure_issues:
-                print(f"  ⚠️  {issue}")
-        else:
-            print(f"  ✓ 目录结构完整")
-        print()
-        
-        # 3. 检查业务逻辑
-        print("[3] 检查 app/ 是否包含业务逻辑...")
-        logic_ok, logic_issues = check_business_logic_in_app(pathlib.Path('app'))
-        if logic_issues:
-            for issue in logic_issues[:5]:  # 只显示前5个
-                print(f"  ⚠️  {issue}")
-            if len(logic_issues) > 5:
-                print(f"  ... 还有 {len(logic_issues) - 5} 个问题")
+        app_ok, app_issues = _check_app_directory(pathlib.Path('app'))
+        if not app_ok:
             all_passed = False
-        else:
-            print(f"  ✓ 未发现业务逻辑")
-        print()
-        
-        # 4. 检查路由引用
-        print("[4] 检查 app/ 路由配置...")
-        routes_ok, routes_issues = check_routes_reference_modules(pathlib.Path('app'))
-        if routes_issues:
-            for issue in routes_issues:
-                print(f"  ⚠️  {issue}")
-            all_passed = False
-        else:
-            print(f"  ✓ 路由配置正确")
-        print()
-    
     elif apps_exists:
-        print("[2] 检查 apps/ 目录结构...")
-        for app_subdir in pathlib.Path('apps').iterdir():
-            if app_subdir.is_dir():
-                app_name = app_subdir.name
-                print(f"  检查应用: {app_name}")
-                structure_ok, structure_issues = check_app_structure(app_subdir)
-                if structure_issues:
-                    for issue in structure_issues:
-                        print(f"    ⚠️  {issue}")
-                else:
-                    print(f"    ✓ 目录结构完整")
-                
-                logic_ok, logic_issues = check_business_logic_in_app(app_subdir)
-                if logic_issues:
-                    for issue in logic_issues[:3]:
-                        print(f"    ⚠️  {issue}")
-                    all_passed = False
-                
-                routes_ok, routes_issues = check_routes_reference_modules(app_subdir)
-                if routes_issues:
-                    for issue in routes_issues:
-                        print(f"    ⚠️  {issue}")
-                    all_passed = False
-        print()
+        apps_ok, apps_issues = _check_apps_directory()
+        if not apps_ok:
+            all_passed = False
     
     # 5. 检查全局目录
     print("[5] 检查全局目录位置...")

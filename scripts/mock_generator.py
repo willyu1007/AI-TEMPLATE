@@ -207,6 +207,83 @@ def read_table_yaml(repo_root: Path, table_name: str) -> Optional[Dict]:
         return None
 
 
+def _generate_uuid() -> str:
+    """生成UUID"""
+    return str(uuid.uuid4())
+
+
+def _generate_faker_value(faker: Any, column_def: Dict, generator: str) -> Any:
+    """使用Faker生成值"""
+    faker_method = generator.replace('faker.', '')
+    try:
+        faker_func = getattr(faker, faker_method)
+        params = column_def.get('params', {})
+        
+        # 特殊参数处理
+        special_handlers = {
+            'sentence': lambda: faker_func(nb_words=column_def.get('nb_words', column_def.get('max_words', 10))),
+            'random_int': lambda: faker_func(
+                min=column_def.get('min', params.get('min', 0)),
+                max=column_def.get('max', params.get('max', 100))
+            ),
+            'date_time_between': lambda: faker_func(
+                start_date=column_def.get('start_date', params.get('start_date', '-30d')),
+                end_date=column_def.get('end_date', params.get('end_date', 'now'))
+            )
+        }
+        
+        if faker_method in special_handlers:
+            return special_handlers[faker_method]()
+        else:
+            return faker_func(**params)
+    except AttributeError:
+        print(f"{YELLOW}⚠ Faker不支持方法: {faker_method}，使用默认值{RESET}")
+        return None
+
+
+def _generate_choice_value(faker: Any, column_def: Dict) -> Any:
+    """生成枚举/选择值"""
+    choices = column_def.get('choices', column_def.get('values', []))
+    weights = column_def.get('weights', None)
+    
+    if choices:
+        if weights:
+            import random
+            return random.choices(choices, weights=weights, k=1)[0]
+        else:
+            return faker.random_element(elements=choices)
+    return None
+
+
+def _generate_default_value_by_type(faker: Any, col_type: str, column_def: Dict) -> Any:
+    """根据类型生成默认值"""
+    type_generators = {
+        'string': lambda: faker.text(max_nb_chars=column_def.get('max_length', 50)),
+        'text': lambda: faker.text(max_nb_chars=column_def.get('max_length', 50)),
+        'integer': lambda: faker.random_int(
+            min=column_def.get('min', 0),
+            max=column_def.get('max', 1000)
+        ),
+        'int': lambda: faker.random_int(
+            min=column_def.get('min', 0),
+            max=column_def.get('max', 1000)
+        ),
+        'float': lambda: round(faker.random.uniform(0, 1000), 2),
+        'decimal': lambda: round(faker.random.uniform(0, 1000), 2),
+        'boolean': lambda: faker.boolean(),
+        'bool': lambda: faker.boolean(),
+        'uuid': lambda: _generate_uuid(),
+        'datetime': lambda: faker.date_time_between(start_date='-30d', end_date='now'),
+        'timestamp': lambda: faker.date_time_between(start_date='-30d', end_date='now'),
+        'date': lambda: faker.date_between(start_date='-30d', end_date='today'),
+        'json': lambda: json.dumps({'key': faker.word(), 'value': faker.word()}),
+        'jsonb': lambda: json.dumps({'key': faker.word(), 'value': faker.word()}),
+    }
+    
+    generator = type_generators.get(col_type, lambda: faker.word())
+    return generator()
+
+
 def generate_value(faker: Any, column_def: Dict, table_def: Optional[Dict] = None) -> Any:
     """
     根据列定义生成值
@@ -222,72 +299,28 @@ def generate_value(faker: Any, column_def: Dict, table_def: Optional[Dict] = Non
     col_type = column_def.get('type', 'string')
     generator = column_def.get('generator', None)
     
-    # 特殊生成器
-    if generator == 'uuid4':
-        return str(uuid.uuid4())
-    
-    # Faker生成器
-    if generator and generator.startswith('faker.'):
-        faker_method = generator.replace('faker.', '')
-        try:
-            faker_func = getattr(faker, faker_method)
-            params = column_def.get('params', {})
-            
-            # 特殊参数处理
-            if faker_method == 'sentence':
-                nb_words = column_def.get('nb_words', column_def.get('max_words', 10))
-                return faker_func(nb_words=nb_words)
-            elif faker_method == 'random_int':
-                min_val = column_def.get('min', params.get('min', 0))
-                max_val = column_def.get('max', params.get('max', 100))
-                return faker_func(min=min_val, max=max_val)
-            elif faker_method == 'date_time_between':
-                start_date = column_def.get('start_date', params.get('start_date', '-30d'))
-                end_date = column_def.get('end_date', params.get('end_date', 'now'))
-                return faker_func(start_date=start_date, end_date=end_date)
-            else:
-                return faker_func(**params)
-        except AttributeError:
-            print(f"{YELLOW}⚠ Faker不支持方法: {faker_method}，使用默认值{RESET}")
-    
-    # Enum/Choice生成器
-    if generator == 'choice' or col_type == 'enum':
-        choices = column_def.get('choices', column_def.get('values', []))
-        weights = column_def.get('weights', None)
-        
-        if choices:
-            if weights:
-                import random
-                return random.choices(choices, weights=weights, k=1)[0]
-            else:
-                return faker.random_element(elements=choices)
-    
-    # 固定值
+    # 固定值优先级最高
     if 'value' in column_def:
         return column_def['value']
     
+    # 特殊生成器
+    if generator == 'uuid4':
+        return _generate_uuid()
+    
+    # Faker生成器
+    if generator and generator.startswith('faker.'):
+        result = _generate_faker_value(faker, column_def, generator)
+        if result is not None:
+            return result
+    
+    # Enum/Choice生成器
+    if generator == 'choice' or col_type == 'enum':
+        result = _generate_choice_value(faker, column_def)
+        if result is not None:
+            return result
+    
     # 根据类型生成默认值
-    if col_type == 'string' or col_type == 'text':
-        max_length = column_def.get('max_length', 50)
-        return faker.text(max_nb_chars=max_length)
-    elif col_type == 'integer' or col_type == 'int':
-        min_val = column_def.get('min', 0)
-        max_val = column_def.get('max', 1000)
-        return faker.random_int(min=min_val, max=max_val)
-    elif col_type == 'float' or col_type == 'decimal':
-        return round(faker.random.uniform(0, 1000), 2)
-    elif col_type == 'boolean' or col_type == 'bool':
-        return faker.boolean()
-    elif col_type == 'uuid':
-        return str(uuid.uuid4())
-    elif col_type == 'datetime' or col_type == 'timestamp':
-        return faker.date_time_between(start_date='-30d', end_date='now')
-    elif col_type == 'date':
-        return faker.date_between(start_date='-30d', end_date='today')
-    elif col_type == 'json' or col_type == 'jsonb':
-        return json.dumps({'key': faker.word(), 'value': faker.word()})
-    else:
-        return faker.word()
+    return _generate_default_value_by_type(faker, col_type, column_def)
 
 
 def generate_mock_data(

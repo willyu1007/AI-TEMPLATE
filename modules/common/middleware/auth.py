@@ -5,8 +5,10 @@
 注意：此实现为示例，实际项目应使用 JWT、OAuth2 等标准认证方案。
 """
 
-from typing import Optional, Callable, Any
+from typing import Optional, Callable, Any, Dict, List
 from functools import wraps
+import hashlib
+import time
 
 
 def get_current_user(token: Optional[str] = None) -> Optional[dict]:
@@ -68,4 +70,124 @@ def require_auth(func: Callable) -> Callable:
         return func(*args, **kwargs)
     
     return wrapper
+
+
+class AuthMiddleware:
+    """认证授权中间件"""
+    
+    def __init__(self):
+        """初始化认证中间件"""
+        self.last_validated = None
+        self.permissions = []
+        self.token_cache = {}
+    
+    def validate_token(self, token: str) -> bool:
+        """
+        验证token有效性
+        
+        Args:
+            token: Bearer token字符串
+            
+        Returns:
+            bool: token是否有效
+        """
+        if not token or not token.startswith("Bearer "):
+            return False
+        
+        # 检查token是否过期（简化实现）
+        if "expired" in token:
+            return False
+        
+        # 记录最后验证的token
+        self.last_validated = token
+        
+        # 缓存验证结果
+        self.token_cache[token] = True
+        
+        return True
+    
+    def extract_user(self, token: str) -> Optional[Dict[str, Any]]:
+        """
+        从token中提取用户信息
+        
+        Args:
+            token: Bearer token字符串
+            
+        Returns:
+            用户信息字典或None
+        """
+        if not self.validate_token(token):
+            return None
+        
+        # 简化实现：从token中提取用户ID
+        token_parts = token.split("_")
+        if len(token_parts) >= 2 and "user" in token_parts[1]:
+            user_id = token_parts[1].replace("user", "")
+            return {
+                'user_id': user_id or '123',
+                'permissions': ['read', 'write'],
+                'role': 'user'
+            }
+        
+        return {
+            'user_id': 'anonymous',
+            'permissions': ['read'],
+            'role': 'guest'
+        }
+    
+    def set_permissions(self, permissions: List[str]):
+        """
+        设置用户权限
+        
+        Args:
+            permissions: 权限列表
+        """
+        self.permissions = permissions
+    
+    def check_permission(self, permission: str) -> bool:
+        """
+        检查是否有指定权限
+        
+        Args:
+            permission: 需要检查的权限
+            
+        Returns:
+            bool: 是否有该权限
+        """
+        return permission in self.permissions
+    
+    def refresh_token(self, old_token: str) -> Optional[str]:
+        """
+        刷新token
+        
+        Args:
+            old_token: 旧的token
+            
+        Returns:
+            新的token或None
+        """
+        if not old_token or not old_token.startswith("Bearer "):
+            return None
+        
+        # 生成新token（简化实现）
+        timestamp = str(int(time.time()))
+        new_suffix = hashlib.md5(f"{old_token}_{timestamp}".encode()).hexdigest()[:8]
+        new_token = f"Bearer refreshed_{new_suffix}_token"
+        
+        # 缓存新token
+        self.token_cache[new_token] = True
+        
+        return new_token
+    
+    def logout(self, token: str):
+        """
+        登出，使token失效
+        
+        Args:
+            token: 要失效的token
+        """
+        if token in self.token_cache:
+            del self.token_cache[token]
+        self.last_validated = None
+        self.permissions = []
 

@@ -1,8 +1,8 @@
 ---
-audience: ai
+audience: both
 language: zh
-version: summary
-purpose: ⚠️ To be translated to English
+version: full
+note: English version available at goals-en.md
 ---
 # 全局目标与设计原则
 

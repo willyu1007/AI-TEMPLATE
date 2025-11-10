@@ -89,10 +89,22 @@
 |------|------|------|------|
 | validate.sh | 完整验证流程（7个检查） | `make validate` | ✅ 已有 |
 
+### 代码质量与重构（Phase 14.3新增）
+| 脚本 | 功能 | 命令 |
+|------|------|------|
+| base_lint.py | 统一的Lint基础框架 | 其他lint脚本继承使用 |
+| refactor_suggest.py | 代码重构建议工具 | `make refactor_suggest` |
+| test_coverage_check.py | 测试覆盖率检查 | `make test_coverage` |
+| complexity_check.py | 代码复杂度分析 | `make complexity_check` |
+| ai_friendliness_check.py | AI友好度检查 | `make ai_friendliness_check` |
+| secret_scan.py | 敏感信息扫描 | `make secret_scan` |
+| observability_check.py | 可观测性检查 | `make observability_check` |
+
 ### 内部工具（不直接调用）
 | 脚本 | 功能 | 被谁调用 |
 |------|------|---------|
 | encoding_check.py | 文件编码检查 | doc_style_check.py内部调用 |
+| base_lint.py | 统一Lint基础类 | agent_lint.py等继承使用 |
 
 ---
 

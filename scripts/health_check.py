@@ -46,7 +46,7 @@ if sys.platform == "win32":
 # 路径设置
 HERE = Path(__file__).parent.absolute()
 REPO_ROOT = HERE.parent
-MODEL_PATH = REPO_ROOT / "doc" / "process" / "HEALTH_CHECK_MODEL.yaml"
+MODEL_PATH = REPO_ROOT / "doc_agent" / "specs" / "HEALTH_CHECK_MODEL.yaml"
 HISTORY_PATH = REPO_ROOT / "ai" / "maintenance_reports" / "health-history.json"
 
 
@@ -178,39 +178,81 @@ class HealthCheckEngine:
     
     def _check_test_coverage(self, metric_config: Dict) -> Dict:
         """检查测试覆盖率"""
-        # 目前没有真实的测试覆盖率工具，返回占位符
-        # TODO: 实现真实的测试覆盖率检查
-        coverage = 0  # 假设当前没有测试
-        
-        scoring = metric_config["scoring"]
-        score = self._calculate_score_from_threshold(coverage, scoring, reverse=False)
-        
-        return {
-            "name": "Test Coverage",
-            "value": coverage,
-            "unit": "%",
-            "score": score,
-            "max_score": metric_config["max_points"],
-            "status": "⚠️" if coverage >= 50 else "❌",
-            "note": "需要配置测试覆盖率工具"
-        }
+        try:
+            result = subprocess.run(
+                ["python3", "scripts/test_coverage_check.py", "--json"],
+                cwd=REPO_ROOT,
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            
+            if result.returncode == 0:
+                data = json.loads(result.stdout)
+                coverage = data.get("total_coverage", 0)
+            else:
+                coverage = 0
+            
+            scoring = metric_config["scoring"]
+            score = self._calculate_score_from_threshold(coverage, scoring, reverse=False)
+            
+            return {
+                "name": "Test Coverage",
+                "value": coverage,
+                "unit": "%",
+                "score": score,
+                "max_score": metric_config["max_points"],
+                "status": "✅" if coverage >= 80 else ("⚠️" if coverage >= 60 else "❌")
+            }
+        except Exception as e:
+            return {
+                "name": "Test Coverage",
+                "value": 0,
+                "unit": "%",
+                "score": 0,
+                "max_score": metric_config["max_points"],
+                "status": "❌",
+                "error": str(e)
+            }
     
     def _check_code_complexity(self, metric_config: Dict) -> Dict:
         """检查代码复杂度"""
-        # TODO: 实现真实的复杂度检查（可以用radon等工具）
-        avg_complexity = 15  # 假设平均复杂度15（良好）
-        
-        scoring = metric_config["scoring"]
-        score = self._calculate_score_from_threshold(avg_complexity, scoring, reverse=True)
-        
-        return {
-            "name": "Code Complexity",
-            "value": avg_complexity,
-            "unit": "avg",
-            "score": score,
-            "max_score": metric_config["max_points"],
-            "status": "✅" if avg_complexity <= 15 else "⚠️"
-        }
+        try:
+            result = subprocess.run(
+                ["python3", "scripts/complexity_check.py", "--json"],
+                cwd=REPO_ROOT,
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+            
+            if result.returncode == 0:
+                data = json.loads(result.stdout)
+                avg_complexity = data.get("overall_avg_complexity", 15)
+            else:
+                avg_complexity = 15
+            
+            scoring = metric_config["scoring"]
+            score = self._calculate_score_from_threshold(avg_complexity, scoring, reverse=True)
+            
+            return {
+                "name": "Code Complexity",
+                "value": avg_complexity,
+                "unit": "avg",
+                "score": score,
+                "max_score": metric_config["max_points"],
+                "status": "✅" if avg_complexity <= 15 else ("⚠️" if avg_complexity <= 20 else "❌")
+            }
+        except Exception as e:
+            return {
+                "name": "Code Complexity",
+                "value": 15,
+                "unit": "avg",
+                "score": 3,
+                "max_score": metric_config["max_points"],
+                "status": "⚠️",
+                "error": str(e)
+            }
     
     def _check_type_safety(self, metric_config: Dict) -> Dict:
         """检查类型安全"""

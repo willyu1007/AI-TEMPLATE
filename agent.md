@@ -4,15 +4,15 @@ agent_id: "repo"
 role: "root level orchestrator, improve AI development efficiency"
 
 policies:
-  goals_ref: /doc/policies/goals.md
-  safety_ref: /doc/policies/safety.md
-  roles_ref: /doc/policies/roles.md
+  goals_ref: /doc_agent/policies/goals.md
+  safety_ref: /doc_agent/policies/safety.md
+  roles_ref: /doc_agent/policies/roles.md
 
 merge_strategy: "child_overrides_parent"
 
 context_routes:
   always_read:
-    - /doc/policies/AI_INDEX.md
+    - /doc_agent/index/AI_INDEX.md
   on_demand:
     - topic: "Project Overview"
       priority: high
@@ -21,16 +21,16 @@ context_routes:
     - topic: "Full Objectives and Principles"
       priority: high
       paths:
-        - /doc/policies/goals-en.md
-        - /doc/policies/safety-en.md
+        - /doc_agent/policies/goals.md
+        - /doc_agent/policies/safety.md
     - topic: "Documentation Roles and Responsibilities"
       priority: high
       paths:
-        - /doc/policies/DOC_ROLES-en.md
+        - /doc_agent/policies/DOC_ROLES.md
     - topic: "Documentation Writing Standards"
       priority: medium
       paths:
-        - /doc/process/DOC_WRITING_STANDARDS.md
+        - /doc_human/guides/DOC_WRITING_STANDARDS.md
     - topic: "Contract Management"
       priority: medium
       paths:
@@ -38,12 +38,16 @@ context_routes:
     - topic: "Directory Structure"
       priority: medium
       paths:
-        - /doc/architecture/directory.md
+        - /doc_human/architecture/directory.md
     - topic: "Security and Quality Standards"
       priority: medium
       paths:
-        - /doc/policies/security.md
-        - /doc/policies/quality.md
+        - /doc_agent/policies/security.md
+        - /doc_agent/policies/quality.md
+    - topic: "Temporary Files Management"
+      priority: high
+      paths:
+        - /doc_human/policies/TEMP_FILES_POLICY.md
     - topic: "Common Module Usage"
       priority: high
       paths:
@@ -52,65 +56,65 @@ context_routes:
     - topic: "Database Operations"
       priority: high
       paths:
-        - /doc/db/DB_SPEC.yaml
-        - /doc/db/SCHEMA_GUIDE.md
+        - /doc_agent/specs/DB_SPEC.yaml
+        - /doc_human/guides/SCHEMA_GUIDE.md
         - /db/engines/README.md
     - topic: "Database Changes"
       priority: high
       paths:
-        - /doc/process/DB_CHANGE_GUIDE.md
+        - /doc_human/guides/DB_CHANGE_GUIDE.md
         - /db/engines/postgres/schemas/tables/runs.yaml
         - /db/engines/postgres/docs/DB_SPEC.yaml
     - topic: "Module Development"
       priority: high
       paths:    
-        - /doc/modules/MODULE_TYPES.md
-        - /doc/modules/MODULE_TYPE_CONTRACTS.yaml
-        - /doc/modules/MODULE_INSTANCES.md
-        - /doc/modules/MODULE_INIT_GUIDE.md
-        - /doc/modules/example/README.md
+        - /doc_agent/specs/MODULE_TYPES.md
+        - /doc_agent/specs/MODULE_TYPE_CONTRACTS.yaml
+        - /doc_human/guides/MODULE_INSTANCES.md
+        - /doc_agent/quickstart/module-init.md
+        - /doc_human/examples/module-example/README.md
     - topic: "Configuration Management"
       priority: high
       paths:
         - /config/AI_GUIDE.md
-        - /doc/process/CONFIG_GUIDE.md
+        - /doc_human/guides/CONFIG_GUIDE.md
     - topic: "Testing Standards"
       priority: medium
       paths:
-        - /doc/process/testing.md
+        - /doc_agent/coding/TEST_STANDARDS.md
     - topic: "Commit and PR Workflow"
       priority: low
       audience: human
       paths:
-        - /doc/process/pr_workflow.md
+        - /doc_human/reference/pr_workflow.md
     - topic: "Intelligent Trigger System"
       priority: medium
       paths:
-        - /doc/orchestration/agent-triggers.yaml
-        - /doc/orchestration/triggers-guide.md
+        - /doc_agent/orchestration/agent-triggers.yaml
+        - /doc_human/guides/triggers-guide.md
     - topic: "Workdocs Task Management"
       priority: high
       paths:
-        - /doc/process/workdocs-quickstart.md
+        - /doc_agent/quickstart/workdocs-quickstart.md
     - topic: "Guardrail Protection Mechanism"
       priority: high
       paths:
-        - /doc/process/guardrail-quickstart.md
+        - /doc_agent/quickstart/guardrail-quickstart.md
     - topic: "Mock Data Generation"
       priority: medium
       paths:
-        - /doc/process/MOCK_RULES.md
-        - /doc/process/TEST_DATA_STRATEGY.md
+        - /doc_agent/coding/MOCK_RULES.md
+        - /doc_human/guides/TEST_DATA_STRATEGY.md
     - topic: "AI Coding Standards"
       priority: high
       paths:
-        - /doc/process/AI_CODING_GUIDE.md
+        - /doc_agent/coding/AI_CODING_GUIDE.md
     - topic: "Comprehensive Development Standards"
       priority: low
       audience: human
       skip_for_ai: true
       paths:
-        - /doc/process/CONVENTIONS.md
+        - /doc_human/guides/CONVENTIONS.md
     - topic: "Workflow Patterns"
       priority: high
       paths:
@@ -119,12 +123,12 @@ context_routes:
     - topic: "Dataflow Analysis"
       priority: high
       paths:
-        - /doc/process/dataflow-quickstart.md
+        - /doc_agent/quickstart/dataflow-quickstart.md
     - topic: "Repository Health Check"
       priority: medium
       paths:
         - /ai/maintenance_reports/health-summary.md
-        - /doc/process/HEALTH_CHECK_MODEL.yaml
+        - /doc_agent/specs/HEALTH_CHECK_MODEL.yaml
       commands:
         - "make health_check"
         - "make health_check_strict"
@@ -139,12 +143,12 @@ context_routes:
   by_scope:
     - scope: "Module Development"
       read:
-        - /doc/modules/MODULE_INIT_GUIDE.md
-        - /doc/modules/TEMPLATES/
+        - /doc_human/guides/MODULE_INIT_GUIDE.md
+        - /doc_human/templates/module-templates/
     - scope: "Orchestration Management"
       read:
-        - /doc/orchestration/registry.yaml
-        - /doc/orchestration/routing.md
+        - /doc_agent/orchestration/registry.yaml
+        - /doc_agent/orchestration/routing.md
 ---
 
 # agent.md
@@ -170,73 +174,55 @@ Before starting any task, AI agents must:
 
 ### S0 - Refresh Context (Layered Loading)
 
-Load by priority tiers:
+Load context by priority tiers (Tier-0 required, others as needed).
 
-- **Tier-0 (Required)**: `/.aicontext/snapshot.json`, `/.aicontext/module_index.json`
-- **Tier-1 (Strongly Recommended)**: `/doc/flows/dag.yaml`, relevant `tools/*/contract.json`, target module `plan.md`/`README.md`
-- **Tier-2 (Recommended)**: `/doc/db/DB_SPEC.yaml`, `/doc/process/ENV_SPEC.yaml`, `/config/*.yaml`
-- **Tier-3 (As Needed)**: `TEST_PLAN.md`, `RUNBOOK.md`, `PROGRESS.md`, `BUGS.md`
-
-> If `snapshot_hash` changed, run `make docgen` first to generate latest index.
+> If `snapshot_hash` changed, run `make docgen` first.
+> **Details**: `/doc_human/guides/agent-workflow-details.md#s0---refresh-context-details`
 
 ### S1 - Task Modeling
 
-Update `/modules/<name>/plan.md`, specify:
-- Scope and slicing
-- Interface impact
-- Data changes
-- Risk assessment
-- Verification commands
-- Rollback plan
+Update `/modules/<name>/plan.md` with scope, impacts, risks, and rollback plan.
 
-> **Boundary**: `plan.md` = future plans, `PROGRESS.md` = historical records (don't mix)
+**New Module**: Run `make ai_begin MODULE=<name>`
 
-**New Module**: Run `make ai_begin MODULE=<name>` or refer to `doc/modules/MODULE_INIT_GUIDE.md`
+> **Details**: `/doc_human/guides/agent-workflow-details.md#s1---task-modeling-details`
 
 ### S2 - Plan Review (AI-SR: Plan)
 
-Generate `/ai/sessions/<date>_<name>/AI-SR-plan.md`:
-- Intent description
-- Impact analysis
-- DAG/Contract/DB change points
-- Test plan
-- Rollback plan
+Generate `/ai/sessions/<date>_<name>/AI-SR-plan.md` with impact analysis and test plan.
+
+> **Details**: `/doc_human/guides/agent-workflow-details.md#s2---plan-review-details`
 
 ### S3 - Implementation & Verification
 
-- Modify only planned scope
-- Maintain backward compatibility
-- Update or add tests (coverage ≥80%)
-- Run `make dev_check` (CI gate)
+Implement with tests (coverage ≥80%), run `make dev_check`.
 
-**Test Requirements**: See `doc/process/testing.md`
+> **Details**: `/doc_human/guides/agent-workflow-details.md#s3---implementation--verification-details`
 
 ### S4 - Documentation Update
 
-Synchronize updates:
-- `CONTRACT.md` / `contract.json`
-- `TEST_PLAN.md`
-- `RUNBOOK.md`
-- `PROGRESS.md`
-- `CHANGELOG.md`
-- `doc/flows/dag.yaml` (if applicable)
+Update CONTRACT, TEST_PLAN, CHANGELOG, and other docs. Run `make docgen`.
 
-Run `make docgen` to refresh index.
+> **Details**: `/doc_human/guides/agent-workflow-details.md#s4---documentation-update-details`
 
 ### S5 - Self-Review & PR
 
-Generate `/ai/sessions/<date>_<name>/AI-SR-impl.md`, submit PR with plan and AI-SR.
+Generate AI-SR-impl.md, submit PR. Must pass CI gates.
 
-**PR Process**: See `doc/process/pr_workflow.md`
-
-**CI Gates**: 
-- `make dev_check` (must pass)
-- Test coverage ≥80%
-- High-risk changes need `make rollback_check`
+> **Details**: `/doc_human/guides/agent-workflow-details.md#s5---self-review--pr-details`
 
 ### S6 - Auto Maintenance
 
-Run `make ai_maintenance` to ensure repo health.
+Run `make ai_maintenance` and cleanup commands.
+
+**Report Generation Rules**:
+- ✅ Health reports → `/ai/maintenance_reports/health-*.md`
+- ✅ Optimization reports → `/ai/maintenance_reports/optimization-*.md`
+- ✅ Session reviews → `/ai/sessions/<date>_<task>/`
+- ❌ NEVER generate reports in root directory
+- ❌ NEVER use `/tmp/` for permanent reports
+
+> **Details**: `/doc_human/guides/agent-workflow-details.md#s6---auto-maintenance-details`
 
 ---
 
@@ -319,85 +305,36 @@ Run `make ai_maintenance` to ensure repo health.
 - Load based on `priority` field (high → medium → low)
 - Stop after loading listed files, no further recursion
 
-### 1.3 On-Demand Loading (Context Routes)
+### 1.3 On-Demand Loading
 
-Root agent.md's YAML Front Matter defines document routing rules:
+Context routes in YAML front matter:
+- **always_read**: AI_INDEX.md only (~130 tokens)
+- **on_demand**: Load by task type and priority
+- **by_scope**: Module-specific docs
 
-- **always_read**: AI_INDEX.md only (self-contained, ~130 tokens)
-- **on_demand**: 19 topics with priority (load based on task type)
-  - High: Project overview, goals, database, modules, workflows, config, guardrails
-  - Medium: Testing, triggers, common module, coding standards, dataflow
-  - Low: Directory, routing usage, conventions, project init
-- **by_scope**: Module-specific (load when working in that module)
+**Memory**: LEDGER.md (tasks), sessions/ (AI-SR), .aicontext/ (index)
 
-**How It Works**: 
-1. AI loads `always_read` on startup (AI_INDEX.md → self-contained quick reference)
-2. Based on task type (e.g., "database ops"), AI loads corresponding `on_demand` docs
-3. When entering specific module, load `by_scope` configured module docs
-4. **STOP** - Do not recursively follow references in loaded docs
-
-**Details**: `doc/orchestration/routing.md`
-
-### Memory Mechanism
-
-1. **AI Ledger**: `/ai/LEDGER.md` records all tasks
-2. **Sessions**: `/ai/sessions/<date>_<mod>/` preserves AI-SR files
-3. **Index**: `/.aicontext/` auto-generated index
+> **Details**: `doc_agent/orchestration/routing.md`
 
 ---
 
-## 2. Quality Checklist
+## 2. Quick Quality Checklist
 
-### Pre-Change Checks
-
-- Updated `plan.md`?
-- Clarified impact scope?
-- Assessed rollback plan?
-- Prepared test cases?
-
-### During Implementation
-
-- Code changes minimized?
-- Backward compatibility maintained?
-- Tests cover changes?
-- Appropriate logging added?
-
-### Pre-Commit Checks
-
-- All docs updated?
-- `make dev_check` passed?
-- AI-SR generated?
-- Temp files cleaned?
+**Pre-Change**: plan.md updated, impacts assessed  
+**During**: tests added, backward compatible  
+**Pre-Commit**: docs synced, dev_check passed, temp files cleaned
 
 ---
 
-## 3. Core Reference Documents
+## 3. Quick Reference
 
-### Orchestration & Policies
-- **Global Goals**: `doc/policies/goals.md`
-- **Safety Rules**: `doc/policies/safety.md`
-- **Roles & Gates**: `doc/policies/roles.md`
-- **Document Routing**: `doc/orchestration/routing.md`
-- **Module Registry**: `doc/orchestration/registry.yaml`
+**Key Documents**:
+- AI Policies: `/doc_agent/policies/` (goals.md, safety.md, roles.md)
+- AI Specs: `/doc_agent/specs/` (DB_SPEC.yaml, MODULE_TYPES.md)
+- AI Guides: `/doc_agent/quickstart/` (module-init.md, workdocs.md)
+- Human Guides: `/doc_human/guides/` (detailed guides for human reference)
 
-### Initialization Guides
-- **Project Init**: `doc/init/PROJECT_INIT_GUIDE.md`
-- **Module Init**: `doc/modules/MODULE_INIT_GUIDE.md`
-- **Module Types**: `doc/modules/MODULE_TYPES.md`
-- **Doc Templates**: `doc/modules/TEMPLATES/`
-
-### Architecture & Reference
-- **Directory Structure**: `doc/architecture/directory.md`
-- **Command Quick Reference**: `doc/reference/commands.md`
-- **Database Specs**: `db/engines/README.md`
-- **Schema Definitions**: `schemas/`
-
-### Process Documents
-- **Testing Standards**: `doc/process/testing.md`
-- **PR Workflow**: `doc/process/pr_workflow.md`
-- **Coding Conventions**: `doc/process/CONVENTIONS.md`
-- **Config Guide**: `doc/process/CONFIG_GUIDE.md`
-- **Environment Spec**: `doc/process/ENV_SPEC.yaml`
+**Commands**: See `/doc_human/guides/agent-workflow-details.md#command-reference`
 
 ---
 

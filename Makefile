@@ -15,7 +15,8 @@
         health_check health_report health_trend module_health_check ai_friendliness_check \
         health_check_strict health_report_detailed health_analyze_issues health_show_quick_wins \
         doc_freshness_check coupling_check observability_check secret_scan \
-        test_coverage code_complexity type_check
+        test_coverage code_complexity type_check \
+        cleanup_reports cleanup_reports_smart cleanup_all temp_files_check
 
 help:
 	@echo "可用命令："
@@ -37,6 +38,10 @@ help:
 	@echo "  make app_structure_check    - 检查应用层结构（app/apps）"
 	@echo "  make ai_maintenance         - AI 自动维护（检查并修复常见问题）"
 	@echo "  make cleanup_tmp            - 清理所有临时文件（*_tmp.*）"
+	@echo "  make cleanup_reports        - 清理旧报告文件（可选 AGE=天数）"
+	@echo "  make cleanup_reports_smart  - 智能清理报告（保留失败报告+最近10份）"
+	@echo "  make cleanup_all            - 清理所有临时文件和旧报告"
+	@echo "  make temp_files_check       - 检查未清理的临时文件（CI用）"
 	@echo "  make generate_openapi       - 从 contract.json 生成 OpenAPI 3.0"
 	@echo "  make generate_frontend_types - 从 OpenAPI 生成前端 TypeScript 类型"
 	@echo "  make frontend_types_check    - 检查前端类型与契约一致性"
@@ -105,11 +110,11 @@ help:
 	@echo "  make type_check              - 静态类型检查"
 
 # 完整开发检查（CI 门禁）
-# Phase 14.3更新：增加质量检查工具，总计21个检查
-dev_check: docgen doc_style_check agent_lint registry_check doc_route_check type_contract_check doc_script_sync_check db_lint resources_check dag_check contract_compat_check deps_check runtime_config_check migrate_check consistency_check frontend_types_check doc_freshness_check coupling_check observability_check secret_scan test_coverage
+# Phase 14.3更新：增加临时文件检查，总计22个检查
+dev_check: docgen doc_style_check agent_lint registry_check doc_route_check type_contract_check doc_script_sync_check db_lint resources_check dag_check contract_compat_check deps_check runtime_config_check migrate_check consistency_check frontend_types_check doc_freshness_check coupling_check observability_check secret_scan test_coverage temp_files_check
 	@echo ""
 	@echo "================================"
-	@echo "✅ 全部检查通过 (21/21)"
+	@echo "✅ 全部检查通过 (22/22)"
 	@echo "================================"
 
 # 生成文档索引（含 summary/keywords/deps/hash）
@@ -517,10 +522,10 @@ dataflow_analyze:
 	@python scripts/dataflow_trace.py
 	@echo ""
 	@echo "2️⃣ 生成Mermaid可视化..."
-	@python scripts/dataflow_visualizer.py --format mermaid --output doc/templates/dataflow.mermaid
+	@python scripts/dataflow_visualizer.py --format mermaid --output ai/maintenance_reports/dataflow-$$(date +%Y%m%d).mermaid
 	@echo ""
 	@echo "3️⃣ 生成HTML交互式可视化..."
-	@python scripts/dataflow_visualizer.py --format html --output doc/templates/dataflow-report.html
+	@python scripts/dataflow_visualizer.py --format html --output ai/maintenance_reports/dataflow-report-$$(date +%Y%m%d).html
 	@echo ""
 	@echo "✅ 数据流分析完成"
 	@echo "   - Mermaid: doc/templates/dataflow.mermaid"
@@ -590,14 +595,48 @@ health_trend:
 	@echo "📈 Analyzing health trends..."
 	@python scripts/health_trend_analyzer.py
 
+test_coverage:
+	@echo "📊 Checking test coverage..."
+	@python scripts/test_coverage_check.py
+
+test_coverage_json:
+	@echo "📊 Generating test coverage report (JSON)..."
+	@python scripts/test_coverage_check.py --json
+
+complexity_check:
+	@echo "🔍 Checking code complexity..."
+	@python scripts/complexity_check.py
+
+complexity_check_json:
+	@echo "🔍 Generating complexity report (JSON)..."
+	@python scripts/complexity_check.py --json
+
+# Code refactoring suggestions
+refactor_suggest:
+	@echo "🔧 Generating refactoring suggestions..."
+	@python scripts/refactor_suggest.py || true
+
+refactor_plan:
+	@echo "📝 Creating refactoring plan..."
+	@python scripts/refactor_suggest.py --output-plan
+
+# Report location check
+check_report_locations:
+	@echo "🔍 Checking report file locations..."
+	@python scripts/report_location_check.py
+
+fix_report_locations:
+	@echo "🔧 Fixing misplaced reports..."
+	@python scripts/report_location_check.py --fix
+
 # Phase 14.2+ Enhanced Health Check Commands
 health_check_strict:
 	@echo "🔥 Running strict mode health check..."
-	@python scripts/health_check.py --strict --output temp/health-check-strict-$$(date +%Y%m%d-%H%M%S).md
+	@python scripts/health_check.py --strict --output ai/maintenance_reports/health-check-strict-$$(date +%Y%m%d).md
 
 health_report_detailed:
 	@echo "📊 Generating detailed health report (all formats)..."
-	@python scripts/health_check.py --detailed --format all --output temp/
+	@python scripts/health_check.py --detailed --format all --output ai/maintenance_reports/health-report-detailed-$$(date +%Y%m%d).md
 
 health_analyze_issues:
 	@echo "🎯 Analyzing issue patterns and root causes..."
@@ -635,18 +674,7 @@ secret_scan:
 # Code Quality Tools (Phase 14.3)
 # ==============================================================================
 
-test_coverage:
-	@echo "📊 Running test coverage analysis..."
-	@if command -v pytest > /dev/null 2>&1; then \
-		pytest tests/ --cov=. --cov-report=term --cov-report=html --cov-report=json -v || true; \
-		echo ""; \
-		echo "📈 Coverage report generated:"; \
-		echo "  - HTML: htmlcov/index.html"; \
-		echo "  - JSON: coverage.json"; \
-	else \
-		echo "⚠️  pytest not installed. Install with: pip install pytest pytest-cov"; \
-		exit 1; \
-	fi
+# test_coverage command moved to line 598 with the new test_coverage_check.py script
 
 code_complexity:
 	@echo "📊 Analyzing code complexity..."
@@ -675,3 +703,76 @@ type_check:
 		echo "⚠️  mypy not installed. Install with: pip install mypy"; \
 		exit 1; \
 	fi
+
+# ==============================================================================
+# Temporary Files & Reports Management (Phase 14.3+)
+# ==============================================================================
+
+# Check for uncleaned temporary files (CI gate)
+temp_files_check:
+	@echo "🔍 检查未清理的临时文件..."
+	@FOUND=0; \
+	if find . -type f -name "*_tmp.*" -not -path "./.git/*" -not -path "./node_modules/*" -not -path "./.venv/*" -not -path "./venv/*" -not -path "./tmp/*" 2>/dev/null | grep -q .; then \
+		echo ""; \
+		echo "❌ 发现未清理的临时文件："; \
+		find . -type f -name "*_tmp.*" -not -path "./.git/*" -not -path "./node_modules/*" -not -path "./.venv/*" -not -path "./venv/*" -not -path "./tmp/*" 2>/dev/null; \
+		echo ""; \
+		echo "请运行: make cleanup_tmp"; \
+		FOUND=1; \
+	fi; \
+	if [ $$FOUND -eq 1 ]; then \
+		exit 1; \
+	fi
+	@echo "✅ 无未清理的临时文件"
+
+# Clean old report files (default: 30 days)
+cleanup_reports:
+	@echo "🧹 清理旧报告文件..."
+	@AGE=$${AGE:-30}; \
+	echo "删除 $$AGE 天前的报告文件..."; \
+	DELETED=0; \
+	if [ -d "ai/maintenance_reports" ]; then \
+		for file in $$(find ai/maintenance_reports -name "*.json" -o -name "*.html" -type f -mtime +$$AGE 2>/dev/null); do \
+			if ! grep -q "failed" "$$file" 2>/dev/null; then \
+				echo "  删除: $$file"; \
+				rm "$$file"; \
+				DELETED=$$((DELETED + 1)); \
+			fi; \
+		done; \
+	fi; \
+	if [ -d "ai/dataflow_reports" ]; then \
+		for file in $$(find ai/dataflow_reports -name "*.html" -type f -mtime +$$AGE 2>/dev/null); do \
+			echo "  删除: $$file"; \
+			rm "$$file"; \
+			DELETED=$$((DELETED + 1)); \
+		done; \
+	fi; \
+	echo "✅ 已删除 $$DELETED 个旧报告文件"
+
+# Smart cleanup: keep failed reports and last N reports
+cleanup_reports_smart:
+	@echo "🧹 智能清理报告文件..."
+	@KEEP=$${KEEP:-10}; \
+	echo "保留失败报告和最近 $$KEEP 份报告..."; \
+	DELETED=0; \
+	if [ -d "ai/maintenance_reports" ]; then \
+		cd ai/maintenance_reports && \
+		for pattern in "health-report-*.json" "health-summary-*.md"; do \
+			FILES=$$(ls -t $$pattern 2>/dev/null | tail -n +$$((KEEP + 1))); \
+			for file in $$FILES; do \
+				if [ -f "$$file" ] && ! grep -q "failed" "$$file" 2>/dev/null; then \
+					echo "  删除: ai/maintenance_reports/$$file"; \
+					rm "$$file"; \
+					DELETED=$$((DELETED + 1)); \
+				fi; \
+			done; \
+		done; \
+	fi; \
+	echo "✅ 已删除 $$DELETED 个旧报告文件（保留最近 $$KEEP 份和失败报告）"
+
+# Clean all temporary files and old reports
+cleanup_all: cleanup_tmp cleanup_reports_smart
+	@echo ""
+	@echo "================================"
+	@echo "✅ 全部清理完成"
+	@echo "================================"

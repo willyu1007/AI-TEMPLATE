@@ -31,6 +31,7 @@ MAINTENANCE_TASKS = [
     'deps_check',           # 依赖检查
     'dag_check',            # DAG 检查
     'contract_compat_check', # 契约兼容性检查
+    'temp_files_check',     # 临时文件检查
 ]
 
 # 维护报告
@@ -245,6 +246,93 @@ def check_app_structure(report: MaintenanceReport):
         report.add_task('app_structure_check', 'warning', f'应用层结构检查失败: {str(e)}')
 
 
+def check_temp_files(report: MaintenanceReport):
+    """检查未清理的临时文件"""
+    print("检查临时文件...")
+    try:
+        # 查找 *_tmp.* 文件（排除 tmp/ 目录本身、git、node_modules 等）
+        result = subprocess.run(
+            [
+                'find', '.', 
+                '-type', 'f',
+                '-name', '*_tmp.*',
+                '-not', '-path', './.git/*',
+                '-not', '-path', './node_modules/*',
+                '-not', '-path', './.venv/*',
+                '-not', '-path', './venv/*',
+                '-not', '-path', './tmp/*'
+            ],
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+            timeout=30
+        )
+        
+        temp_files = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+        
+        if not temp_files:
+            report.add_task('temp_files_check', 'passed', '无未清理的临时文件')
+        else:
+            file_list = '\n'.join(temp_files[:10])  # 最多显示10个文件
+            if len(temp_files) > 10:
+                file_list += f'\n... 还有 {len(temp_files) - 10} 个文件'
+            
+            report.add_task(
+                'temp_files_check',
+                'warning',
+                f'发现 {len(temp_files)} 个未清理的临时文件，建议运行: make cleanup_tmp',
+                file_list
+            )
+        
+        # 检查报告文件数量
+        report_dirs = [
+            Path('ai/maintenance_reports'),
+            Path('ai/dataflow_reports')
+        ]
+        
+        for report_dir in report_dirs:
+            if report_dir.exists():
+                json_files = list(report_dir.glob('*.json'))
+                html_files = list(report_dir.glob('*.html'))
+                total_reports = len(json_files) + len(html_files)
+                
+                if total_reports > 20:
+                    report.add_task(
+                        f'{report_dir.name}_cleanup',
+                        'warning',
+                        f'{report_dir} 包含 {total_reports} 个报告文件，建议清理旧报告: make cleanup_reports_smart',
+                        f'JSON: {len(json_files)}, HTML: {len(html_files)}'
+                    )
+    
+    except subprocess.TimeoutExpired:
+        report.add_task('temp_files_check', 'warning', '临时文件检查超时')
+    except FileNotFoundError:
+        # Windows 系统可能没有 find 命令，使用 Python 实现
+        try:
+            temp_files = []
+            for root, dirs, files in Path('.').rglob('*_tmp.*'):
+                if not any(p in str(root) for p in ['.git', 'node_modules', '.venv', 'venv', 'tmp']):
+                    temp_files.append(str(root))
+            
+            if not temp_files:
+                report.add_task('temp_files_check', 'passed', '无未清理的临时文件')
+            else:
+                file_list = '\n'.join(temp_files[:10])
+                if len(temp_files) > 10:
+                    file_list += f'\n... 还有 {len(temp_files) - 10} 个文件'
+                
+                report.add_task(
+                    'temp_files_check',
+                    'warning',
+                    f'发现 {len(temp_files)} 个未清理的临时文件，建议运行: make cleanup_tmp',
+                    file_list
+                )
+        except Exception as e:
+            report.add_task('temp_files_check', 'warning', f'临时文件检查失败: {str(e)}')
+    except Exception as e:
+        report.add_task('temp_files_check', 'warning', f'临时文件检查失败: {str(e)}')
+
+
 def main():
     """主函数"""
     print("=" * 70)
@@ -264,6 +352,7 @@ def main():
     check_contract_compat(report)
     check_test_status(report)
     check_app_structure(report)
+    check_temp_files(report)
     
     # 生成报告
     print()

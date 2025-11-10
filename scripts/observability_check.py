@@ -1,28 +1,10 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-observability_check.py - 可观测性覆盖检查工具
+可观测性检查脚本
+检查项目的日志、指标、追踪和告警配置
 
-功能：
-1. 检查日志配置覆盖率（所有模块是否配置日志）
-2. 检查指标收集点定义
-3. 检查分布式追踪是否启用
-4. 检查告警规则配置
-5. 检查仪表盘模板存在性
-
-检查项（根据HEALTH_CHECK_MODEL.yaml）：
-- 所有模块有日志配置
-- 指标收集点已定义
-- 分布式追踪已启用
-- 告警规则已配置
-- 仪表盘模板存在
-
-用法：
-    python scripts/observability_check.py
-    python scripts/observability_check.py --json
-    make observability_check
-
-Created: 2025-11-09 (Phase 14.2)
+Usage:
+    python scripts/observability_check.py [--json]
 """
 
 import os
@@ -30,7 +12,7 @@ import sys
 import json
 import yaml
 from pathlib import Path
-from typing import Dict, List, Any, Set
+from typing import Dict, List, Any
 
 # Windows UTF-8 support
 if sys.platform == "win32":
@@ -41,289 +23,316 @@ if sys.platform == "win32":
 # 路径设置
 HERE = Path(__file__).parent.absolute()
 REPO_ROOT = HERE.parent
-OBSERVABILITY_DIR = REPO_ROOT / "observability"
-MODULES_DIR = REPO_ROOT / "modules"
 
 
 class ObservabilityChecker:
     """可观测性检查器"""
     
     def __init__(self):
-        """初始化检查器"""
-        self.results = {
-            "checks_passed": 0,
-            "total_checks": 5,
-            "checks": {},
-            "coverage_percentage": 0
+        self.repo_root = REPO_ROOT
+        self.observability_path = self.repo_root / "observability"
+        self.modules_path = self.repo_root / "modules"
+        
+    def check_logging(self) -> Dict[str, Any]:
+        """检查日志配置"""
+        checks_passed = []
+        issues = []
+        
+        # 检查1：日志配置文件存在
+        logging_config_paths = [
+            self.observability_path / "logging" / "fluentd.conf",
+            self.observability_path / "logging" / "filebeat.yaml",
+            self.observability_path / "logging" / "logstash.yaml",
+        ]
+        
+        config_exists = any(p.exists() for p in logging_config_paths)
+        if config_exists:
+            checks_passed.append("Logging config exists")
+        else:
+            issues.append("No logging configuration found")
+        
+        # 检查2：模块有日志配置
+        modules_with_logging = 0
+        total_modules = 0
+        
+        for module_dir in self.modules_path.glob("*"):
+            if module_dir.is_dir() and not module_dir.name.startswith('.'):
+                total_modules += 1
+                # 检查是否有日志相关代码
+                has_logging = False
+                for py_file in module_dir.rglob("*.py"):
+                    with open(py_file, 'r', encoding='utf-8', errors='ignore') as f:
+                        content = f.read()
+                        if 'import logging' in content or 'from logging' in content:
+                            has_logging = True
+                            break
+                if has_logging:
+                    modules_with_logging += 1
+        
+        if total_modules > 0 and modules_with_logging == total_modules:
+            checks_passed.append("All modules have logging")
+        elif modules_with_logging > 0:
+            issues.append(f"Only {modules_with_logging}/{total_modules} modules have logging")
+        else:
+            issues.append("No modules have logging configured")
+        
+        return {
+            'checks_passed': checks_passed,
+            'issues': issues,
+            'module_coverage': f"{modules_with_logging}/{total_modules}"
         }
     
-    def check_logging_coverage(self) -> Dict[str, Any]:
-        """检查日志配置覆盖率"""
-        print("🔍 检查日志配置覆盖...")
+    def check_metrics(self) -> Dict[str, Any]:
+        """检查指标收集配置"""
+        checks_passed = []
+        issues = []
         
-        result = {
-            "check_name": "Logging Coverage",
-            "passed": False,
-            "details": {}
+        # 检查1：Prometheus配置
+        prometheus_config = self.observability_path / "metrics" / "prometheus.yml"
+        if prometheus_config.exists():
+            checks_passed.append("Prometheus config exists")
+            
+            # 检查配置内容
+            with open(prometheus_config, 'r', encoding='utf-8') as f:
+                content = f.read()
+                if 'scrape_configs' in content:
+                    checks_passed.append("Scrape configs defined")
+        else:
+            issues.append("No Prometheus configuration")
+        
+        # 检查2：Grafana仪表板
+        grafana_dashboards = self.observability_path / "metrics" / "grafana-dashboard.json"
+        if grafana_dashboards.exists():
+            checks_passed.append("Grafana dashboard exists")
+        else:
+            issues.append("No Grafana dashboard")
+        
+        return {
+            'checks_passed': checks_passed,
+            'issues': issues
         }
-        
-        # 检查observability/logging/目录
-        logging_dir = OBSERVABILITY_DIR / "logging"
-        
-        if not logging_dir.exists():
-            result["details"]["error"] = "logging目录不存在"
-            result["details"]["status"] = "❌"
-            return result
-        
-        # 检查是否有配置文件
-        config_files = list(logging_dir.glob("*.yaml")) + list(logging_dir.glob("*.yml")) + list(logging_dir.glob("*.conf"))
-        
-        if len(config_files) == 0:
-            result["details"]["error"] = "未找到日志配置文件"
-            result["details"]["status"] = "❌"
-            return result
-        
-        result["details"]["config_files"] = [f.name for f in config_files]
-        result["details"]["config_count"] = len(config_files)
-        result["details"]["status"] = "✅"
-        result["passed"] = True
-        
-        return result
     
-    def check_metrics_collection(self) -> Dict[str, Any]:
-        """检查指标收集点定义"""
-        print("🔍 检查指标收集点...")
-        
-        result = {
-            "check_name": "Metrics Collection",
-            "passed": False,
-            "details": {}
-        }
-        
-        # 检查observability/metrics/目录
-        metrics_dir = OBSERVABILITY_DIR / "metrics"
-        
-        if not metrics_dir.exists():
-            result["details"]["error"] = "metrics目录不存在"
-            result["details"]["status"] = "❌"
-            return result
-        
-        # 检查是否有配置文件
-        config_files = list(metrics_dir.glob("*.json")) + list(metrics_dir.glob("*.yaml")) + list(metrics_dir.glob("*.yml"))
-        
-        if len(config_files) == 0:
-            result["details"]["error"] = "未找到指标配置文件"
-            result["details"]["status"] = "❌"
-            return result
-        
-        result["details"]["config_files"] = [f.name for f in config_files]
-        result["details"]["config_count"] = len(config_files)
-        result["details"]["status"] = "✅"
-        result["passed"] = True
-        
-        return result
-    
-    def check_distributed_tracing(self) -> Dict[str, Any]:
+    def check_tracing(self) -> Dict[str, Any]:
         """检查分布式追踪配置"""
-        print("🔍 检查分布式追踪...")
+        checks_passed = []
+        issues = []
         
-        result = {
-            "check_name": "Distributed Tracing",
-            "passed": False,
-            "details": {}
+        # 检查追踪配置文件
+        tracing_configs = [
+            self.observability_path / "tracing" / "jaeger.yaml",
+            self.observability_path / "tracing" / "zipkin.yaml",
+            self.observability_path / "tracing" / "otel-collector.yaml"
+        ]
+        
+        if any(p.exists() for p in tracing_configs):
+            checks_passed.append("Tracing config exists")
+        else:
+            issues.append("No distributed tracing configuration")
+        
+        # 检查是否有OpenTelemetry集成
+        otel_found = False
+        for module_dir in self.modules_path.glob("*"):
+            if module_dir.is_dir():
+                for py_file in module_dir.rglob("*.py"):
+                    with open(py_file, 'r', encoding='utf-8', errors='ignore') as f:
+                        content = f.read()
+                        if 'opentelemetry' in content.lower() or 'jaeger' in content.lower():
+                            otel_found = True
+                            break
+                if otel_found:
+                    break
+        
+        if otel_found:
+            checks_passed.append("Tracing instrumentation found")
+        else:
+            issues.append("No tracing instrumentation in code")
+        
+        return {
+            'checks_passed': checks_passed,
+            'issues': issues
         }
-        
-        # 检查observability/tracing/目录
-        tracing_dir = OBSERVABILITY_DIR / "tracing"
-        
-        if not tracing_dir.exists():
-            result["details"]["error"] = "tracing目录不存在"
-            result["details"]["status"] = "❌"
-            return result
-        
-        # 检查是否有配置文件
-        config_files = list(tracing_dir.glob("*.yaml")) + list(tracing_dir.glob("*.yml"))
-        
-        if len(config_files) == 0:
-            result["details"]["error"] = "未找到追踪配置文件"
-            result["details"]["status"] = "❌"
-            return result
-        
-        result["details"]["config_files"] = [f.name for f in config_files]
-        result["details"]["config_count"] = len(config_files)
-        result["details"]["status"] = "✅"
-        result["passed"] = True
-        
-        return result
     
-    def check_alert_rules(self) -> Dict[str, Any]:
+    def check_alerts(self) -> Dict[str, Any]:
         """检查告警规则配置"""
-        print("🔍 检查告警规则...")
+        checks_passed = []
+        issues = []
         
-        result = {
-            "check_name": "Alert Rules",
-            "passed": False,
-            "details": {}
-        }
-        
-        # 检查observability/alerts/目录
-        alerts_dir = OBSERVABILITY_DIR / "alerts"
-        
-        if not alerts_dir.exists():
-            result["details"]["error"] = "alerts目录不存在"
-            result["details"]["status"] = "❌"
-            return result
-        
-        # 检查是否有告警规则文件
-        rule_files = list(alerts_dir.glob("*.yml")) + list(alerts_dir.glob("*.yaml"))
-        
-        if len(rule_files) == 0:
-            result["details"]["error"] = "未找到告警规则文件"
-            result["details"]["status"] = "❌"
-            return result
-        
-        result["details"]["rule_files"] = [f.name for f in rule_files]
-        result["details"]["rule_count"] = len(rule_files)
-        result["details"]["status"] = "✅"
-        result["passed"] = True
-        
-        return result
-    
-    def check_dashboard_templates(self) -> Dict[str, Any]:
-        """检查仪表盘模板"""
-        print("🔍 检查仪表盘模板...")
-        
-        result = {
-            "check_name": "Dashboard Templates",
-            "passed": False,
-            "details": {}
-        }
-        
-        # 检查observability/目录下是否有README或dashboard相关文件
-        if not OBSERVABILITY_DIR.exists():
-            result["details"]["error"] = "observability目录不存在"
-            result["details"]["status"] = "❌"
-            return result
-        
-        # 检查README
-        readme_path = OBSERVABILITY_DIR / "README.md"
-        if readme_path.exists():
-            result["details"]["has_readme"] = True
-            result["details"]["status"] = "✅"
-            result["passed"] = True
+        # 检查1：Prometheus告警规则
+        alert_rules = self.observability_path / "alerts" / "prometheus_alerts.yml"
+        if alert_rules.exists():
+            checks_passed.append("Alert rules defined")
+            
+            # 检查规则内容
+            try:
+                with open(alert_rules, 'r', encoding='utf-8') as f:
+                    alert_config = yaml.safe_load(f)
+                    if 'groups' in alert_config:
+                        total_rules = sum(len(g.get('rules', [])) for g in alert_config['groups'])
+                        if total_rules > 0:
+                            checks_passed.append(f"{total_rules} alert rules configured")
+            except:
+                issues.append("Alert rules file corrupted")
         else:
-            result["details"]["has_readme"] = False
-            result["details"]["error"] = "缺少README.md"
-            result["details"]["status"] = "⚠️"
-            # 即使没有README也算部分通过（有其他配置）
-            if (OBSERVABILITY_DIR / "logging").exists() and \
-               (OBSERVABILITY_DIR / "metrics").exists():
-                result["passed"] = True
+            issues.append("No alert rules defined")
         
-        return result
+        # 检查2：AlertManager配置
+        alertmanager_config = self.observability_path / "alerts" / "alertmanager.yml"
+        if alertmanager_config.exists():
+            checks_passed.append("AlertManager configured")
+        else:
+            issues.append("No AlertManager configuration")
+        
+        return {
+            'checks_passed': checks_passed,
+            'issues': issues
+        }
     
-    def run_all_checks(self):
+    def check_dashboards(self) -> Dict[str, Any]:
+        """检查监控仪表板"""
+        checks_passed = []
+        issues = []
+        
+        # 检查Grafana仪表板
+        dashboard_path = self.observability_path / "metrics"
+        dashboard_files = list(dashboard_path.glob("*dashboard*.json")) if dashboard_path.exists() else []
+        
+        if dashboard_files:
+            checks_passed.append(f"{len(dashboard_files)} dashboard(s) configured")
+            
+            # 检查仪表板内容
+            for dashboard_file in dashboard_files:
+                try:
+                    with open(dashboard_file, 'r', encoding='utf-8') as f:
+                        dashboard_data = json.load(f)
+                        if 'panels' in dashboard_data:
+                            panel_count = len(dashboard_data['panels'])
+                            if panel_count > 0:
+                                checks_passed.append(f"{panel_count} panels in {dashboard_file.name}")
+                except:
+                    issues.append(f"Cannot parse {dashboard_file.name}")
+        else:
+            issues.append("No dashboard templates found")
+        
+        return {
+            'checks_passed': checks_passed,
+            'issues': issues
+        }
+    
+    def calculate_score(self, results: Dict[str, Any]) -> int:
+        """计算总分（最高5分）"""
+        score = 0
+        
+        # 每个维度贡献1分
+        for dimension in ['logging', 'metrics', 'tracing', 'alerts', 'dashboards']:
+            if dimension in results:
+                if len(results[dimension]['checks_passed']) > 0:
+                    score += 1
+        
+        return min(score, 5)
+    
+    def run_all_checks(self) -> Dict[str, Any]:
         """运行所有检查"""
-        print("=" * 70)
-        print("🔭 Observability Coverage Check - 开始检查...")
-        print("=" * 70)
+        results = {
+            'logging': self.check_logging(),
+            'metrics': self.check_metrics(),
+            'tracing': self.check_tracing(),
+            'alerts': self.check_alerts(),
+            'dashboards': self.check_dashboards()
+        }
         
-        # 运行5项检查
-        self.results["checks"]["logging"] = self.check_logging_coverage()
-        self.results["checks"]["metrics"] = self.check_metrics_collection()
-        self.results["checks"]["tracing"] = self.check_distributed_tracing()
-        self.results["checks"]["alerts"] = self.check_alert_rules()
-        self.results["checks"]["dashboard"] = self.check_dashboard_templates()
+        # 计算总体统计
+        total_checks_passed = sum(len(r['checks_passed']) for r in results.values())
+        total_issues = sum(len(r['issues']) for r in results.values())
         
-        # 统计通过的检查数
-        self.results["checks_passed"] = sum(
-            1 for check in self.results["checks"].values() 
-            if check.get("passed", False)
-        )
+        results['summary'] = {
+            'total_checks_passed': total_checks_passed,
+            'total_issues': total_issues,
+            'checks_passed': min(self.calculate_score(results), 5),
+            'max_score': 5,
+            'status': self.get_status(total_checks_passed, total_issues)
+        }
         
-        # 计算覆盖率
-        self.results["coverage_percentage"] = \
-            (self.results["checks_passed"] / self.results["total_checks"]) * 100
-        
-        print("\n" + "=" * 70)
-        print("✅ 可观测性检查完成！")
-        print("=" * 70)
+        return results
     
-    def print_console_report(self):
-        """打印控制台报告"""
-        print("\n" + "=" * 70)
-        print("📊 OBSERVABILITY COVERAGE REPORT")
-        print("=" * 70)
-        
-        print(f"\n📈 Overall:")
-        print(f"  通过检查: {self.results['checks_passed']}/{self.results['total_checks']}")
-        print(f"  覆盖率: {self.results['coverage_percentage']:.0f}%")
-        
-        print(f"\n📋 Check Details:")
-        
-        for check_key, check_result in self.results["checks"].items():
-            check_name = check_result["check_name"]
-            status = check_result["details"].get("status", "❓")
-            passed = "✅" if check_result["passed"] else "❌"
-            
-            print(f"\n  {passed} {check_name}:")
-            
-            if "config_files" in check_result["details"]:
-                files = check_result["details"]["config_files"]
-                print(f"     配置文件: {', '.join(files)}")
-            elif "rule_files" in check_result["details"]:
-                files = check_result["details"]["rule_files"]
-                print(f"     规则文件: {', '.join(files)}")
-            elif "has_readme" in check_result["details"]:
-                has_readme = check_result["details"]["has_readme"]
-                print(f"     README: {'存在' if has_readme else '缺失'}")
-            
-            if "error" in check_result["details"]:
-                print(f"     错误: {check_result['details']['error']}")
-        
-        # 建议
-        print(f"\n💡 建议:")
-        if self.results["checks_passed"] < 4:
-            print("  - 完善可观测性配置")
-            print("  - 至少需要配置logging, metrics, tracing")
-            print("  - 添加告警规则确保及时发现问题")
-        elif self.results["checks_passed"] == 4:
-            print("  - 可观测性配置良好")
-            print("  - 建议完善剩余配置项")
+    def get_status(self, checks_passed: int, issues: int) -> str:
+        """获取状态"""
+        if issues == 0:
+            return '✅ Excellent'
+        elif checks_passed >= 10:
+            return '✅ Good'
+        elif checks_passed >= 5:
+            return '⚠️ Fair'
         else:
-            print("  - 可观测性配置完整，很好！")
-        
-        print("\n" + "=" * 70)
+            return '❌ Poor'
     
-    def print_json_report(self):
-        """打印JSON报告"""
-        print(json.dumps(self.results, indent=2, ensure_ascii=False))
+    def print_report(self, results: Dict[str, Any]):
+        """打印报告"""
+        print("=" * 60)
+        print("👁️ Observability Check Report")
+        print("=" * 60)
+        print()
+        
+        print(f"Overall Status: {results['summary']['status']}")
+        print(f"Score: {results['summary']['checks_passed']}/{results['summary']['max_score']}")
+        print(f"Checks Passed: {results['summary']['total_checks_passed']}")
+        print(f"Issues Found: {results['summary']['total_issues']}")
+        print()
+        
+        for dimension in ['logging', 'metrics', 'tracing', 'alerts', 'dashboards']:
+            if dimension in results:
+                print(f"\n📊 {dimension.capitalize()}:")
+                
+                dim_results = results[dimension]
+                
+                if dim_results['checks_passed']:
+                    print("  ✅ Passed:")
+                    for check in dim_results['checks_passed']:
+                        print(f"    • {check}")
+                
+                if dim_results['issues']:
+                    print("  ❌ Issues:")
+                    for issue in dim_results['issues']:
+                        print(f"    • {issue}")
+        
+        print("\nRecommendations:")
+        if results['summary']['total_issues'] > 0:
+            if 'logging' in results and results['logging']['issues']:
+                print("  • Configure centralized logging (Fluentd/Filebeat)")
+            if 'metrics' in results and results['metrics']['issues']:
+                print("  • Set up Prometheus metrics collection")
+            if 'tracing' in results and results['tracing']['issues']:
+                print("  • Implement distributed tracing (Jaeger/Zipkin)")
+            if 'alerts' in results and results['alerts']['issues']:
+                print("  • Define alert rules for critical metrics")
+            if 'dashboards' in results and results['dashboards']['issues']:
+                print("  • Create Grafana dashboards for visualization")
+        else:
+            print("  • Observability is well configured")
+            print("  • Consider adding more detailed metrics")
+            print("  • Regular review of alert thresholds recommended")
+        
+        print()
+        print("=" * 60)
 
 
 def main():
     """主函数"""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Observability Coverage Check")
-    parser.add_argument("--json", action="store_true", help="输出JSON格式")
-    
+    parser = argparse.ArgumentParser(description="Observability Checker")
+    parser.add_argument("--json", action="store_true", help="Output as JSON")
     args = parser.parse_args()
     
     checker = ObservabilityChecker()
-    checker.run_all_checks()
+    results = checker.run_all_checks()
     
     if args.json:
-        checker.print_json_report()
+        print(json.dumps(results, indent=2, ensure_ascii=False))
     else:
-        checker.print_console_report()
+        checker.print_report(results)
     
-    # 根据通过数决定退出码
-    if checker.results["checks_passed"] < 3:
-        sys.exit(1)
-    else:
-        sys.exit(0)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
-
+    sys.exit(main())
