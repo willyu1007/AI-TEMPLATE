@@ -5,7 +5,7 @@
 ## Layout
 ```text
 db/engines/
-├── agent.md                 # Database orchestration agent
+├── AGENTS.md                 # Database orchestration agent
 ├── README.md                # This overview
 ├── postgres/
 │   ├── migrations/          # SQL up/down pairs

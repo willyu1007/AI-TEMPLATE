@@ -68,7 +68,7 @@ Once requirements are approved:
    - Use `make ai_begin MODULE=<entity>` when possible.  
    - Otherwise, create the directory layout manually (README, agent, doc/, tests/).
 2. **Update key documents**  
-   - `modules/<entity>/agent.md`: role, context routes, upstream/downstream dependencies.  
+   - `modules/<entity>/AGENTS.md`: role, context routes, upstream/downstream dependencies.  
    - `modules/<entity>/README.md`: purpose, capabilities, integration notes.  
    - `modules/<entity>/doc/CONTRACT.md`: IO schema aligned with module type.  
    - `modules/<entity>/doc/RUNBOOK.md`, `TEST_PLAN.md`, `CHANGELOG.md`, `BUGS.md`, `PROGRESS.md`.  
@@ -77,7 +77,7 @@ Once requirements are approved:
 3. **Registry & orchestration**  
    - Register the module in `/doc_agent/orchestration/registry.yaml`.  
    - Update `/doc_human/guides/MODULE_INSTANCES.md` with summary details.  
-   - Adjust root `agent.md` context routes if the module should be auto-loaded.
+   - Adjust root `AGENTS.md` context routes if the module should be auto-loaded.
 4. **Interface documentation**  
    - Update any relevant API/interface specs (e.g., `/doc_agent/specs/` files, OpenAPI fragments).
 

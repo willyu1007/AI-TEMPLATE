@@ -16,7 +16,7 @@ steps:
       - review_dependencies
     max_tokens: 500
     required_files:
-      - "{module}/agent.md"
+      - "{module}/AGENTS.md"
       - "{module}/doc/CONTRACT.md"
     
   - id: "plan"
@@ -71,7 +71,7 @@ context_strategy:
   cache_duration: 3600  # 1 hour
   priority_loading:
     high:
-      - agent.md
+      - AGENTS.md
       - CONTRACT.md
     medium:
       - related_modules

@@ -22,7 +22,7 @@ full_version: /doc/policies/quality_standards.md
 - Type annotations for public APIs
 
 ### 2. Documentation
-- 8 standard docs per module (README, agent.md, CONTRACT, TEST_PLAN, RUNBOOK, CHANGELOG, BUGS, PROGRESS)
+- 8 standard docs per module (README, AGENTS.md, CONTRACT, TEST_PLAN, RUNBOOK, CHANGELOG, BUGS, PROGRESS)
 - All docs <90 days old
 - No broken links
 - Clear structure with headers
@@ -84,7 +84,7 @@ pytest tests/ --cov=. --cov-fail-under=80
 
 ### 8 Standard Docs (Required)
 1. **README.md** - Overview (for humans, can be Chinese)
-2. **agent.md** - Orchestration config (for AI, English)
+2. **AGENTS.md** - Orchestration config (for AI, English)
 3. **CONTRACT.md** - API interfaces
 4. **TEST_PLAN.md** - Test strategy
 5. **RUNBOOK.md** - Operations guide

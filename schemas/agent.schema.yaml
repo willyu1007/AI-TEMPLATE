@@ -1,12 +1,12 @@
 # Agent.md YAML Front Matter Schema
-# agent.mdYAML
+# AGENTS.mdYAML
 # : 1.0
 
 type: object
 required: [spec_version, agent_id, role]
 
 properties:
-  # agent.md
+  # AGENTS.md
   spec_version:
     type: string
     description: "Schema"
@@ -193,14 +193,14 @@ properties:
   # 
   policies:
     type: object
-    description: "agent.md"
+    description: "AGENTS.md"
     properties:
       goals_ref: {type: string}
       safety_ref: {type: string}
   
   merge_strategy:
     type: string
-    description: "agent.md"
+    description: "AGENTS.md"
     enum: ["child_overrides_parent", "parent_overrides_child"]
     examples: ["child_overrides_parent"]
   

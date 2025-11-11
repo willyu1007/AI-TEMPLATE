@@ -135,12 +135,12 @@ triggers:
   - name: agent_lint
     script: scripts/agent_lint.py
     category: ci_required
-    description: Validate agent.md files
+    description: Validate AGENTS.md files
     triggers:
       - type: push
         branches: [main, develop]
       - type: pr
-        paths: ['**/agent.md', schemas/agent.schema.yaml]
+        paths: ['**/AGENTS.md', schemas/agent.schema.yaml]
       - type: manual
     commands:
       make: make agent_lint
@@ -209,7 +209,7 @@ triggers:
       - type: push
         branches: [main, develop]
       - type: pr
-        paths: [doc/orchestration/registry.yaml, modules/**/agent.md]
+        paths: [doc/orchestration/registry.yaml, modules/**/AGENTS.md]
       - type: manual
     commands:
       make: make registry_check

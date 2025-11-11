@@ -39,6 +39,7 @@ purpose: Workdoc plan template
 
 ## 7. References
 - Related PR/issue/workdoc links
-- Relevant docs (agent.md sections, guides)
+- Relevant docs (AGENTS.md sections, guides)
 
-Fill everything in English (or the configured language) and keep sentences actionable.
+Fill everything in English (or the configured language) and keep sentences actionable.
+

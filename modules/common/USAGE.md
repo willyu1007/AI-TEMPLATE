@@ -258,7 +258,7 @@ cat modules/common/doc/CONTRACT.md
 
 - **Full README**: [README.md](README.md) (648 lines)
 - **Contract**: [doc/CONTRACT.md](doc/CONTRACT.md) (517 lines)
-- **Agent Config**: [agent.md](agent.md) (detailed orchestration)
+- **Agent Config**: [AGENTS.md](AGENTS.md) (detailed orchestration)
 - **Test Plan**: [doc/TEST_PLAN.md](doc/TEST_PLAN.md)
 
 ---

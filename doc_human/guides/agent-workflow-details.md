@@ -1,6 +1,6 @@
 # Agent Workflow Details
 
-> **Purpose**: Detailed workflow explanations moved from main agent.md  
+> **Purpose**: Detailed workflow explanations moved from main AGENTS.md  
 > **For**: Reference when needing detailed implementation guidance
 
 ---
@@ -249,7 +249,7 @@ make workdoc_archive TASK=<name>
 make ai_maintenance
 
 # 4. Clean temporary files
-make cleanup_tmp
+make cleanup_temp
 
 # 5. Clean old reports (monthly)
 make cleanup_reports_smart
@@ -258,7 +258,7 @@ make cleanup_reports_smart
 ### Cleanup Priority
 
 1. **Immediate** (after task):
-   - `*_tmp.*` files
+   - `*_temp.*` files
    - Debug scripts
    - Test data
 
@@ -347,7 +347,7 @@ make health_report                    # Detailed report
 make health_trend                     # Trend analysis
 
 # Cleanup
-make cleanup_tmp                      # Clean temp files
+make cleanup_temp                      # Clean temp files
 make cleanup_reports AGE=30           # Clean old reports
 make cleanup_reports_smart            # Smart cleanup
 

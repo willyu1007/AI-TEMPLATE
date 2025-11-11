@@ -14,7 +14,7 @@ health_check.py - Repository Health Check
 - Code Quality (25):
 - Documentation (20):
 - Architecture (20):
-- AI Friendliness (20): agent.md
+- AI Friendliness (20): AGENTS.md
 - Operations (15):
 
 
@@ -713,8 +713,8 @@ class HealthCheckEngine:
         metrics = dimension["metrics"]
         scores = {}
 
-        # Metric 4.1: agent.md Lightweight (5 points)
-        print("  - agent.md Lightweight...")
+        # Metric 4.1: AGENTS.md Lightweight (5 points)
+        print("  - AGENTS.md Lightweight...")
         lightweight_score = self._check_agent_md_lightweight(
             metrics["agent_md_lightweight"]
         )
@@ -756,7 +756,7 @@ class HealthCheckEngine:
         }
 
     def _check_agent_md_lightweight(self, metric_config: Dict) -> Dict:
-        """agent.md"""
+        """AGENTS.md"""
         try:
             result = subprocess.run(
                 [
@@ -789,7 +789,7 @@ class HealthCheckEngine:
                 score = scoring["none_pass"]
 
             return {
-                "name": "agent.md Lightweight",
+                "name": "AGENTS.md Lightweight",
                 "value": thresholds_met,
                 "unit": "thresholds",
                 "score": score,
@@ -798,7 +798,7 @@ class HealthCheckEngine:
             }
         except Exception as e:
             return {
-                "name": "agent.md Lightweight",
+                "name": "AGENTS.md Lightweight",
                 "value": 0,
                 "unit": "thresholds",
                 "score": 0,

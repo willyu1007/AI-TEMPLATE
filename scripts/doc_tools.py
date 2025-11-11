@@ -20,6 +20,12 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = REPO_ROOT / "scripts"
 
+# Windows UTF-8 support
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+
 
 def run_cmd(args: list[str]) -> int:
     proc = subprocess.run([sys.executable, *args], cwd=REPO_ROOT)

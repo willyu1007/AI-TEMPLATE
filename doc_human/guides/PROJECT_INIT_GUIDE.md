@@ -52,7 +52,7 @@ State the chosen mode explicitly to keep the agent on the correct path.
    - Review the file list and sample content before any edits run.  
    - Confirm automation commands (`make ai_begin`, `make docgen`, etc.) when proposed.
 3. **Execution oversight**  
-   - Monitor generated docs (`README.md`, `agent.md`, module docs).  
+   - Monitor generated docs (`README.md`, `AGENTS.md`, module docs).  
    - Ensure sensitive information or secrets are not committed.
 4. **Closure**  
    - Validate the completion checklist (below).  
@@ -63,8 +63,8 @@ State the chosen mode explicitly to keep the agent on the correct path.
 ## 4. Completion Checklist
 
 - [ ] `README.md` rewritten with project vision, setup, and workflows.  
-- [ ] Root `agent.md` updated: accurate `context_routes`, module references, and role description.  
-- [ ] Any agreed modules exist with docs (`agent.md`, `README.md`, `doc/`, `tests/`).  
+- [ ] Root `AGENTS.md` updated: accurate `context_routes`, module references, and role description.  
+- [ ] Any agreed modules exist with docs (`AGENTS.md`, `README.md`, `doc/`, `tests/`).  
 - [ ] Supporting docs updated (`doc_agent/`, `doc_human/`, `config/`).  
 - [ ] Migration notes recorded if code was imported.  
 - [ ] `TEMPLATE_USAGE.md` and the temporary initialization folder are removed or archived.  

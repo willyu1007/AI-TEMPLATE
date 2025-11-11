@@ -7,7 +7,7 @@ policies:
   goals_ref: /doc_agent/policies/goals.md
   safety_ref: /doc_agent/policies/safety.md
 
-parent_agent: /agent.md
+parent_agent: /AGENTS.md
 merge_strategy: "child_overrides_parent"
 
 constraints:
@@ -71,7 +71,7 @@ go test ./tests/...            # Go focus
 - Keep flaky tests out of mainline; quarantine under `tests/example/` if investigation is pending.
 - Prefer fixtures plus builders over ad-hoc inline JSON.
 - Record any skipped critical tests in the work summary (link to blocker or decision).
-- Clean generated artifacts via `make cleanup_tmp` when suites emit reports.
+- Clean generated artifacts via `make cleanup_temp` when suites emit reports.
 
 ## Hand-offs
 - When changing contracts, update related module TEST_PLANs before merging.

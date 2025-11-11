@@ -26,5 +26,5 @@ See `loader/` for examples in Python (`python_loader.py`), Go (`go_loader.go`), 
 
 ## Related Docs
 - `doc_human/guides/CONFIG_GUIDE.md` - deep dive.
-- `agent.md` ¡ì4 - configuration guardrails.
+- `AGENTS.md` ¡ì4 - configuration guardrails.
 

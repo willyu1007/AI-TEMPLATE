@@ -7,7 +7,7 @@ Usage:
     python scripts/ai_friendliness_check.py [--check CHECK_TYPE] [--json]
     
 CHECK_TYPE:
-    - lightweight: agent.md
+    - lightweight: AGENTS.md
     - clarity: 
     - automation: 
 """
@@ -35,17 +35,17 @@ class AIFriendlinessChecker:
     
     def __init__(self):
         self.repo_root = REPO_ROOT
-        self.agent_md_path = self.repo_root / "agent.md"
+        self.agent_md_path = self.repo_root / "AGENTS.md"
         self.doc_path = self.repo_root / "doc"
         self.makefile_path = self.repo_root / "Makefile"
         self.trigger_path = self.repo_root / "doc" / "orchestration" / "agent-triggers.yaml"
         
     def check_lightweight(self) -> Dict[str, Any]:
-        """agent.md"""
+        """AGENTS.md"""
         thresholds_met = 0
         results = {}
         
-        # 1agent.md
+        # 1AGENTS.md
         if self.agent_md_path.exists():
             with open(self.agent_md_path, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
@@ -62,7 +62,7 @@ class AIFriendlinessChecker:
         always_read_lines = 0
         always_read_files = 0
         
-        # agent.mdYAML front matteralways_read
+        # AGENTS.mdYAML front matteralways_read
         if self.agent_md_path.exists():
             with open(self.agent_md_path, 'r', encoding='utf-8') as f:
                 content = f.read()
@@ -254,7 +254,7 @@ class AIFriendlinessChecker:
             if 'lightweight' in results:
                 lw = results['lightweight']
                 print("📏 Agent.md Lightweight Check:")
-                print(f"  - Root agent.md: {lw['root_agent_md_lines']} lines {lw['root_agent_md_status']}")
+                print(f"  - Root AGENTS.md: {lw['root_agent_md_lines']} lines {lw['root_agent_md_status']}")
                 print(f"  - Always_read total: {lw['always_read_total_lines']} lines {lw['always_read_lines_status']}")
                 print(f"  - Always_read files: {lw['always_read_file_count']} {lw['always_read_count_status']}")
                 print(f"  - Thresholds met: {lw['thresholds_met']}/{lw['max_thresholds']}")

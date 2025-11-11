@@ -58,7 +58,7 @@ def find_repo_root() -> Path:
     """"""
     current = Path(__file__).resolve().parent
     while current != current.parent:
-        if (current / 'agent.md').exists():
+        if (current / 'AGENTS.md').exists():
             return current
         current = current.parent
     return Path(__file__).resolve().parent.parent

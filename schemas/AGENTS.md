@@ -7,7 +7,7 @@ policies:
   goals_ref: /doc_agent/policies/goals.md
   safety_ref: /doc_agent/policies/safety.md
 
-parent_agent: /agent.md
+parent_agent: /AGENTS.md
 merge_strategy: "child_overrides_parent"
 
 context_routes:
@@ -16,6 +16,7 @@ context_routes:
   on_demand:
     - topic: "Agent Configuration Schema"
       priority: high
+      when: "Validate or modify agent.yaml front matter contract for agents."
       paths:
         - /schemas/agent.schema.yaml
 ---
@@ -32,7 +33,7 @@ context_routes:
 | Need | Load | Purpose |
 | --- | --- | --- |
 | Directory overview | `/schemas/README.md` | Explains active vs planned schemas |
-| Agent schema | `/schemas/agent.schema.yaml` | Contract for every agent.md |
+| Agent schema | `/schemas/agent.schema.yaml` | Contract for every AGENTS.md |
 | Quality expectations | `/doc_agent/policies/quality.md` | Rules for schema coverage |
 
 ## Working Cycle
@@ -43,9 +44,9 @@ context_routes:
 
 ## Commands
 ```bash
-make agent_lint                # Validate all agent.md files
+make agent_lint                # Validate all AGENTS.md files
 make config_lint               # Validate config YAML
-python scripts/agent_lint.py --file path/to/agent.md
+python scripts/agent_lint.py --file path/to/AGENTS.md
 ```
 
 ## Good Practices

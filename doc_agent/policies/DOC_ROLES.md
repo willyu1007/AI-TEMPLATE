@@ -7,7 +7,7 @@ purpose: Canonical document roles for AI orchestration
 # Document Roles
 
 ## Types
-- **AI Docs** - ¡Ü150 lines, English-only, command-oriented (`agent.md`, quickstarts, specs in `doc_agent/`).
+- **AI Docs** - ¡Ü150 lines, English-only, command-oriented (`AGENTS.md`, quickstarts, specs in `doc_agent/`).
 - **Human Docs** - detailed references (`doc_human/`, module templates, project reports); still written in English per repository policy.
 - **Dual Docs** - shared references such as `README.md`.
 

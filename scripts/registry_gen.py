@@ -5,7 +5,7 @@ registry_gen.py -
 
 
 1. modules/
-2. README.mdagent.md
+2. README.mdAGENTS.md
 3. registry.yaml
 4. doc/orchestration/registry.yaml.draft
 
@@ -84,8 +84,8 @@ def extract_module_info(module_dir):
         "meta": None
     }
     
-    # agent.md
-    agent_md = module_dir / "agent.md"
+    # AGENTS.md
+    agent_md = module_dir / "AGENTS.md"
     if agent_md.exists():
         info["agent_md"] = str(agent_md.relative_to(REPO_ROOT))
         # YAML Front Matter
@@ -171,7 +171,7 @@ def generate_registry_draft(modules):
                 downstream = meta["dependencies"].get("downstream", [])
             
         else:
-            # agent.md
+            # AGENTS.md
             instance_id = f"{name}.v1"
             module_type = "1_example"
             level = 1
@@ -187,7 +187,7 @@ def generate_registry_draft(modules):
             "status": "active",
             "version": "1.0.0",
             "owners": ["TODO: "],
-            "agent_md": module["agent_md"] if module["agent_md"] else f"{path}/agent.md ()",
+            "agent_md": module["agent_md"] if module["agent_md"] else f"{path}/AGENTS.md ()",
             "readme": module["readme"] if module["readme"] else f"{path}/README.md",
             "contracts": [f"{path}/doc/CONTRACT.md"] if Path(REPO_ROOT / path / "doc" / "CONTRACT.md").exists() else [f"{path}/CONTRACT.md"],
             "upstream": upstream,

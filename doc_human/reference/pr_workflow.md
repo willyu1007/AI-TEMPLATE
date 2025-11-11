@@ -36,4 +36,4 @@ purpose: PR workflow reference
 
 ## References
 - `CONTRIBUTING.md`
-- `agent.md` (code review section)
+- `AGENTS.md` (code review section)

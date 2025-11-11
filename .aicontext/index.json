@@ -10,15 +10,8 @@
       "deps": []
     },
     {
-      "path": ".aicontext/index.json",
-      "hash": "3c5bfdfe694a7810",
-      "summary": null,
-      "keywords": null,
-      "deps": null
-    },
-    {
       "path": ".aicontext/module_index.json",
-      "hash": "cb75966317570390",
+      "hash": "f496fcf1fc0b28d5",
       "summary": null,
       "keywords": null,
       "deps": null
@@ -38,7 +31,7 @@
     },
     {
       "path": ".aicontext/snapshot.json",
-      "hash": "6e1bb482a3fc6e25",
+      "hash": "0d4b08f5fc8854b8",
       "summary": null,
       "keywords": null,
       "deps": null
@@ -57,42 +50,59 @@
       "deps": []
     },
     {
-      "path": "modules/common/agent.md",
-      "hash": "c813dba0f4557b11",
-      "summary": "--- spec_version: \"1.0\" agent_id: \"modules.common.v1\" role: \"Provide common utilities and infrastructure code - Shared across all modules\" level: 1 module_type: \"0_Infrastructure/Common\" ownership: code_paths: include: - modules/common/util",
+      "path": ".aicontext/index.json",
+      "hash": "ea44b2a17cf47ea1",
+      "summary": null,
+      "keywords": null,
+      "deps": null
+    },
+    {
+      "path": "tools/openapi.json",
+      "hash": "8165dc84dac2595f",
+      "summary": null,
+      "keywords": null,
+      "deps": null
+    },
+    {
+      "path": "tools/codegen/contract.json",
+      "hash": "56895209883982ad",
+      "summary": null,
+      "keywords": null,
+      "deps": null
+    },
+    {
+      "path": "modules/api_gateway/README.md",
+      "hash": "95482aff62b09ab9",
+      "summary": "High-performance API gateway with middleware pipeline for request routing, authentication, rate limiting, and observability. - 🚀 Fast request routing (<10ms overhead) - 🔐 Built-in authentication middleware - ⚡ Rate limiting and throttling -",
       "keywords": [
-        "modules",
-        "common",
-        "contract",
-        "doc",
-        "business"
+        "gateway",
+        "middleware",
+        "request",
+        "routing",
+        "rate"
       ],
       "deps": [
-        "/modules/common/doc/CONTRACT.md",
-        "/modules/common/README.md",
-        "/modules/common/doc/CHANGELOG.md"
+        "gateway.yaml"
       ]
     },
     {
-      "path": "modules/common/README.md",
-      "hash": "b440fc2813734c89",
-      "summary": "Shared utilities, models, middleware, constants, and interfaces used by multiple feature modules. Keep it small, stable, and business-agnostic. ```text modules/common/ |-- utils/         # string/date/validation/encryption helpers |-- model",
+      "path": "modules/api_gateway/AGENTS.md",
+      "hash": "d4c4913687ad75a2",
+      "summary": "--- spec_version: \"1.0\" agent_id: \"modules.api_gateway.v1\" role: \"API Gateway module - Request routing and middleware management\" level: 2 module_type: \"2_Service/Gateway\" token_budget: max_context: 1500 always_load: 150 on_demand: 1350 own",
       "keywords": [
         "modules",
-        "common",
+        "gateway",
+        "request",
         "middleware",
-        "tests",
-        "feature"
+        "tests"
       ],
       "deps": [
-        "__init__.py",
-        "agent.md",
-        "modules/common/doc/CHANGELOG.md"
+        "/modules/api_gateway/doc/CONTRACT.md"
       ]
     },
     {
       "path": "modules/common/USAGE.md",
-      "hash": "43b9e7c95601c96c",
+      "hash": "b09b376125827e7f",
       "summary": "--- audience: ai language: en version: summary purpose: Quick usage guide for common module full_version: /modules/common/README.md --- > **For AI Agents** - Essential APIs and usage (~150 lines) > **Full Guide**: [README.md](README.md) (64",
       "keywords": [
         "common",
@@ -104,8 +114,57 @@
       "deps": []
     },
     {
+      "path": "modules/common/README.md",
+      "hash": "34cd739098de35dc",
+      "summary": "Shared utilities, models, middleware, constants, and interfaces used by multiple feature modules. Keep it small, stable, and business-agnostic. ```text modules/common/ |-- utils/         # string/date/validation/encryption helpers |-- model",
+      "keywords": [
+        "modules",
+        "common",
+        "middleware",
+        "tests",
+        "feature"
+      ],
+      "deps": [
+        "__init__.py",
+        "AGENTS.md",
+        "modules/common/doc/CHANGELOG.md"
+      ]
+    },
+    {
+      "path": "modules/common/AGENTS.md",
+      "hash": "d527f7cd3ceb01c9",
+      "summary": "--- spec_version: \"1.0\" agent_id: \"modules.common.v1\" role: \"Provide common utilities and infrastructure code - Shared across all modules\" level: 1 module_type: \"0_Infrastructure/Common\" ownership: code_paths: include: - modules/common/util",
+      "keywords": [
+        "modules",
+        "common",
+        "contract",
+        "doc",
+        "business"
+      ],
+      "deps": [
+        "/modules/common/README.md",
+        "/modules/common/doc/CHANGELOG.md",
+        "/modules/common/doc/CONTRACT.md"
+      ]
+    },
+    {
+      "path": "modules/common/doc/CHANGELOG.md",
+      "hash": "8bfcb0c26bfa8c12",
+      "summary": "> **Version**: 1.0.0 > **Last Updated**: 2025-11-09 --- - **Directory Structure**: Moved from `/common/` to `/modules/common/` (Phase 14.0.1) - **Module Registration**: Added `AGENTS.md` for AI orchestration support - **Documentation**: Cre",
+      "keywords": [
+        "common",
+        "utilities",
+        "add",
+        "modules",
+        "module"
+      ],
+      "deps": [
+        "AGENTS.md"
+      ]
+    },
+    {
       "path": "modules/common/doc/BUGS.md",
-      "hash": "32c9cad0787dea0d",
+      "hash": "2b7ad713de1d21f0",
       "summary": "No issues tracked for the template. Use this file to log real bugs in English.",
       "keywords": [
         "log",
@@ -117,36 +176,8 @@
       "deps": []
     },
     {
-      "path": "modules/common/doc/CHANGELOG.md",
-      "hash": "0ae6573d78f3d117",
-      "summary": "> **Version**: 1.0.0 > **Last Updated**: 2025-11-09 --- - **Directory Structure**: Moved from `/common/` to `/modules/common/` (Phase 14.0.1) - **Module Registration**: Added `agent.md` for AI orchestration support - **Documentation**: Crea",
-      "keywords": [
-        "common",
-        "utilities",
-        "add",
-        "modules",
-        "module"
-      ],
-      "deps": [
-        "agent.md"
-      ]
-    },
-    {
-      "path": "modules/common/doc/CONTRACT.md",
-      "hash": "dd9ee68710a0b938",
-      "summary": "Internal helpers only; no external API. Refer to `doc_human/templates/module-templates/CONTRACT.md.template` when documenting real modules.",
-      "keywords": [
-        "contract",
-        "module",
-        "templates",
-        "common",
-        "internal"
-      ],
-      "deps": []
-    },
-    {
       "path": "modules/common/doc/PROGRESS.md",
-      "hash": "e022a12867624f7a",
+      "hash": "98d241699e4ba419",
       "summary": "| Date | Update | Owner | Evidence | |------|--------|-------|----------| | 2025-11-05 | Template content populated | Repo Maintainer | initial commit | Future updates go here in English.",
       "keywords": [
         "progress",
@@ -159,7 +190,7 @@
     },
     {
       "path": "modules/common/doc/RUNBOOK.md",
-      "hash": "6701ceed80a43550",
+      "hash": "d88f09a2c93b4b31",
       "summary": "Shared library; no runtime service. Checklist: - Run `pytest tests/common/ -v`. - Update docs/templates and ensure English language compliance. - Regenerate docs via `make docgen`. - If guardrails fail, fix before other modules consume the ",
       "keywords": [
         "common",
@@ -171,8 +202,21 @@
       "deps": []
     },
     {
+      "path": "modules/common/doc/CONTRACT.md",
+      "hash": "ab7fc2d73c516389",
+      "summary": "Internal helpers only; no external API. Refer to `doc_human/templates/module-templates/CONTRACT.md.template` when documenting real modules.",
+      "keywords": [
+        "contract",
+        "module",
+        "templates",
+        "common",
+        "internal"
+      ],
+      "deps": []
+    },
+    {
       "path": "modules/common/doc/TEST_PLAN.md",
-      "hash": "16c6b03afdbf246b",
+      "hash": "daf052291b354798",
       "summary": "Demonstration module for shared utilities. Tests live under `tests/common/`. - Unit tests: pytest for utils/models, Go/TS examples as needed. - Integration tests: scripts that exercise middleware and interfaces. - Coverage target: ¡Ý90%. - ",
       "keywords": [
         "tests",
@@ -186,19 +230,18 @@
       ]
     },
     {
-      "path": "tools/openapi.json",
-      "hash": "74ec5e4a358dd0c6",
-      "summary": null,
-      "keywords": null,
-      "deps": null
-    },
-    {
-      "path": "tools/codegen/contract.json",
-      "hash": "09be24b2a9941721",
-      "summary": null,
-      "keywords": null,
-      "deps": null
+      "path": "modules/common/doc/AI_OPTIMIZATION.md",
+      "hash": "e143f449f112b72e",
+      "summary": "```python from modules.common import * from modules.common.utils.validation import validate_email from modules.common.models.base import BaseModel ``` | Need | Import | Tokens | |------|--------|--------| | Validation | `utils.validation` |",
+      "keywords": [
+        "common",
+        "import",
+        "modules",
+        "utils",
+        "models"
+      ],
+      "deps": []
     }
   ],
-  "generated_at": "2025-11-10T13:45:17.396162"
+  "generated_at": "2025-11-11T06:57:52.570539"
 }

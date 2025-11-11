@@ -83,7 +83,7 @@ def load_registry():
 
 
 def find_all_agent_md():
-    """modules/agent.md"""
+    """modules/AGENTS.md"""
     agent_files = []
     
     if not MODULES_DIR.exists():
@@ -93,7 +93,7 @@ def find_all_agent_md():
         if not module_dir.is_dir():
             continue
         
-        agent_file = module_dir / "agent.md"
+        agent_file = module_dir / "AGENTS.md"
         if agent_file.exists():
             agent_files.append(agent_file)
     
@@ -125,7 +125,7 @@ def validate_io_fields(module_io: dict, contract_io: dict, io_type: str) -> Tupl
     IO
     
     Args:
-        module_io: IOagent.md
+        module_io: IOAGENTS.md
         contract_io: IOCONTRACTS.yaml
         io_type: 'inputs'  'outputs'
     
@@ -166,7 +166,7 @@ def check_module_contract(agent_file: Path, contracts: dict, registry: dict) -> 
     """
     messages = []
     
-    # agent.md
+    # AGENTS.md
     try:
         with open(agent_file, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -181,7 +181,7 @@ def check_module_contract(agent_file: Path, contracts: dict, registry: dict) -> 
     # 
     module_type = yaml_data.get('module_type')
     if not module_type:
-        return False, ["❌ agent.mdmodule_type"]
+        return False, ["❌ AGENTS.mdmodule_type"]
     
     # 
     type_contract = get_type_contract(module_type, contracts)
@@ -296,7 +296,7 @@ def main():
         print()
         print(":")
         print("1. MODULE_TYPE_CONTRACTS.yaml")
-        print("2. agent.mdio")
+        print("2. AGENTS.mdio")
         print("3. ")
         print("4.  make agent_lint YAML")
         sys.exit(1)

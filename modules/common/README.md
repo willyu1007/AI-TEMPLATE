@@ -40,5 +40,5 @@ modules/common/
 ## References
 - `modules/common/doc/*.md` - contract, test plan, runbook, etc.
 - `tests/common/` - coverage examples.
-- `agent.md` - module policies.
+- `AGENTS.md` - module policies.
 

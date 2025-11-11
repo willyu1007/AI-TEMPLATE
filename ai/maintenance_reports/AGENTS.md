@@ -7,7 +7,7 @@ policies:
   goals_ref: /doc_agent/policies/goals.md
   safety_ref: /doc_agent/policies/safety.md
 
-parent_agent: /ai/agent.md
+parent_agent: /ai/AGENTS.md
 merge_strategy: "child_overrides_parent"
 ---
 # Maintenance Reports Agent Guide
@@ -37,7 +37,7 @@ make ai_maintenance
 make health_check
 make health_report
 python scripts/context_usage_tracker.py report
-python scripts/context_usage_tracker.py optimize --agent agent.md
+python scripts/context_usage_tracker.py optimize --agent AGENTS.md
 make cleanup_reports_smart
 ```
 

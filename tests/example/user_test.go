@@ -102,6 +102,6 @@ go test -cover ./tests/example/
 go test -race ./tests/example/
 go test -bench=. ./tests/example/
 
-agent.md §6.3 Go 
+AGENTS.md §6.3 Go 
 */
 

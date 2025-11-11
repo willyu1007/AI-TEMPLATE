@@ -1,9 +1,9 @@
 # Routing Rules
 
-> Defines how agents load and merge context from `agent.md` files.
+> Defines how agents load and merge context from `AGENTS.md` files.
 
 ## Principles
-1. **Layered loading** - module `agent.md` ¡ú root `agent.md` ¡ú referenced policies.
+1. **Layered loading** - module `AGENTS.md` ¡ú root `AGENTS.md` ¡ú referenced policies.
 2. **Merge strategy** - default is `child_overrides_parent` (set in root file). Children may override parent arrays/fields.
 3. **On-demand context** - only load what `context_routes` specifies; never follow references recursively.
 
@@ -30,7 +30,7 @@ Scope-specific documents, usually for modules:
 by_scope:
   - scope: "modules/user"
     read:
-      - /modules/user/agent.md
+      - /modules/user/AGENTS.md
       - /modules/user/doc/CONTRACT.md
       - /modules/user/doc/RUNBOOK.md
 ```

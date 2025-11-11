@@ -19,7 +19,7 @@ Modules are independent and replaceable with stable I/O defined in CONTRACT.md.
 Full validation via `make dev_check` (21 checks). CI-ready with semi-automated critical ops.
 
 ### 4. Orchestrable
-Auto-discovery via agent.md, intelligent triggers (16 rules), and workflow patterns (8 standard).
+Auto-discovery via AGENTS.md, intelligent triggers (16 rules), and workflow patterns (8 standard).
 
 ---
 
@@ -109,7 +109,7 @@ make health_report_detailed
 ### Validation (Run before commit)
 ```bash
 make dev_check           # All 21 checks (CI gate)
-make agent_lint          # Validate agent.md
+make agent_lint          # Validate AGENTS.md
 make contract_compat_check  # Check API changes
 make rollback_check      # Test rollback (high-risk changes)
 ```
@@ -142,7 +142,7 @@ make coupling_check                  # Module coupling analysis
 - **Low priority**: CONVENTIONS.md, directory.md (rarely needed)
 
 ### Module-Specific
-- Load `modules/<name>/agent.md` when working in that module
+- Load `modules/<name>/AGENTS.md` when working in that module
 
 ---
 
@@ -150,7 +150,7 @@ make coupling_check                  # Module coupling analysis
 
 ### Required
 - Test coverage ≥80% (common module ≥90%)
-- All 8 docs per module: README, agent.md, CONTRACT, TEST_PLAN, RUNBOOK, CHANGELOG, BUGS, PROGRESS
+- All 8 docs per module: README, AGENTS.md, CONTRACT, TEST_PLAN, RUNBOOK, CHANGELOG, BUGS, PROGRESS
 - Backward compatible (use @deprecated for changes)
 - CI must pass (`make dev_check`)
 
@@ -166,7 +166,7 @@ make coupling_check                  # Module coupling analysis
 
 - **Full Goals**: goals.md (171 lines)
 - **Full Safety**: safety.md (233 lines)
-- **Complete Workflows**: agent.md (350 lines)
+- **Complete Workflows**: AGENTS.md (350 lines)
 - **Module Development**: MODULE_INIT_GUIDE.md (~25 lines + linked templates)
 - **Initialization Protocols**: init/project-init.md & init/module-init.md (load before scaffolding)
 - **Maintenance Loop**: flows/maintenance-loop.md (post-release cadence)

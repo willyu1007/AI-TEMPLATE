@@ -28,7 +28,7 @@ purpose: Repository overview for AI systems and humans
 ---
 
 ## Core Capabilities
-1. **Agent-Oriented Documentation** - `agent.md` defines routing, context budgets, and document roles so coders and orchestrators can load only what they need.
+1. **Agent-Oriented Documentation** - `AGENTS.md` defines routing, context budgets, and document roles so coders and orchestrators can load only what they need. The repository treats `AGENTS.md` as the canonical orchestrator entry point, equivalent to `claude.md`、`gemini.md`、`agnets.md`、`CLAUDE.md`、`GEMINI.md` used in alternative setups.
 2. **Workflow Automation** - `Makefile` recipes wrap quality checks (`dev_check`, `docgen`, `contract_compat_check`, etc.) and can be chained inside CI or manual sessions.
 3. **Module Scaffolding** - `make ai_begin MODULE=name` spins up code, docs, and tests that already conform to the repository policies.
 4. **Guardrail System** - Trigger definitions plus guardrail quickstarts prevent destructive operations (database, contracts, secrets) before they happen.
@@ -71,7 +71,7 @@ ls -la tests/my_feature/
 ## Repository Layout
 ```text
 .
-|-- agent.md                     # Root orchestrator contract
+|-- AGENTS.md                     # Root orchestrator contract
 |-- QUICK_START.md               # Fast onboarding for agents
 |-- TEMPLATE_USAGE.md            # Checklist for tailoring the template
 |-- ai/                          # Workflow patterns, ledgers, and maintenance notes
@@ -88,7 +88,7 @@ ls -la tests/my_feature/
 ---
 
 ## Documents That Matter Most
-- `agent.md` - single source of truth for routing rules, guardrails, and priorities.
+- `AGENTS.md` - single source of truth for routing rules, guardrails, and priorities; it serves the same role as `claude.md`、`gemini.md`、`agnets.md`、`CLAUDE.md`、`GEMINI.md` for different model families.
 - `QUICK_START.md` - pragmatic cheat sheet for AI coders.
 - `TEMPLATE_USAGE.md` - how to fork, rebrand, and configure the repo.
 - `doc_agent/policies/DOC_ROLES.md` - authoritative responsibilities and ownership of every doc class.

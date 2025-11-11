@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-agent_lint.py - agent.md YAMLLint
+agent_lint.py - AGENTS.md YAMLLint
 
 
-1. agent.md
+1. AGENTS.md
 2. YAML Front Matter
 3. 
 4. schemas/agent.schema.yamlSchemajsonschema
@@ -25,6 +25,12 @@ import yaml
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
+# Windows UTF-8 support
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+
 # Lint
 from base_lint import BaseLinter, LintIssue, Severity, run_linter
 
@@ -38,7 +44,7 @@ YAML_FRONT_MATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*", re.DOTALL | re.MULT
 
 
 class AgentLinter(BaseLinter):
-    """agent.md"""
+    """AGENTS.md"""
     
     @property
     def name(self) -> str:
@@ -271,7 +277,7 @@ class AgentLinter(BaseLinter):
                                 ))
     
     def _check_agent_file(self, agent_path: Path) -> None:
-        """agent.md"""
+        """AGENTS.md"""
         rel_path = str(agent_path.relative_to(self.repo_root))
         
         try:
@@ -285,7 +291,7 @@ class AgentLinter(BaseLinter):
                     file=rel_path,
                     severity=Severity.ERROR,
                     message="YAML Front Matter",
-                    fix="agent.md --- YAML"
+                    fix="AGENTS.md --- YAML"
                 ))
                 return
             
@@ -316,27 +322,27 @@ class AgentLinter(BaseLinter):
             ))
     
     def _find_agent_files(self) -> List[Path]:
-        """agent.md"""
+        """AGENTS.md"""
         agent_files = []
         
-        # agent.md
-        root_agent = self.repo_root / "agent.md"
+        # AGENTS.md
+        root_agent = self.repo_root / "AGENTS.md"
         if root_agent.exists():
             agent_files.append(root_agent)
         
-        # modules/*/agent.md
+        # modules/*/AGENTS.md
         modules_dir = self.repo_root / "modules"
         if modules_dir.exists():
-            for agent_path in modules_dir.rglob("agent.md"):
+            for agent_path in modules_dir.rglob("AGENTS.md"):
                 agent_files.append(agent_path)
         
-        # agent.mdai/, config/, tools/
-        for pattern in ["*/agent.md", "*/*/agent.md"]:
+        # AGENTS.mdai/, config/, tools/
+        for pattern in ["*/AGENTS.md", "*/*/AGENTS.md"]:
             for agent_path in self.repo_root.glob(pattern):
                 # 
                 if agent_path not in agent_files:
                     # node_modules, .git, temp
-                    if not any(part.startswith(".") or part in ["node_modules", "temp", "tmp"] 
+                    if not any(part.startswith(".") or part in ["node_modules", "temp", "temp"] 
                               for part in agent_path.parts):
                         agent_files.append(agent_path)
         
@@ -351,14 +357,14 @@ class AgentLinter(BaseLinter):
             print("\n⚠️  jsonschema")
             print("   pip install jsonschema ")
         
-        # agent.md
+        # AGENTS.md
         agent_files = self._find_agent_files()
         
         if not agent_files:
-            print("\nagent.md")
+            print("\nAGENTS.md")
             return True
         
-        print(f"\n {len(agent_files)} agent.md")
+        print(f"\n {len(agent_files)} AGENTS.md")
         for agent_path in agent_files:
             rel_path = agent_path.relative_to(self.repo_root)
             print(f"  - {rel_path}")

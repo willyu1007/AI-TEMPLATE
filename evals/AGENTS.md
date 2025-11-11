@@ -7,7 +7,7 @@ policies:
   goals_ref: /doc_agent/policies/goals.md
   safety_ref: /doc_agent/policies/safety.md
 
-parent_agent: /agent.md
+parent_agent: /AGENTS.md
 merge_strategy: "child_overrides_parent"
 
 context_routes:

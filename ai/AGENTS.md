@@ -7,19 +7,19 @@ policies:
   goals_ref: /doc_agent/policies/goals.md
   safety_ref: /doc_agent/policies/safety.md
 
-parent_agent: /agent.md
+parent_agent: /AGENTS.md
 merge_strategy: "child_overrides_parent"
 
 subdirectories:
   - path: /ai/workdocs
     role: Task context management for active development
-    agent: /ai/workdocs/agent.md
+    agent: /ai/workdocs/AGENTS.md
   - path: /ai/workflow-patterns
     role: Standard workflow patterns library
-    agent: /ai/workflow-patterns/agent.md
+    agent: /ai/workflow-patterns/AGENTS.md
   - path: /ai/maintenance_reports
     role: Automated maintenance and health reports
-    agent: /ai/maintenance_reports/agent.md
+    agent: /ai/maintenance_reports/AGENTS.md
   - path: /ai/sessions
     role: Historical AI self-review records (archived)
     agent: N/A (lightweight, no agent needed)

@@ -1,5 +1,12 @@
 {
   "modules": {
+    "api_gateway": {
+      "readme": "modules/api_gateway/README.md",
+      "plan": "modules/api_gateway/plan.md",
+      "contract": "modules/api_gateway/CONTRACT.md",
+      "test_plan": "modules/api_gateway/TEST_PLAN.md",
+      "tests": "tests/api_gateway/"
+    },
     "common": {
       "readme": "modules/common/README.md",
       "plan": "modules/common/plan.md",
@@ -8,5 +15,5 @@
       "tests": "tests/common/"
     }
   },
-  "generated_at": "2025-11-10T13:45:17.469558"
+  "generated_at": "2025-11-11T06:57:52.601038"
 }

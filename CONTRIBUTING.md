@@ -1,6 +1,6 @@
 # Contributing Guide
 
-This repository is designed for AI-assisted teams, so contributions must stay lightweight, traceable, and testable. Follow the rules below and reference `agent.md` whenever something is unclear.
+This repository is designed for AI-assisted teams, so contributions must stay lightweight, traceable, and testable. Follow the rules below and reference `AGENTS.md` whenever something is unclear.
 
 ## Scope
 - Report reproducible bugs.
@@ -9,7 +9,7 @@ This repository is designed for AI-assisted teams, so contributions must stay li
 
 ## Before You Start
 1. Fork the repository and sync it with upstream.
-2. Read `agent.md` (especially routing, guardrails, and code review sections).
+2. Read `AGENTS.md` (especially routing, guardrails, and code review sections).
 3. Configure your environment: Python 3.11+, Docker, Make, and the tools listed in `requirements.txt`.
 4. Respect the configured language (`config/language.yaml`); comments and docs must follow that language.
 
@@ -24,7 +24,7 @@ Use GitHub Issues and include:
 1. Describe the user value and workflows affected.
 2. Provide constraints or guardrails that must remain.
 3. Propose an implementation outline or point to related scripts/docs.
-4. Tag whether it requires updates to `agent.md`, guardrails, or doc roles.
+4. Tag whether it requires updates to `AGENTS.md`, guardrails, or doc roles.
 
 ## Submitting Code
 ```bash

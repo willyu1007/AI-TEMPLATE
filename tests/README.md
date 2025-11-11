@@ -69,7 +69,7 @@ go test -bench=. ./tests/example/
 - Add new language/tooling by extending `.github/workflows/ci.yml` and corresponding Make targets.
 
 ## References
-- `agent.md` ¡ì6 - testing standards.
+- `AGENTS.md` ¡ì6 - testing standards.
 - `modules/*/doc/TEST_PLAN.md` - module-level expectations.
 - `doc_human/guides/TEST_DATA_STRATEGY.md` - how to craft fixtures.
 

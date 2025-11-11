@@ -9,27 +9,27 @@
 
 ## 1. File Classification
 
-### 1.1 Temporary Files (`_tmp` suffix)
+### 1.1 Temporary Files (`_temp` suffix)
 
 **Definition**: Files used only during a specific task and should be deleted after task completion.
 
-**Naming Convention**: `<descriptive_name>_tmp.<extension>`
+**Naming Convention**: `<descriptive_name>_temp.<extension>`
 
 **Examples**:
-- `fix_headings_tmp.py` - One-time fix script
-- `debug_api_tmp.sh` - Debug script
-- `test_data_tmp.json` - Test data file
-- `task_summary_tmp.md` - Task summary document
+- `fix_headings_temp.py` - One-time fix script
+- `debug_api_temp.sh` - Debug script
+- `test_data_temp.json` - Test data file
+- `task_summary_temp.md` - Task summary document
 
 **Location**:
-- Recommended: `tmp/` directory
-- Alternative: `modules/<name>/tmp/`
-- Must be in `.gitignore` (auto-ignored via `*_tmp.*` pattern)
+- Recommended: `temp/` directory
+- Alternative: `modules/<name>/temp/`
+- Must be in `.gitignore` (auto-ignored via `*_temp.*` pattern)
 
 **Cleanup**: 
 - Immediate: After task completion
-- Command: `make cleanup_tmp`
-- Automated: CI blocks commits with `*_tmp.*` files
+- Command: `make cleanup_temp`
+- Automated: CI blocks commits with `*_temp.*` files
 
 ### 1.2 Report Files (time-based retention)
 
@@ -80,7 +80,7 @@
 A file is considered **temporary** if it meets ANY of the following criteria:
 
 1. **Not in `Makefile`**: Not used as a command target
-2. **Not in `agent.md`**: Not explicitly mentioned in workflow docs
+2. **Not in `AGENTS.md`**: Not explicitly mentioned in workflow docs
 3. **Not in `README.md`**: Not part of core project features
 4. **Task-specific tool**: One-time fix, debug, or check script
 5. **Auto-generated report**: Maintenance, check, or analysis output
@@ -90,7 +90,7 @@ A file is considered **temporary** if it meets ANY of the following criteria:
 
 ```
 Is this file needed after task completion?
-├─ NO → Use _tmp suffix → Delete after task
+├─ NO → Use _temp suffix → Delete after task
 ├─ YES, but only for N days → Use timestamp naming → Auto-cleanup
 └─ YES, permanently → Use descriptive name → Manual management
 ```
@@ -104,8 +104,8 @@ Is this file needed after task completion?
 Before generating ANY file, AI must:
 
 - [ ] Determine if file is temporary (check criteria in 2.1)
-- [ ] Apply correct naming convention (`_tmp` suffix if temporary)
-- [ ] Choose appropriate location (`tmp/` or module-specific)
+- [ ] Apply correct naming convention (`_temp` suffix if temporary)
+- [ ] Choose appropriate location (`temp/` or module-specific)
 - [ ] Add header comment (for temporary files only)
 
 ### 3.2 Header Template (Temporary Files)
@@ -153,13 +153,13 @@ Task: <task_name>
 
 **Command**:
 ```bash
-make cleanup_tmp
+make cleanup_temp
 ```
 
 **What it does**:
-- Deletes all `*_tmp.*` files
-- Removes all `*_tmp/` directories
-- Cleans `tmp/` directory
+- Deletes all `*_temp.*` files
+- Removes all `*_temp/` directories
+- Cleans `temp/` directory
 - Excludes: `.git/`, `node_modules/`, virtual envs
 
 ### 4.2 Scheduled Cleanup (Report Files)
@@ -201,12 +201,12 @@ make cleanup_reports TYPE=health AGE=30
 
 **Gate 1: Pre-commit** (via `make dev_check`)
 ```bash
-make temp_files_check  # Blocks commits with *_tmp.* files
+make temp_files_check  # Blocks commits with *_temp.* files
 ```
 
 **Gate 2: PR Review**
 - CI warns if `ai/maintenance_reports/` has >20 files
-- CI fails if `*_tmp.*` files detected
+- CI fails if `*_temp.*` files detected
 
 ### 5.2 Maintenance Integration
 
@@ -222,7 +222,7 @@ make temp_files_check  # Blocks commits with *_tmp.* files
 ### 6.1 Temporary Files Directory
 
 ```
-tmp/
+temp/
 ├── README.md           # This directory's purpose
 ├── reports/            # Temporary report files
 ├── scripts/            # Temporary scripts
@@ -230,8 +230,8 @@ tmp/
 ```
 
 **Rules**:
-- All files in `tmp/` should use `_tmp` suffix
-- Auto-cleaned by `make cleanup_tmp`
+- All files in `temp/` should use `_temp` suffix
+- Auto-cleaned by `make cleanup_temp`
 - Entire directory is in `.gitignore`
 
 ### 6.2 Reports Directories
@@ -256,22 +256,22 @@ ai/
 
 ✅ **DO**:
 - Always check if file is temporary before creation
-- Use `_tmp` suffix for all temporary files
+- Use `_temp` suffix for all temporary files
 - Add clear header comments
-- Run `make cleanup_tmp` after task completion
+- Run `make cleanup_temp` after task completion
 - Document cleanup plan in PR description
 
 ❌ **DON'T**:
-- Create temporary files without `_tmp` suffix
+- Create temporary files without `_temp` suffix
 - Leave temporary files after task completion
-- Commit `*_tmp.*` files to git
+- Commit `*_temp.*` files to git
 - Delete archive files without review
 
 ### 7.2 For Developers
 
 ✅ **DO**:
 - Review temporary files before PR
-- Run `make cleanup_tmp` before commit
+- Run `make cleanup_temp` before commit
 - Keep report directories organized
 - Archive important reports with clear names
 
@@ -288,7 +288,7 @@ ai/
 
 **Correct**:
 ```bash
-# File: tmp/scripts/test_api_connection_tmp.sh
+# File: temp/scripts/test_api_connection_temp.sh
 #!/bin/bash
 # TEMPORARY FILE - Test API connection for debugging
 # Should be deleted after task completion
@@ -298,7 +298,7 @@ curl -v http://localhost:8000/health
 
 **Incorrect**:
 ```bash
-# File: scripts/test_api_connection.sh  ❌ Wrong location, no _tmp suffix
+# File: scripts/test_api_connection.sh  ❌ Wrong location, no _temp suffix
 curl -v http://localhost:8000/health
 ```
 
@@ -313,7 +313,7 @@ curl -v http://localhost:8000/health
 
 **Incorrect**:
 ```bash
-# File: health-report_tmp.json  ❌ Should not use _tmp suffix
+# File: health-report_temp.json  ❌ Should not use _temp suffix
 ```
 
 ### Example 3: Optimization Plan (Archive)
@@ -322,7 +322,7 @@ curl -v http://localhost:8000/health
 ```markdown
 # File: ai/maintenance_reports/optimization-plan.md
 # Permanent archive file
-# No _tmp suffix, manual management
+# No _temp suffix, manual management
 ```
 
 ---
@@ -331,7 +331,7 @@ curl -v http://localhost:8000/health
 
 | Command | Purpose | When to Use |
 |---------|---------|-------------|
-| `make cleanup_tmp` | Delete all `*_tmp.*` files | After every task |
+| `make cleanup_temp` | Delete all `*_temp.*` files | After every task |
 | `make cleanup_reports` | Delete old reports | Weekly/monthly |
 | `make cleanup_reports_smart` | Smart cleanup (keeps important) | Monthly maintenance |
 | `make temp_files_check` | Check for uncleaned files | Pre-commit (auto) |
@@ -341,7 +341,7 @@ curl -v http://localhost:8000/health
 
 ## 10. Related Documents
 
-- **Workflow**: `agent.md` §0 (S6 - Auto Maintenance)
+- **Workflow**: `AGENTS.md` §0 (S6 - Auto Maintenance)
 - **Quality Standards**: `doc/policies/quality.md`
 - **Safety Rules**: `doc/policies/safety.md`
 - **Maintenance Reports**: `ai/maintenance_reports/README.md`

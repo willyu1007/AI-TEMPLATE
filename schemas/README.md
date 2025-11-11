@@ -5,7 +5,7 @@ Collect every schema used to validate configuration, documentation front matter,
 
 ## Contents
 ### `agent.schema.yaml`
-- Describes required fields for `agent.md` (`spec_version`, `agent_id`, `role`, etc.).
+- Describes required fields for `AGENTS.md` (`spec_version`, `agent_id`, `role`, etc.).
 - Consumed by `scripts/agent_lint.py`.
 - Update when you add new front-matter fields or context routes.
 
@@ -30,5 +30,5 @@ pip install pyyaml jsonschema
 - Keep schema files versioned (use a `version` field if breaking changes are possible).
 - Add tests for scripts that consume schemas.
 
-Schemas are configuration assets, so they do not require individual `agent.md` files.
+Schemas are configuration assets, so they do not require individual `AGENTS.md` files.
 

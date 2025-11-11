@@ -10,7 +10,7 @@ Summarizes key folders and what they contain. Use it when orienting new contribu
 
 | Path | Description |
 |------|-------------|
-| `agent.md` | Root orchestration config |
+| `AGENTS.md` | Root orchestration config |
 | `doc_agent/` | AI-friendly policies + quickstarts |
 | `doc_human/` | Human guides, templates, examples |
 | `modules/` | Feature modules (shared code in `modules/common`) |

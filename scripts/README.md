@@ -10,7 +10,7 @@ This directory contains automation scripts used by Makefile targets and CI/CD wo
 - `ai_friendliness_check.py` - AI compatibility verification
 
 ### Linting & Validation
-- `agent_lint.py` - Validate agent.md files
+- `agent_lint.py` - Validate AGENTS.md files
 - `config_lint.py` - Configuration validation
 - `python_scripts_lint.py` - Python code linting
 - `shell_scripts_lint.sh` - Shell script validation
@@ -60,10 +60,17 @@ This directory contains automation scripts used by Makefile targets and CI/CD wo
 
 ### Documentation Wrapper
 - `doc_tools.py` - Unified entry for docs checks (`style`, `freshness`, `sync`, `all`)
+  - When to use: run a complete docs check suite from one entrypoint
+  - How: `python scripts/doc_tools.py all` or a single task like `style`
 
 ### Telemetry & Optimization
 - `context_usage_tracker.py` - Log/report/optimize context route usage
 - `ai_chain_optimizer.py` - Emit route optimization suggestions based on telemetry
+  - When to use: before changing `context_routes` ordering or adding new topics
+  - How:
+    - Log: `python scripts/context_usage_tracker.py maybe-log --topic "<topic>" --path <path>`
+    - Report: `python scripts/context_usage_tracker.py report --limit 10`
+    - Suggest: `python scripts/ai_chain_optimizer.py --optimize --limit 10`
 
 ## Usage
 

@@ -9,7 +9,7 @@
 
 ### Added
 - **Directory Structure**: Moved from `/common/` to `/modules/common/` (Phase 14.0.1)
-- **Module Registration**: Added `agent.md` for AI orchestration support
+- **Module Registration**: Added `AGENTS.md` for AI orchestration support
 - **Documentation**: Created complete API contract (CONTRACT.md)
 - **Initial Release**: Established as infrastructure module
 

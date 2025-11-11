@@ -7,7 +7,7 @@ policies:
   goals_ref: /doc_agent/policies/goals.md
   safety_ref: /doc_agent/policies/safety.md
 
-parent_agent: /agent.md
+parent_agent: /AGENTS.md
 merge_strategy: "child_overrides_parent"
 
 context_routes:
@@ -16,6 +16,7 @@ context_routes:
   on_demand:
     - topic: "Observability Setup"
       priority: medium
+      when: "Bootstrap or validate logging, metrics, tracing, and alerts."
       paths:
         - /doc_human/guides/HEALTH_MONITORING_GUIDE.md
 ---

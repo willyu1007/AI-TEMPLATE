@@ -250,17 +250,17 @@ def check_temp_files(report: MaintenanceReport):
     """"""
     print("...")
     try:
-        #  *_tmp.*  tmp/ gitnode_modules 
+        #  *_temp.*  temp/ gitnode_modules 
         result = subprocess.run(
             [
                 'find', '.', 
                 '-type', 'f',
-                '-name', '*_tmp.*',
+                '-name', '*_temp.*',
                 '-not', '-path', './.git/*',
                 '-not', '-path', './node_modules/*',
                 '-not', '-path', './.venv/*',
                 '-not', '-path', './venv/*',
-                '-not', '-path', './tmp/*'
+                '-not', '-path', './temp/*'
             ],
             capture_output=True,
             text=True,
@@ -280,7 +280,7 @@ def check_temp_files(report: MaintenanceReport):
             report.add_task(
                 'temp_files_check',
                 'warning',
-                f' {len(temp_files)} : make cleanup_tmp',
+                f' {len(temp_files)} : make cleanup_temp',
                 file_list
             )
         
@@ -310,8 +310,8 @@ def check_temp_files(report: MaintenanceReport):
         # Windows  find  Python 
         try:
             temp_files = []
-            for root, dirs, files in Path('.').rglob('*_tmp.*'):
-                if not any(p in str(root) for p in ['.git', 'node_modules', '.venv', 'venv', 'tmp']):
+            for root, dirs, files in Path('.').rglob('*_temp.*'):
+                if not any(p in str(root) for p in ['.git', 'node_modules', '.venv', 'venv', 'temp']):
                     temp_files.append(str(root))
             
             if not temp_files:
@@ -324,7 +324,7 @@ def check_temp_files(report: MaintenanceReport):
                 report.add_task(
                     'temp_files_check',
                     'warning',
-                    f' {len(temp_files)} : make cleanup_tmp',
+                    f' {len(temp_files)} : make cleanup_temp',
                     file_list
                 )
         except Exception as e:

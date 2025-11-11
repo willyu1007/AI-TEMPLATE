@@ -77,7 +77,7 @@ context_routes:
       load_policy: default
       paths:
         - /modules/common/USAGE.md
-        - /modules/common/agent.md
+        - /modules/common/AGENTS.md
     - topic: "Database - operate existing engines"
       priority: medium
       audience: both
@@ -141,6 +141,11 @@ context_routes:
       paths:
         - /doc_agent/orchestration/agent-triggers.yaml
         - /doc_human/guides/triggers-guide.md
+      commands:
+        - "make trigger_show"
+        - "make trigger_check"
+        - "make trigger_coverage"
+        - "make trigger_matrix"
     - topic: "Workdocs task management"
       priority: medium
       audience: ai
@@ -212,6 +217,16 @@ context_routes:
         - "make code_complexity"
         - "make health_analyze_issues"
         - "make health_show_quick_wins"
+        - "python scripts/context_usage_tracker.py report --limit 10"
+        - "python scripts/ai_chain_optimizer.py --optimize --limit 10"
+    - topic: "Automation - Scripts and commands"
+      priority: medium
+      audience: ai
+      when: "Run repository automation via Makefile or one-shot helpers."
+      load_policy: default
+      paths:
+        - /scripts/AGENTS.md
+        - /scripts/README.md
     - topic: "Context routing optimization"
       priority: medium
       audience: ai
@@ -226,7 +241,7 @@ context_routes:
       when: "Refresh or compare baseline JSON before a release."
       load_policy: task_specific
       paths:
-        - /evals/agent.md
+        - /evals/AGENTS.md
       commands:
         - "make contract_compat_check"
   by_scope:
@@ -251,6 +266,8 @@ context_routes:
 
 > Root routing contract for TemplateAI. Keep context lean and deterministic so downstream agents stay inside budget.
 
+This repository adopts `AGENTS.md` as the canonical orchestrator entry point. It is functionally equivalent to model-specific entry files such as `claude.md`、`gemini.md`、`agnets.md`、`CLAUDE.md`、`GEMINI.md`, so any guidance here applies uniformly across supported model families.
+
 ## Minimal Loading Plan
 - `always_read` already loads `/doc_agent/index/AI_INDEX.md` (~130 tokens).
 - Use `context_routes` (YAML above) to pull only the topics you need.
@@ -269,7 +286,7 @@ context_routes:
 
 ## Module Instance Definition (must know)
 - Use `/doc_human/guides/MODULE_INSTANCES.md` as the single source of truth after running `make ai_begin MODULE=<name>`.
-- Instances conform to one type contract (`/doc_agent/specs/MODULE_TYPES.md` + `MODULE_TYPE_CONTRACTS.yaml`) and inherit guardrails from both the template and their local `agent.md`.
+- Instances conform to one type contract (`/doc_agent/specs/MODULE_TYPES.md` + `MODULE_TYPE_CONTRACTS.yaml`) and inherit guardrails from both the template and their local `AGENTS.md`.
 - Register ownership + escalation details in the guide and `/doc_agent/orchestration/registry.yaml` immediately after scaffolding.
 
 ## Workflow Hooks
@@ -278,7 +295,7 @@ context_routes:
 | S0 Refresh | Load LEDGER, workdoc, and relevant agents | `/ai/LEDGER.md`, `/ai/workdocs/README.md` |
 | S1 Model | Build or update workdoc plan, check workflow patterns | `/ai/workflow-patterns/catalog.yaml` |
 | S3 Build | Follow module/tests/config agents for the target area | See respective agent files |
-| S6 Maintenance | Clean temp files, archive workdocs, sync docs | `make cleanup_tmp`, `make workdoc_archive` |
+| S6 Maintenance | Clean temp files, archive workdocs, sync docs | `make cleanup_temp`, `make workdoc_archive` |
 
 ## Quick Checklist
 - Maintain plan and workdoc alignment.

@@ -68,7 +68,7 @@ def find_repo_root() -> Path:
     """"""
     current = Path(__file__).resolve().parent
     while current != current.parent:
-        if (current / 'agent.md').exists():
+        if (current / 'AGENTS.md').exists():
             return current
         current = current.parent
     return Path(__file__).resolve().parent.parent
@@ -100,10 +100,10 @@ def parse_yaml_frontmatter(content: str) -> Tuple[Optional[Dict], str]:
 
 
 def read_module_agent_md(repo_root: Path, module_name: str) -> Optional[Dict]:
-    """agent.md"""
-    module_path = repo_root / 'modules' / module_name / 'agent.md'
+    """AGENTS.md"""
+    module_path = repo_root / 'modules' / module_name / 'AGENTS.md'
     if not module_path.exists():
-        module_path = repo_root / 'doc' / 'modules' / module_name / 'agent.md'
+        module_path = repo_root / 'doc' / 'modules' / module_name / 'AGENTS.md'
     
     if not module_path.exists():
         return None
@@ -115,7 +115,7 @@ def read_module_agent_md(repo_root: Path, module_name: str) -> Optional[Dict]:
         yaml_data, _ = parse_yaml_frontmatter(content)
         return yaml_data
     except Exception as e:
-        print(f"{RED}✗ agent.md: {e}{RESET}")
+        print(f"{RED}✗ AGENTS.md: {e}{RESET}")
         return None
 
 

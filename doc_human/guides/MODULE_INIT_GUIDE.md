@@ -9,7 +9,7 @@ purpose: Detailed instructions for initializing modules
 ## Steps
 1. **Plan** - create a workdoc, define scope, confirm language setting.
 2. **Scaffold** - `make ai_begin MODULE=<name>` (generates agent file, docs, tests).
-3. **Configure** - update `modules/<name>/agent.md`, register contexts in root `agent.md` if needed.
+3. **Configure** - update `modules/<name>/AGENTS.md`, register contexts in root `AGENTS.md` if needed.
 4. **Document** - fill in `doc/CONTRACT.md`, `RUNBOOK.md`, `TEST_PLAN.md`, `TEST_DATA.md`, `PROGRESS.md`.
 5. **Wire Tests** - update `tests/<name>/` and CI targets.
 6. **Register** - add module metadata to `doc_human/guides/MODULE_INSTANCES.md` and `doc_agent/orchestration/registry.yaml` if applicable.

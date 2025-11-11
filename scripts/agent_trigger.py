@@ -64,7 +64,7 @@ class AgentTrigger:
         """"""
         current = Path.cwd()
         while current != current.parent:
-            if (current / "agent.md").exists():
+            if (current / "AGENTS.md").exists():
                 return current
             current = current.parent
         return Path.cwd()

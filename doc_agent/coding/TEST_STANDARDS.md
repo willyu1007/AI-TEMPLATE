@@ -16,7 +16,7 @@ purpose: Testing standards for automation and contributors
    / Unit  \\   70% unit
   /----------\\
 ```
-Default coverage: 80% overall, 90% for critical modules (override via `agent.md -> quality_gates.coverage_min`).
+Default coverage: 80% overall, 90% for critical modules (override via `AGENTS.md -> quality_gates.coverage_min`).
 
 ## Test Types
 | Type | Goal | Examples |

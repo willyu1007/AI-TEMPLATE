@@ -21,7 +21,7 @@ This command automatically:
 - Creates directory structure
 - Generates required documents
 - Updates registry
-- Creates agent.md
+- Creates AGENTS.md
 
 ---
 
@@ -31,7 +31,7 @@ This command automatically:
 
 ```bash
 modules/<entity>/
-├── agent.md           # AI configuration
+├── AGENTS.md           # AI configuration
 ├── README.md          # Module overview
 ├── __init__.py        # Python package
 ├── core/             # Core logic
@@ -68,7 +68,7 @@ errors:
 
 ### 3. Configure Agent
 
-In `agent.md`:
+In `AGENTS.md`:
 
 ```yaml
 ---
@@ -113,7 +113,7 @@ make module_health_check MODULE=<module_name>
 # Checks:
 ✓ Directory structure complete
 ✓ Required documents exist
-✓ agent.md valid
+✓ AGENTS.md valid
 ✓ CONTRACT.md matches type
 ✓ Registry entry present
 ```

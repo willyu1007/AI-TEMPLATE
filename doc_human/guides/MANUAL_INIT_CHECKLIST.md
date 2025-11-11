@@ -25,7 +25,7 @@ Use this checklist when you prefer to edit files yourself or need to verify AI-a
 ## After Editing
 
 - [ ] Rewrite `README.md` with project name, purpose, quick start, and workflows.  
-- [ ] Update root `agent.md` context routes and metadata.  
+- [ ] Update root `AGENTS.md` context routes and metadata.  
 - [ ] Update or create required docs under `doc_agent/` and `doc_human/`.  
 - [ ] Scaffold initial modules (docs, tests, registry entries) if applicable.  
 - [ ] Run guardrail checks (`make agent_trigger_test`, `make dev_check`).  

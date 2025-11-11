@@ -37,9 +37,9 @@ chinese_version: /doc/policies/goals.md
 
 **Implementation**:
 - **Interchangeable Types**: MODULE_TYPES.md defines type specifications
-- **Independent Instances**: Each module has its own agent.md and doc/
+- **Independent Instances**: Each module has its own AGENTS.md and doc/
 - **Stable I/O**: CONTRACT.md defines input/output contracts
-- **Explicit Dependencies**: agent.md declares upstream/downstream
+- **Explicit Dependencies**: AGENTS.md declares upstream/downstream
 
 **Success Criteria**:
 - ✅ Same-type modules are interchangeable (e.g., different Select implementations)
@@ -52,7 +52,7 @@ chinese_version: /doc/policies/goals.md
 **Goal**: Full process validation, scriptable, CI-ready
 
 **Implementation**:
-- **Validation Scripts**: Cover agent.md, registry, doc routes, etc.
+- **Validation Scripts**: Cover AGENTS.md, registry, doc routes, etc.
 - **Generation Scripts**: Auto-generate registry.yaml drafts, MODULE_INSTANCES.md
 - **CI Gates**: `make dev_check` aggregates all validations (21 checks)
 - **Semi-Automated**: registry.yaml and database operations require human review
@@ -70,7 +70,7 @@ chinese_version: /doc/policies/goals.md
 **Implementation**:
 - **Registry**: doc/orchestration/registry.yaml maintains module relationships
 - **Routing Rules**: doc/orchestration/routing.md defines loading strategy
-- **Orchestration Hints**: orchestration_hints in agent.md guide scheduling
+- **Orchestration Hints**: orchestration_hints in AGENTS.md guide scheduling
 - **Priority**: Control scheduling order via priority field
 
 **Success Criteria**:
@@ -88,7 +88,7 @@ chinese_version: /doc/policies/goals.md
 - List constraints explicitly
 
 ### Principle 2: Documentation-Driven Development
-- Write agent.md and CONTRACT.md first
+- Write AGENTS.md and CONTRACT.md first
 - Then write code
 - Keep docs and code in sync
 
@@ -118,8 +118,8 @@ Infrastructure Layer (db/, config/, observability/)
 ## Quality Goals
 
 ### Documentation Quality
-- All modules have agent.md and complete doc/ subdirectory
-- agent.md passes schema validation
+- All modules have AGENTS.md and complete doc/ subdirectory
+- AGENTS.md passes schema validation
 - All doc route paths are valid
 
 ### Code Quality
@@ -165,9 +165,9 @@ Goals are considered achieved when:
 - ⏳ Phase 3-9: To be executed
 
 ### Overall Acceptance
-- [ ] All modules have agent.md (with YAML Front Matter)
+- [ ] All modules have AGENTS.md (with YAML Front Matter)
 - [ ] registry.yaml formalized and validated
-- [ ] Root agent.md lightweight (≤350 lines)
+- [ ] Root AGENTS.md lightweight (≤350 lines)
 - [ ] All doc route paths valid
 - [ ] All CI gates pass
 - [ ] Initialization guide complete

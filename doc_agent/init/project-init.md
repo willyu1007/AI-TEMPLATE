@@ -41,7 +41,7 @@ Perform iterative questioning tailored to the chosen mode:
 - **Context**: goals, stakeholders, success metrics, delivery timeline.  
 - **Architecture**: modules/services, external systems, data stores, compliance rules.  
 - **Module plan**: required initial module instances, their roles, dependencies.  
-- **Docs & guardrails**: which docs must exist on day one (README, agent.md, contracts, policies).  
+- **Docs & guardrails**: which docs must exist on day one (README, AGENTS.md, contracts, policies).  
 - **Risks & open items**: unknown requirements, approvals, or third-party blockers.
 
 Summarise the collected information after each round and invite corrections. Continue until the user explicitly confirms completeness.
@@ -56,7 +56,7 @@ Summarise the collected information after each round and invite corrections. Con
    - Optional sample module skeletons if they were approved.
 3. **Doc updates**:
    - Rewrite root `README.md` with project summary, getting started, workflows.
-   - Update root `agent.md` context routes and metadata to reflect actual modules and docs.
+   - Update root `AGENTS.md` context routes and metadata to reflect actual modules and docs.
    - Produce any initial specs or policies requested (e.g., `doc_human/project/` documents).
 4. **Config alignment**: Draft entries for `config/` files, `.env` templates, and Make targets if required.
 5. **Registry alignment**: Update `/doc_agent/orchestration/registry.yaml` and relevant indexes if modules were created.
@@ -97,8 +97,8 @@ If automation scripts (`make ai_begin`, `make docgen`, etc.) are needed, mention
 Before closing the task, confirm with the user that:
 
 - Root `README.md` reflects the configured project.  
-- Root `agent.md` routes only to actual docs and modules.  
-- Module instances, if any, include `agent.md`, `README.md`, `doc/` contracts, and `tests/`.  
+- Root `AGENTS.md` routes only to actual docs and modules.  
+- Module instances, if any, include `AGENTS.md`, `README.md`, `doc/` contracts, and `tests/`.  
 - Supporting docs (`doc_human/project/`, `doc_agent/`, `config/`) are updated.  
 - Temporary scaffolding (`doc_human/init/`, `TEMPLATE_USAGE.md`, placeholder templates) is removed or archived.  
 - Follow-up tasks (e.g., implement features, write tests) are captured in workdocs or TODOs.

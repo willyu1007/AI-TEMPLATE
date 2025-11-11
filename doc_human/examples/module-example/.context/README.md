@@ -24,7 +24,7 @@
 
 ## 
 
-`../agent.md``context_routes.on_demand`
+`../AGENTS.md``context_routes.on_demand`
 
 ```yaml
 - topic: ""

@@ -15,25 +15,13 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 from collections import Counter
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-LOG_FILE = REPO_ROOT / "tmp" / "context_cache" / "route_usage.jsonl"
+from telemetry_utils import load_usage_records
 
-
-def load_usage() -> List[Dict[str, Any]]:
-    if not LOG_FILE.exists():
-        return []
-    records: List[Dict[str, Any]] = []
-    with open(LOG_FILE, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                records.append(json.loads(line))
-            except Exception:
-                continue
-    return records
-
+# Windows UTF-8 support
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 def suggest(records: List[Dict[str, Any]], limit: int = 10) -> Dict[str, Any]:
     topic_ctr: Counter[str] = Counter(r["topic"] for r in records if r.get("topic"))
@@ -87,7 +75,7 @@ def main() -> int:
         return 0
 
     limit = max(1, int(args.limit or "10"))
-    records = load_usage()
+    records = load_usage_records()
     result = suggest(records, limit=limit)
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0

@@ -4,7 +4,7 @@
 Fixtures - Phase 7
 
 :
-1. agent.mdtest_data
+1. AGENTS.mdtest_data
 2. minimal/standard/full
 3. 
 4. SQL.sql
@@ -55,7 +55,7 @@ def find_repo_root() -> Path:
     """"""
     current = Path(__file__).resolve().parent
     while current != current.parent:
-        if (current / 'agent.md').exists():
+        if (current / 'AGENTS.md').exists():
             return current
         current = current.parent
     return Path(__file__).resolve().parent.parent
@@ -147,7 +147,7 @@ def connect_to_db(db_config: Dict):
 
 
 def parse_agent_yaml(agent_file: Path) -> Optional[Dict]:
-    """agent.mdYAML Front Matter"""
+    """AGENTS.mdYAML Front Matter"""
     try:
         with open(agent_file, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -160,7 +160,7 @@ def parse_agent_yaml(agent_file: Path) -> Optional[Dict]:
         yaml_content = yaml_match.group(1)
         return yaml.safe_load(yaml_content)
     except Exception as e:
-        print(f"{RED}✗{RESET} agent.md: {e}")
+        print(f"{RED}✗{RESET} AGENTS.md: {e}")
         return None
 
 
@@ -168,12 +168,12 @@ def find_module_path(repo_root: Path, module_name: str) -> Optional[Path]:
     """modules/doc/modules/"""
     # modules/
     module_path = repo_root / 'modules' / module_name
-    if module_path.exists() and (module_path / 'agent.md').exists():
+    if module_path.exists() and (module_path / 'AGENTS.md').exists():
         return module_path
     
     # doc/modules/
     doc_module_path = repo_root / 'doc' / 'modules' / module_name
-    if doc_module_path.exists() and (doc_module_path / 'agent.md').exists():
+    if doc_module_path.exists() and (doc_module_path / 'AGENTS.md').exists():
         return doc_module_path
     
     return None
@@ -187,8 +187,8 @@ def list_available_modules(repo_root: Path) -> List[Tuple[str, str, bool]]:
     modules_dir = repo_root / 'modules'
     if modules_dir.exists():
         for module_path in modules_dir.iterdir():
-            if module_path.is_dir() and (module_path / 'agent.md').exists():
-                agent_data = parse_agent_yaml(module_path / 'agent.md')
+            if module_path.is_dir() and (module_path / 'AGENTS.md').exists():
+                agent_data = parse_agent_yaml(module_path / 'AGENTS.md')
                 has_test_data = bool(agent_data and agent_data.get('test_data', {}).get('enabled'))
                 modules.append((module_path.name, str(module_path), has_test_data))
     
@@ -196,8 +196,8 @@ def list_available_modules(repo_root: Path) -> List[Tuple[str, str, bool]]:
     doc_modules_dir = repo_root / 'doc' / 'modules'
     if doc_modules_dir.exists():
         for module_path in doc_modules_dir.iterdir():
-            if module_path.is_dir() and (module_path / 'agent.md').exists():
-                agent_data = parse_agent_yaml(module_path / 'agent.md')
+            if module_path.is_dir() and (module_path / 'AGENTS.md').exists():
+                agent_data = parse_agent_yaml(module_path / 'AGENTS.md')
                 has_test_data = bool(agent_data and agent_data.get('test_data', {}).get('enabled'))
                 modules.append((module_path.name, str(module_path), has_test_data))
     
@@ -438,17 +438,17 @@ def main():
         print(f"{BLUE}ℹ{RESET}   --list-modules ")
         return 1
     
-    # agent.md
-    agent_data = parse_agent_yaml(module_path / 'agent.md')
+    # AGENTS.md
+    agent_data = parse_agent_yaml(module_path / 'AGENTS.md')
     if not agent_data:
-        print(f"{RED}✗{RESET} agent.md")
+        print(f"{RED}✗{RESET} AGENTS.md")
         return 1
     
     # test_data
     test_data_config = agent_data.get('test_data', {})
     if not test_data_config.get('enabled'):
         print(f"{YELLOW}⚠{RESET}   '{args.module}' test_data")
-        print(f"{BLUE}ℹ{RESET}  agent.md test_data.enabled: true")
+        print(f"{BLUE}ℹ{RESET}  AGENTS.md test_data.enabled: true")
     
     # Fixtures
     if args.list_fixtures:

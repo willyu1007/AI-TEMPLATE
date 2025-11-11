@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 
- agent.md §13 
+ AGENTS.md §13 
 """
 
 import re
@@ -138,7 +138,7 @@ def main():
     
     print("=" * 70)
     print("")
-    print("1.  agent.md §13 ")
+    print("1.  AGENTS.md §13 ")
     print("2. ")
     print("3.  emoji")
     print("4. /")

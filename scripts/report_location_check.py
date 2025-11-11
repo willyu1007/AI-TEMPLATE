@@ -67,7 +67,7 @@ ALLOWED_ROOT_FILES = [
     'QUICK_START.md',
     'TEMPLATE_USAGE.md',
     'LICENSE',
-    'agent.md'
+    'AGENTS.md'
 ]
 
 
@@ -119,10 +119,10 @@ def scan_misplaced_reports() -> List[Tuple[Path, str]]:
             correct_loc = get_correct_location(file)
             misplaced.append((file, correct_loc))
     
-    # tmp
-    tmp_dir = REPO_ROOT / 'tmp'
-    if tmp_dir.exists():
-        for file in tmp_dir.rglob('*'):
+    # temp
+    temp_dir = REPO_ROOT / 'temp'
+    if temp_dir.exists():
+        for file in temp_dir.rglob('*'):
             if file.is_file() and is_report_file(file):
                 correct_loc = get_correct_location(file)
                 misplaced.append((file, correct_loc))

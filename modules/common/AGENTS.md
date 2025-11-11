@@ -81,9 +81,11 @@ context_routes:
   
   on_demand:
     - topic: "API Contract"
+      when: "Check exported helpers and types before using or extending."
       paths:
         - /modules/common/doc/CONTRACT.md
     - topic: "Changelog"
+      when: "Review deprecations or behavior changes impacting consumers."
       paths:
         - /modules/common/doc/CHANGELOG.md
 

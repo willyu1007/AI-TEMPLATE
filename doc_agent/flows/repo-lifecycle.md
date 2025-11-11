@@ -19,7 +19,7 @@ purpose: End-to-end orchestration lifecycle for TemplateAI repositories
 | **S1 Model** | Structure requirements and plans | Approved requirements, `plan.md`, updated workdoc sections | `/doc_human/guides/PROJECT_INIT_GUIDE.md`, `/doc_human/guides/MODULE_INIT_GUIDE.md` |
 | **S2 Align** | Validate guardrails, dependencies, and risks | Registry updates, dependency matrix, risk log | `/doc_agent/orchestration/registry.yaml`, `/doc_agent/policies/safety.md` |
 | **S3 Build** | Implement code/docs/tests | Feature branches, updated modules, passing checks | `/doc_agent/coding/AI_CODING_GUIDE.md`, `/doc_agent/coding/TEST_STANDARDS.md` |
-| **S4 Verify** | Run validations + peer review | `make dev_check` results, review notes, test artifacts | `/doc_agent/quickstart/guardrail-quickstart.md`, `/tests/agent.md` |
+| **S4 Verify** | Run validations + peer review | `make dev_check` results, review notes, test artifacts | `/doc_agent/quickstart/guardrail-quickstart.md`, `/tests/AGENTS.md` |
 | **S5 Release** | Finalize docs, handover, tagging | Updated `README.md`, release notes, deployment checklist | `/doc_human/project/RELEASE_TRAIN.md`, `/doc_human/reference/pr_workflow.md` |
 | **S6 Maintain** | Continuous health monitoring + backlog grooming | Health reports, issue tracker sync, archived workdocs | `/doc_agent/flows/maintenance-loop.md`, `/ai/maintenance_reports/health-summary.md` |
 
@@ -55,9 +55,9 @@ purpose: End-to-end orchestration lifecycle for TemplateAI repositories
 
 ## 3. Role of Agents
 
-- **Root orchestrator (`agent.md`)**: maintains routing, scope, and priority rules.  
-- **Module agents (`modules/<name>/agent.md`)**: enforce local guardrails and context for module tasks.  
-- **Service agents (e.g., `/schemas/agent.md`, `/db/engines/agent.md`)**: provide domain-specific protocols for schema or database work.
+- **Root orchestrator (`AGENTS.md`)**: maintains routing, scope, and priority rules.  
+- **Module agents (`modules/<name>/AGENTS.md`)**: enforce local guardrails and context for module tasks.  
+- **Service agents (e.g., `/schemas/AGENTS.md`, `/db/engines/AGENTS.md`)**: provide domain-specific protocols for schema or database work.
 
 When adding a new agent, ensure it declares clear `context_routes`, `tools_allowed`, and ownership boundaries consistent with this lifecycle.
 

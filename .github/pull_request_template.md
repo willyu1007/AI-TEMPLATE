@@ -121,7 +121,7 @@ $ make dev_check
 
 ## 提交前检查清单
 
-根据 `agent.md` §10.5 PR 规则：
+根据 `AGENTS.md` §10.5 PR 规则：
 
 ### 必须完成
 - [ ] 所有测试通过（`make dev_check`）
@@ -131,7 +131,7 @@ $ make dev_check
 - [ ] 无 linter 错误
 - [ ] 契约兼容性检查通过（如涉及）
 - [ ] 自审文档已生成（AI-SR-impl.md）
-- [ ] 临时文件已清理（运行 `make cleanup_tmp` 确认无 `*_tmp.*` 文件）
+- [ ] 临时文件已清理（运行 `make cleanup_temp` 确认无 `*_temp.*` 文件）
 
 ### 高风险变更额外检查
 - [ ] 回滚验证通过（`make rollback_check PREV_REF=<tag>`）
@@ -143,7 +143,7 @@ $ make dev_check
 
 ## Reviewer 清单
 
-根据 `agent.md` §11 代码审查流程，请审查者检查：
+根据 `AGENTS.md` §11 代码审查流程，请审查者检查：
 
 ### 🏗️ Repo 级（如适用）
 - [ ] 架构一致性
@@ -164,6 +164,6 @@ $ make dev_check
 ---
 
 **参考**：
-- 完整 PR 规则：`agent.md` §10.5
-- 代码审查流程：`agent.md` §11
-- 测试准则：`agent.md` §6
+- 完整 PR 规则：`AGENTS.md` §10.5
+- 代码审查流程：`AGENTS.md` §11
+- 测试准则：`AGENTS.md` §6

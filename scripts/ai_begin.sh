@@ -286,9 +286,9 @@ EOF
 
 echo "  ✓ 6doc/"
 
-# agent.mdPhase 6Phase 14.0
-echo "[2/5] agent.md..."
-cat > "modules/$MOD/agent.md" <<EOF
+# AGENTS.mdPhase 6Phase 14.0
+echo "[2/5] AGENTS.md..."
+cat > "modules/$MOD/AGENTS.md" <<EOF
 ---
 spec_version: "1.0"
 agent_id: "modules.$MOD.v1"
@@ -383,7 +383,7 @@ TODO: Document upstream and downstream module dependencies
 **Last Updated**: $(date +%Y-%m-%d)
 EOF
 
-echo "  ✓ agent.md"
+echo "  ✓ AGENTS.md"
 
 # 
 echo "[3/6] ..."
@@ -490,7 +490,7 @@ echo ""
 echo "✅  '$MOD' "
 echo ""
 echo "📂 "
-echo "   - modules/$MOD/agent.mdAgent"
+echo "   - modules/$MOD/AGENTS.mdAgent"
 echo "   - modules/$MOD/README.md"
 echo "   - modules/$MOD/plan.md"
 echo "   - modules/$MOD/doc/ (6)"
@@ -517,7 +517,7 @@ echo ""
 echo "   3. 🧪 "
 echo "      - : cp doc/modules/TEMPLATES/TEST_DATA.md.template modules/$MOD/doc/TEST_DATA.md"
 echo "      - fixtures: mkdir modules/$MOD/fixtures"
-echo "      - agent.md: test_data"
+echo "      - AGENTS.md: test_data"
 echo "      doc/modules/example/doc/TEST_DATA.md"
 echo ""
 echo "   4. 💻 "
@@ -528,7 +528,7 @@ echo "   5. ✅ "
 echo "      - tests/$MOD/"
 echo ""
 echo "   6. 🔍 "
-echo "      make agent_lint    # agent.md"
+echo "      make agent_lint    # AGENTS.md"
 echo "      make db_lint       # "
 echo "      make dev_check     # "
 echo ""

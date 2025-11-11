@@ -7,7 +7,7 @@ Subcommands:
   - log:        record a single (topic, path) usage event
   - maybe-log:  record only when ROUTE_USAGE_LOGGING env is truthy
   - report:     aggregate top topics/paths
-  - optimize:   propose reordering agent.md on_demand routes by usage; optional --write to apply
+  - optimize:   propose reordering AGENTS.md on_demand routes by usage; optional --write to apply
 """
 from __future__ import annotations
 
@@ -20,36 +20,33 @@ from datetime import datetime
 from collections import Counter
 from typing import Any, Dict, List, Tuple
 
-try:
-    import yaml  # type: ignore
-except Exception:
-    yaml = None
+# Windows UTF-8 support
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-LOG_DIR = REPO_ROOT / "tmp" / "context_cache"
-LOG_FILE = LOG_DIR / "route_usage.jsonl"
-
-
-def _ensure_log_dir() -> None:
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def _truthy(value: str | None) -> bool:
-    if value is None:
-        return False
-    return value.strip().lower() in {"1", "true", "yes", "on"}
+from telemetry_utils import (
+    REPO_ROOT,
+    LOG_FILE,
+    ensure_log_dir,
+    is_truthy,
+    load_usage_records,
+    read_agent_front_matter,
+    write_agent_front_matter,
+)
 
 
 def cmd_log(args: argparse.Namespace, conditional: bool = False) -> int:
     if conditional:
-        if not _truthy(os.getenv("ROUTE_USAGE_LOGGING")):
+        if not is_truthy(os.getenv("ROUTE_USAGE_LOGGING")):
             return 0
     topic = (args.topic or "").strip()
     path = (args.path or "").strip()
     if not topic or not path:
         print("topic and path are required", file=sys.stderr)
         return 1
-    _ensure_log_dir()
+    ensure_log_dir()
     record = {
         "ts": args.ts or datetime.utcnow().isoformat(),
         "topic": topic,
@@ -60,24 +57,8 @@ def cmd_log(args: argparse.Namespace, conditional: bool = False) -> int:
     return 0
 
 
-def _load_records() -> List[Dict[str, Any]]:
-    if not LOG_FILE.exists():
-        return []
-    out: List[Dict[str, Any]] = []
-    with open(LOG_FILE, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                out.append(json.loads(line))
-            except Exception:
-                continue
-    return out
-
-
 def cmd_report(args: argparse.Namespace) -> int:
-    records = _load_records()
+    records = load_usage_records(LOG_FILE)
     limit = max(1, int(args.limit or 10))
     topic_ctr: Counter[str] = Counter(r["topic"] for r in records if r.get("topic"))
     path_ctr: Counter[str] = Counter(r["path"] for r in records if r.get("path"))
@@ -104,35 +85,8 @@ def cmd_report(args: argparse.Namespace) -> int:
     return 0
 
 
-def _read_agent_front_matter(agent_path: Path) -> Tuple[Dict[str, Any], str]:
-    text = agent_path.read_text(encoding="utf-8")
-    if not text.startswith("---"):
-        return {}, text
-    parts = text.split("---", 2)
-    if len(parts) < 3:
-        return {}, text
-    _, yml, rest = parts
-    if yaml is None:
-        return {}, text
-    data = yaml.safe_load(yml) or {}
-    return data, rest.lstrip("\n")
-
-
-def _write_agent_front_matter(
-    agent_path: Path, data: Dict[str, Any], body: str
-) -> None:
-    if yaml is None:
-        raise RuntimeError("yaml not available")
-    yml = yaml.safe_dump(data, sort_keys=False, allow_unicode=True)
-    content = f"---\n{yml}---\n{body}"
-    agent_path.write_text(content, encoding="utf-8")
-
-
 def cmd_optimize(args: argparse.Namespace) -> int:
-    if yaml is None:
-        print("PyYAML not installed; cannot optimize", file=sys.stderr)
-        return 1
-    records = _load_records()
+    records = load_usage_records(LOG_FILE)
     if not records:
         print("No usage records; nothing to optimize")
         return 0
@@ -141,13 +95,13 @@ def cmd_optimize(args: argparse.Namespace) -> int:
     top_topics = [t for t, _ in topic_ctr.most_common(limit)]
 
     agent_path = (
-        (REPO_ROOT / args.agent).resolve() if args.agent else (REPO_ROOT / "agent.md")
+        (REPO_ROOT / args.agent).resolve() if args.agent else (REPO_ROOT / "AGENTS.md")
     )
     if not agent_path.exists():
         print(f"Agent not found: {agent_path}", file=sys.stderr)
         return 1
 
-    fm, body = _read_agent_front_matter(agent_path)
+    fm, body = read_agent_front_matter(agent_path)
     routes = fm.get("context_routes") or {}
     on_demand: List[Dict[str, Any]] = routes.get("on_demand") or []
     if not isinstance(on_demand, list) or not on_demand:
@@ -174,7 +128,7 @@ def cmd_optimize(args: argparse.Namespace) -> int:
     if args.write and changed:
         routes["on_demand"] = new_on_demand
         fm["context_routes"] = routes
-        _write_agent_front_matter(agent_path, fm, body)
+        write_agent_front_matter(agent_path, fm, body)
         print(f"\nApplied reordering to: {agent_path.relative_to(REPO_ROOT)}")
     elif not changed:
         print("\nNo change in order needed.")
@@ -207,7 +161,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_opt = sub.add_parser(
         "optimize", help="propose route ordering and optionally write back to agent"
     )
-    p_opt.add_argument("--agent", required=False, default="agent.md")
+    p_opt.add_argument("--agent", required=False, default="AGENTS.md")
     p_opt.add_argument("--limit", required=False, default="10")
     p_opt.add_argument("--write", action="store_true")
 

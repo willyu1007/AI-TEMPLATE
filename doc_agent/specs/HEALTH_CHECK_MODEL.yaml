@@ -163,7 +163,7 @@ dimensions:
           unit: "percentage"
         
         required_docs:
-          - "agent.md"
+          - "AGENTS.md"
           - "doc/CONTRACT.md"
           - "doc/CHANGELOG.md"
           - "doc/RUNBOOK.md"
@@ -197,7 +197,7 @@ dimensions:
           stale_threshold_days: 90  # Docs not updated in 90 days are stale
           critical_docs:
             - "README.md"
-            - "agent.md"
+            - "AGENTS.md"
             - "doc/modules/MODULE_INIT_GUIDE.md"
             - "doc/process/AI_CODING_GUIDE.md"
         
@@ -290,7 +290,7 @@ dimensions:
         
         checks:
           - "DAG is valid (no cycles)"
-          - "All dependencies declared in agent.md"
+          - "All dependencies declared in AGENTS.md"
           - "No undeclared dependencies in code"
           - "Dependency versions specified"
           - "No circular module dependencies"
@@ -371,7 +371,7 @@ dimensions:
         consistency_checks:
           - "All modules registered"
           - "No duplicate IDs"
-          - "All agent.md paths valid"
+          - "All AGENTS.md paths valid"
           - "Module types defined"
           - "Dependencies valid"
         
@@ -395,11 +395,11 @@ dimensions:
     description: "AI agent operational efficiency and cognitive load reduction"
     
     metrics:
-      # Metric 4.1: agent.md Lightweight (5 points)
+      # Metric 4.1: AGENTS.md Lightweight (5 points)
       agent_md_lightweight:
         weight: 0.25
         max_points: 5
-        description: "Root agent.md and always_read documents are lightweight"
+        description: "Root AGENTS.md and always_read documents are lightweight"
         
         calculation:
           formula: "lightweight_score"
@@ -420,7 +420,7 @@ dimensions:
         data_source: "scripts/ai_friendliness_check.py"
         
         rationale: |
-          Lightweight agent.md reduces initial context loading time and 
+          Lightweight AGENTS.md reduces initial context loading time and 
           token cost. AI agents can start working faster with less cognitive load.
       
       # Metric 4.2: Document Role Clarity (5 points)
@@ -464,17 +464,17 @@ dimensions:
       module_doc_completeness:
         weight: 0.20
         max_points: 4
-        description: "Modules have agent.md and required documentation"
+        description: "Modules have AGENTS.md and required documentation"
         
         calculation:
           formula: "(complete_modules / total_modules) * 100"
           unit: "percentage"
         
         completeness_checks:
-          - "Has agent.md with valid YAML front matter"
+          - "Has AGENTS.md with valid YAML front matter"
           - "Has doc/CONTRACT.md"
           - "Has doc/CHANGELOG.md"
-          - "agent.md has context_routes defined"
+          - "AGENTS.md has context_routes defined"
         
         scoring:
           100: 4    # 100% modules complete
@@ -837,16 +837,16 @@ recommendations:
     
     - condition: "architecture.dependency_clarity < 4"
       priority: "high"
-      message: "Dependency declarations are unclear. Update DAG and agent.md files."
+      message: "Dependency declarations are unclear. Update DAG and AGENTS.md files."
       actions:
         - "Run: make dag_check"
-        - "Update agent.md with correct dependencies"
+        - "Update AGENTS.md with correct dependencies"
         - "Document all external dependencies"
     
     # AI Friendliness Recommendations
     - condition: "ai_friendliness.agent_md_lightweight < 3"
       priority: "high"
-      message: "agent.md is too heavy. Refactor to use progressive disclosure."
+      message: "AGENTS.md is too heavy. Refactor to use progressive disclosure."
       actions:
         - "Move detailed content to resources/ subdocs"
         - "Keep always_read to 1 file (AI_INDEX.md)"

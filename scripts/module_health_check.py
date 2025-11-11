@@ -4,14 +4,14 @@
 module_health_check.py - 
 
 
-1. agent.md
+1. AGENTS.md
 2. CONTRACT.md, CHANGELOG.md, RUNBOOK.md
-3. agent.mdYAML front matter
-4. agent.mdcontext_routes
+3. AGENTS.mdYAML front matter
+4. AGENTS.mdcontext_routes
 5. 
 
 HEALTH_CHECK_MODEL.yaml
-- agent.md
+- AGENTS.md
 - doc/CONTRACT.md
 - doc/CHANGELOG.md
 - doc/RUNBOOK.md
@@ -49,7 +49,7 @@ MODULES_DIR = REPO_ROOT / "modules"
 
 # 
 REQUIRED_DOCS = [
-    "agent.md",
+    "AGENTS.md",
     "doc/CONTRACT.md",
     "doc/CHANGELOG.md",
     "doc/RUNBOOK.md",
@@ -81,8 +81,8 @@ class ModuleHealthChecker:
         modules = []
         for item in MODULES_DIR.iterdir():
             if item.is_dir() and not item.name.startswith('.') and not item.name.startswith('_'):
-                # agent.mddoc
-                if (item / "agent.md").exists() or (item / "doc").exists():
+                # AGENTS.mddoc
+                if (item / "AGENTS.md").exists() or (item / "doc").exists():
                     modules.append(item)
         
         return modules
@@ -103,11 +103,11 @@ class ModuleHealthChecker:
             "status": "incomplete"
         }
         
-        # agent.md
-        agent_md_path = module_path / "agent.md"
+        # AGENTS.md
+        agent_md_path = module_path / "AGENTS.md"
         if agent_md_path.exists():
             result["has_agent_md"] = True
-            result["existing_docs"].append("agent.md")
+            result["existing_docs"].append("AGENTS.md")
             
             # YAML front matter
             try:
@@ -126,10 +126,10 @@ class ModuleHealthChecker:
             except Exception as e:
                 result["agent_md_error"] = str(e)
         else:
-            result["missing_docs"].append("agent.md")
+            result["missing_docs"].append("AGENTS.md")
         
         # 
-        for doc in REQUIRED_DOCS[1:]:  # agent.md
+        for doc in REQUIRED_DOCS[1:]:  # AGENTS.md
             doc_path = module_path / doc
             if doc_path.exists():
                 result["existing_docs"].append(doc)
@@ -174,7 +174,7 @@ class ModuleHealthChecker:
             else:
                 self.results["incomplete_modules"] += 1
         
-        # agent.md
+        # AGENTS.md
         modules_with_agent_md = sum(1 for m in self.results["modules"].values() if m["has_agent_md"])
         self.results["coverage_percentage"] = (modules_with_agent_md / len(modules) * 100) if len(modules) > 0 else 0
         
@@ -191,7 +191,7 @@ class ModuleHealthChecker:
         print(f"  : {self.results['total_modules']}")
         print(f"  : {self.results['complete_modules']}")
         print(f"  : {self.results['incomplete_modules']}")
-        print(f"  agent.md: {self.results['coverage_percentage']:.1f}%")
+        print(f"  AGENTS.md: {self.results['coverage_percentage']:.1f}%")
         print(f"  : {self.results['completeness_percentage']:.1f}%")
         
         # 
@@ -250,8 +250,8 @@ class ModuleHealthChecker:
             for doc in m["missing_docs"]:
                 print(f"  - {doc}")
         
-        print(f"\nagent.md:")
-        print(f"  agent.md: {'✅' if m['has_agent_md'] else '❌'}")
+        print(f"\nAGENTS.md:")
+        print(f"  AGENTS.md: {'✅' if m['has_agent_md'] else '❌'}")
         print(f"  YAML: {'✅' if m['agent_md_valid'] else '❌'}")
         print(f"  context_routes: {'✅' if m['has_context_routes'] else '❌'}")
     

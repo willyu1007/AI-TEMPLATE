@@ -31,7 +31,7 @@ workflow:
     documents_to_load:
       - /doc_human/templates/module-templates/
     expected_output:
-      - "modules/{module_name}/agent.md"
+      - "modules/{module_name}/AGENTS.md"
       - "modules/{module_name}/doc/*.md"
   - step: 4
     name: "Code & Tests"
@@ -63,7 +63,7 @@ pitfalls:
     solution: "Follow `config/language.yaml`, rerun doc_style_check"
 quality_checklist:
   - "[ ] Workdoc updated"
-  - "[ ] agent.md passes `make agent_lint`"
+  - "[ ] AGENTS.md passes `make agent_lint`"
   - "[ ] Docs filled in English"
   - "[ ] Tests + coverage target met"
   - "[ ] Registry + context routes updated"

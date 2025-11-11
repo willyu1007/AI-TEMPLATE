@@ -30,7 +30,7 @@ class TestContextEfficiency(unittest.TestCase):
         # 加载典型的context组合
         test_contexts = [
             "/doc_agent/index/AI_INDEX.md",
-            "/modules/common/agent.md",
+            "/modules/common/AGENTS.md",
             "/config/AI_GUIDE.md"
         ]
         
@@ -60,7 +60,7 @@ class TestContextEfficiency(unittest.TestCase):
         """测试加载时间性能"""
         test_contexts = [
             "/doc_agent/index/AI_INDEX.md",
-            "/modules/common/agent.md",
+            "/modules/common/AGENTS.md",
             "/ai/workflow-patterns/catalog.yaml"
         ]
         
@@ -79,7 +79,7 @@ class TestContextEfficiency(unittest.TestCase):
         # 模拟优先级加载
         priority_contexts = {
             "critical": ["/doc_agent/index/AI_INDEX.md"],  # 必须加载
-            "high": ["/modules/common/agent.md"],          # 重要
+            "high": ["/modules/common/AGENTS.md"],          # 重要
             "medium": ["/config/AI_GUIDE.md"],             # 可选
             "low": ["/doc_human/guides/CONVENTIONS.md"]    # 低优先级
         }
@@ -100,10 +100,10 @@ class TestContextEfficiency(unittest.TestCase):
         self.assertIn("/doc_agent/index/AI_INDEX.md", loaded_contexts)
     
     def test_agent_md_optimization(self):
-        """测试agent.md文件优化"""
-        # 测试优化后的agent.md大小
+        """测试AGENTS.md文件优化"""
+        # 测试优化后的AGENTS.md大小
         optimized_path = Path("agent-optimized.md")
-        original_path = Path("agent.md")
+        original_path = Path("AGENTS.md")
         
         if optimized_path.exists() and original_path.exists():
             optimized_size = optimized_path.stat().st_size
@@ -113,7 +113,7 @@ class TestContextEfficiency(unittest.TestCase):
             self.assertLess(
                 optimized_size,
                 original_size,
-                "Optimized agent.md should be smaller than original"
+                "Optimized AGENTS.md should be smaller than original"
             )
             
             # 验证减少了至少30%

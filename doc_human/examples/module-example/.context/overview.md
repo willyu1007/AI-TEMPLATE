@@ -13,7 +13,7 @@ AI-TEMPLATE
 
 ## 
 
-1. ****: agent.md, doc/6, fixtures/
+1. ****: AGENTS.md, doc/6, fixtures/
 2. ****: agent_lint
 3. ****: 
 
@@ -45,7 +45,7 @@ AI-TEMPLATE
 ## 
 
 ****:
-- `../agent.md` - AIYAML
+- `../AGENTS.md` - AIYAML
 - `../doc/CONTRACT.md` - 
 - `../doc/TEST_DATA.md` - 
 - `decisions.md` - ****

@@ -4,7 +4,7 @@
 doc_route_check.py - 
 
 
-1. agent.md
+1. AGENTS.md
 2. context_routes
 3. 
 4. 
@@ -46,18 +46,18 @@ def extract_yaml_front_matter(md_text):
 
 
 def find_agent_md_files():
-    """agent.md"""
+    """AGENTS.md"""
     agent_files = []
     
-    # agent.md
-    root_agent = REPO_ROOT / "agent.md"
+    # AGENTS.md
+    root_agent = REPO_ROOT / "AGENTS.md"
     if root_agent.exists():
         agent_files.append(root_agent)
     
-    # modules/agent.md
+    # modules/AGENTS.md
     modules_dir = REPO_ROOT / "modules"
     if modules_dir.exists():
-        for agent_path in modules_dir.rglob("agent.md"):
+        for agent_path in modules_dir.rglob("AGENTS.md"):
             agent_files.append(agent_path)
     
     # temp
@@ -140,7 +140,7 @@ def check_path_exists(route_info):
 
 
 def check_wildcard_paths(routes):
-    """modules/*/agent.md"""
+    """modules/*/AGENTS.md"""
     issues = []
     
     for route_info in routes:
@@ -171,12 +171,12 @@ def main():
     print("")
     print("=" * 60)
     
-    # agent.md
+    # AGENTS.md
     agent_files = find_agent_md_files()
-    print(f"✓ {len(agent_files)}agent.md")
+    print(f"✓ {len(agent_files)}AGENTS.md")
     
     if not agent_files:
-        print("[warn] agent.md", file=sys.stderr)
+        print("[warn] AGENTS.md", file=sys.stderr)
         return 0
     
     # routes

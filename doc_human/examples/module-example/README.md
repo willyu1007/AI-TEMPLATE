@@ -9,7 +9,7 @@ purpose: Example module documentation package
 This folder demonstrates how a fully documented module should look after running `make ai_begin MODULE=example`.
 
 ## Contents
-- `agent.md` - module routing config.
+- `AGENTS.md` - module routing config.
 - `plan.md` - sample workdoc plan snippet.
 - `doc/` - filled templates (contract, runbook, test plan, test data, progress, bugs, changelog).
 - `fixtures/` - SQL examples for tests.

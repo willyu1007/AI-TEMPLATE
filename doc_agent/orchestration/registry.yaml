@@ -24,7 +24,7 @@ module_instances:
     path: modules/common
     level: 1
     status: active
-    agent_md: modules/common/agent.md
+    agent_md: modules/common/AGENTS.md
     readme: modules/common/README.md
     dependencies:
       imports: []
@@ -43,11 +43,12 @@ reference_modules:
     type: 1_example
     path: doc/modules/example
     purpose: Reference template for new modules
-    description: Shows the expected structure (agent.md, README, docs, tests).
+    description: Shows the expected structure (AGENTS.md, README, docs, tests).
     notes: "Documentation only; not part of runtime orchestration."
 maintenance:
   steps:
     - "make registry_gen"
     - "review and merge into this file"
     - "run make registry_check"
-    - "update doc_human/guides/MODULE_INSTANCES.md"
+    - "update doc_human/guides/MODULE_INSTANCES.md"
+

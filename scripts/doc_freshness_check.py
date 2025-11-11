@@ -43,7 +43,7 @@ class DocFreshnessChecker:
         # 
         self.critical_docs = [
             "README.md",
-            "agent.md",
+            "AGENTS.md",
             "doc/modules/MODULE_INIT_GUIDE.md",
             "doc/process/AI_CODING_GUIDE.md",
             "doc/policies/AI_INDEX.md",
@@ -106,7 +106,7 @@ class DocFreshnessChecker:
             # 
             if any(skip in str(md_file) for skip in [
                 '.git', 'node_modules', '.venv', 'venv', '__pycache__',
-                'build', 'dist', 'tmp', 'archive'
+                'build', 'dist', 'temp', 'archive'
             ]):
                 continue
             

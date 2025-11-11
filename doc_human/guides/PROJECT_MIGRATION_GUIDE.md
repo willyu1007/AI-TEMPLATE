@@ -66,7 +66,7 @@ The AI will mirror these decisions in the worklog and plan.
 
 ## 4. Post-Migration Actions
 
-- Update `README.md`, `agent.md`, and module docs with the new architecture.  
+- Update `README.md`, `AGENTS.md`, and module docs with the new architecture.  
 - Record migration decisions in `doc_human/project/CHANGES_SUMMARY.md`.  
 - Ensure environment configuration (`config/`, `.env` samples) reflects migrated services.  
 - Remove leftover scaffolding (`doc_human/init/`, `TEMPLATE_USAGE.md`) once the repo stabilises.  

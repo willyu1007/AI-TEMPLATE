@@ -9,7 +9,7 @@ purpose: Hands-on onboarding checklist for AI agents
 > This file is optimized for orchestration agents. It is short, command-first, and omits historical context.
 
 ## 1. Before You Touch The Repo
-- Load `agent.md` so you understand routing rules, guardrails, and document responsibilities.
+- Load `AGENTS.md` so you understand routing rules, guardrails, and document responsibilities.
 - Confirm the configured language in `config/language.yaml` (or defaults) and keep all notes/comments in that language.
 - Make sure you have Python 3.11+, Docker, and Make available.
 
@@ -33,7 +33,7 @@ ls modules/my_feature/
 ls tests/my_feature/
 ```
 Generated assets:
-- `modules/<module>/agent.md` - module-scoped context routing.
+- `modules/<module>/AGENTS.md` - module-scoped context routing.
 - `modules/<module>/doc/*.md` - runbook, test plan, data notes, etc.
 - `tests/<module>/` - starter tests wired into CI.
 
@@ -55,7 +55,7 @@ Generated assets:
 ## 7. Troubleshooting
 - `make workflow_doctor` (if available) surfaces the last 10 guardrail failures.
 - `scripts/health_check.py --module <name>` inspects coverage and error budgets.
-- `scripts/doc_route_check.py` ensures `agent.md` routes point to valid documents.
+- `scripts/doc_route_check.py` ensures `AGENTS.md` routes point to valid documents.
 
 Keep every change small, reference the doc roles in `/doc_agent/policies/DOC_ROLES.md`, and prefer AI documents when acting automatically.
 

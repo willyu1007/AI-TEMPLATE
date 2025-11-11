@@ -43,7 +43,7 @@ db/engines/redis/
 1. Document the data model in `schemas/keys/` (structure, TTL, eviction policy).
 2. If new Lua scripts or custom commands are needed, reference them inside `docs/`.
 3. Run `python db/engines/redis/scripts/health_check.py --url redis://localhost:6379` before and after changes.
-4. Update `/db/engines/agent.md` routing if you add new guides.
+4. Update `/db/engines/AGENTS.md` routing if you add new guides.
 
 ---
 
@@ -51,6 +51,6 @@ db/engines/redis/
 
 - `/db/engines/redis/docs/CACHE_GUIDE.md`
 - `/db/engines/redis/schemas/keys/README.md`
-- `/db/engines/agent.md`
+- `/db/engines/AGENTS.md`
 
 

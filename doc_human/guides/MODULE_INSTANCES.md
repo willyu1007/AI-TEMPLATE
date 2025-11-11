@@ -7,11 +7,11 @@ purpose: Document existing module instances
 # Module Instances Guide
 
 ## Purpose
-Track every module built from the template and describe its contracts, ownership, and health. This guide is referenced by `README.md`, `agent.md`, and `doc_agent/specs/MODULE_TYPES.md`, so treat it as the canonical checklist.
+Track every module built from the template and describe its contracts, ownership, and health. This guide is referenced by `README.md`, `AGENTS.md`, and `doc_agent/specs/MODULE_TYPES.md`, so treat it as the canonical checklist.
 
 ## Definition
 - A **module instance** is a concrete implementation created from a module type (see `doc_agent/specs/MODULE_TYPES.md`) and kept under `modules/<name>/`.
-- Each instance must include: `agent.md`, `doc/CONTRACT.md`, runbook (`doc/RUNBOOK.md`), active workdoc, tests, and health metrics hooks.
+- Each instance must include: `AGENTS.md`, `doc/CONTRACT.md`, runbook (`doc/RUNBOOK.md`), active workdoc, tests, and health metrics hooks.
 - Module types stay abstract; module instances apply those contracts to a domain such as `1_user` or `4_sales_aggregator`.
 - Register new instances immediately after running `make ai_begin MODULE=<name>` and keep ownership plus escalation data current.
 

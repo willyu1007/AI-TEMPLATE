@@ -61,10 +61,10 @@ blocker_checks:
     required_docs:
       repo_level:
         - "README.md"
-        - "agent.md"
+        - "AGENTS.md"
         - "LICENSE"
       module_level:
-        - "agent.md"
+        - "AGENTS.md"
         - "doc/CONTRACT.md"
         - "README.md"
   
@@ -146,7 +146,7 @@ strict_thresholds:
   agent_md_lines:
     default: 400
     strict: 350
-    explanation: "Lighter agent.md for better AI efficiency"
+    explanation: "Lighter AGENTS.md for better AI efficiency"
     priority: high
   
   always_read_lines:

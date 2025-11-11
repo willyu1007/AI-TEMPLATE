@@ -52,7 +52,7 @@ Always log the cadence in `/ai/maintenance_reports/health-summary.md` or the rel
 ## 3. Integration Points
 
 - **Registry alignment**: check whether modules flagged by health reports are correctly registered in `/doc_agent/orchestration/registry.yaml`.  
-- **Schema compliance**: if data inconsistencies surface, consult `/schemas/agent.md` and relevant schema files.  
+- **Schema compliance**: if data inconsistencies surface, consult `/schemas/AGENTS.md` and relevant schema files.  
 - **Guardrail stats**: `make agent_trigger_test` and `make doc_route_check` help ensure automation remains compliant.  
 - **Observability**: link Prometheus/Grafana alerts (`observability/`) to the health findings for traceability.
 
@@ -76,7 +76,7 @@ Use this loop to keep the repository in a “near-ready” state and to provide 
   记录一次文档加载事件（可在 orchestrator hook 中调用）。
 - `python scripts/context_usage_tracker.py report --limit 10`  
   查看最常被读取的文档 / topic，辅助判断哪些路由应保留或压缩。
-- `python scripts/context_usage_tracker.py optimize --agent agent.md --limit 5`  
+- `python scripts/context_usage_tracker.py optimize --agent AGENTS.md --limit 5`  
   基于实际使用频率建议重新排序 `context_routes`，优先展示高频、移除长期未使用的路径。
 - 通过 `config/*.yaml` 中的 `telemetry.route_usage_logging` 全局开关控制是否允许自动记录（默认关闭，置为 `true` 后再调用 `maybe-log`）。
 

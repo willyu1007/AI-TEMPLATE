@@ -35,7 +35,7 @@ triggers:
     description: "Creating or restructuring modules"
     file_triggers:
       path_patterns:
-        - "modules/*/agent.md"
+        - "modules/*/AGENTS.md"
         - "modules/*/doc/**/*.md"
         - "modules/*/core/**/*"
     prompt_triggers:

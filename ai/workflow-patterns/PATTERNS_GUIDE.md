@@ -42,14 +42,14 @@ pitfalls:
 quality_gates:
   - make dev_check
 references:
-  - /agent.md#modules
+  - /AGENTS.md#modules
 ```
 Keep names machine friendly (kebab-case). Include `references` to docs so agents know what to load.
 
 ## 4. Pattern Library Notes
 ### Module Creation
 - Validates module naming, scaffolding, and documentation templates.
-- Requires updating `modules/<name>/agent.md` and running `make docgen`.
+- Requires updating `modules/<name>/AGENTS.md` and running `make docgen`.
 
 ### Database Migration
 - Forces paired up/down SQL files and schema validation.

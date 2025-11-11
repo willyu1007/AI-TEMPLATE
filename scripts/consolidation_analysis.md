@@ -8,7 +8,7 @@ doc_style_check.py       - Check doc headers and formatting
 doc_freshness_check.py   - Check if docs are up-to-date
 doc_route_check.py       - Validate context routes
 doc_script_sync_check.py - Ensure docs match scripts
-agent_lint.py            - Validate agent.md files
+agent_lint.py            - Validate AGENTS.md files
 registry_check.py        - Validate registry entries
 module_health_check.py   - Check module documentation
 ```

@@ -22,9 +22,9 @@ Context routes不仅仅是文件列表，而是AI理解和导航代码库的**�
 ### 2. 层次化导航模式
 
 ```
-Level 0: agent.md (根编排器)
+Level 0: AGENTS.md (根编排器)
     ↓ [根据topic选择路由]
-Level 1: 模块级agent.md
+Level 1: 模块级AGENTS.md
     ↓ [根据具体需求深入]
 Level 2: 特定文档（CONTRACT.md, README.md等）
     ↓ [按需加载实现细节]

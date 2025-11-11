@@ -32,7 +32,7 @@ doc_agent/
    - context-rules.md explains routing
 
 2. **Load via context_routes**
-   - Use agent.md routing configuration
+   - Use AGENTS.md routing configuration
    - Load only what's needed for the task
 
 3. **Reference specs/ for contracts**

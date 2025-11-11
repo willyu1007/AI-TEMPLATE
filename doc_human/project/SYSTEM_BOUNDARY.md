@@ -13,7 +13,7 @@ purpose: Define system boundaries
 ## Actors
 | Actor | Responsibilities |
 |-------|------------------|
-| AI Agents | Follow `agent.md`, respect guardrails |
+| AI Agents | Follow `AGENTS.md`, respect guardrails |
 | Maintainers | Update docs, approve risky changes |
 | Contributors | Implement features/tests per template |
 

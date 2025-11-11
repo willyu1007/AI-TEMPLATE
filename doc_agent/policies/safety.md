@@ -79,7 +79,7 @@ chinese_version: /doc/policies/safety.md
 **Details**: `doc/policies/quality.md` § 1
 
 ### 2.2 Documentation Requirements
-- ✅ **Required Docs**: 8 standard docs (README, agent.md, CONTRACT, CHANGELOG, RUNBOOK, BUGS, PROGRESS, TEST_PLAN)
+- ✅ **Required Docs**: 8 standard docs (README, AGENTS.md, CONTRACT, CHANGELOG, RUNBOOK, BUGS, PROGRESS, TEST_PLAN)
 - ✅ **Sync**: Code changes must update relevant docs
 - **Validation**: `make consistency_check`
 
@@ -158,7 +158,7 @@ make contract_compat_check  # API changes must be non-breaking
 
 ### 4.2 Request Process
 
-**Configure in agent.md**:
+**Configure in AGENTS.md**:
 ```yaml
 exemptions:
   - rule: "coverage_min"
@@ -201,7 +201,7 @@ exemptions:
 ### 5.2 Monitoring Metrics
 
 **Key Metrics**:
-- Documentation coverage (agent.md, CONTRACT.md presence rate)
+- Documentation coverage (AGENTS.md, CONTRACT.md presence rate)
 - Test coverage (≥80% compliance rate)
 - Validation pass rate (dev_check pass rate)
 - Violation count (unauthorized attempts, tool misuse)

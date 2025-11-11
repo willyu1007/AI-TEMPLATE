@@ -298,7 +298,7 @@ Related Modules: modules/users/PROGRESS.md (see Phase 2.3)
 
 **Key Outcomes**:
 - ✅ Created TEMP_FILES_POLICY.md (comprehensive 400-line policy)
-- ✅ Established tmp/ directory structure
+- ✅ Established temp/ directory structure
 - ✅ Added 4 cleanup commands to Makefile
 - ✅ Integrated temp_files_check into CI (22 checks total)
 - ✅ Updated ai_maintenance.py with automatic checking
@@ -317,7 +317,7 @@ Related Modules: modules/users/PROGRESS.md (see Phase 2.3)
 - **Sessions Archive**: `ai/sessions/` (AI self-review records)
 - **Workflow Patterns**: `ai/workflow-patterns/` (standard workflows)
 - **Module Progress**: `modules/*/PROGRESS.md` (module-specific history)
-- **Parent Agent**: `ai/agent.md` (workflow overview)
+- **Parent Agent**: `ai/AGENTS.md` (workflow overview)
 
 ---
 
@@ -360,11 +360,11 @@ Related Modules: modules/users/PROGRESS.md (see Phase 2.3)
 
 **Key Outcomes**:
 - ✅ Created comprehensive TEMP_FILES_POLICY.md (400 lines)
-- ✅ Established tmp/ directory with structure
+- ✅ Established temp/ directory with structure
 - ✅ Added 4 cleanup commands (cleanup_reports, cleanup_reports_smart, cleanup_all, temp_files_check)
 - ✅ Enhanced ai_maintenance.py with automatic checking
 - ✅ Integrated temp_files_check into CI (dev_check now has 22 checks)
-- ✅ Created agent.md for all ai/ subdirectories
+- ✅ Created AGENTS.md for all ai/ subdirectories
 - ✅ Clarified LEDGER.md role and boundaries
 
 **Learnings**:
@@ -386,7 +386,7 @@ Related Modules: modules/users/PROGRESS.md (see Phase 2.3)
 **References**:
 - **Workdoc**: N/A
 - **Sessions**: Previous conversation
-- **Related**: `agent.md` §13, `scripts/doc_style_check.py`
+- **Related**: `AGENTS.md` §13, `scripts/doc_style_check.py`
 
 **Key Outcomes**:
 - ✅ Prohibited decorative emojis in documentation

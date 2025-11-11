@@ -24,7 +24,7 @@ This file tells every contributor (human or agent) what each document class does
 ## 3. Ownership
 | Document | Owner | Expectations |
 |----------|-------|--------------|
-| `agent.md` | Repo maintainers | Update routes/roles when docs change. |
+| `AGENTS.md` | Repo maintainers | Update routes/roles when docs change. |
 | `doc_agent/*` | Automation owners | Keep concise, runnable, AI-friendly. |
 | `doc_human/guides/*` | Domain experts | Capture rationale, risks, examples. |
 | `modules/<name>/doc/*` | Module leads | Reflect real progress/tests/contracts. |

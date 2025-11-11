@@ -43,7 +43,7 @@ DOC_FILES = [
     REPO_ROOT / "README.md",
     REPO_ROOT / "QUICK_START.md",
     REPO_ROOT / "TEMPLATE_USAGE.md",
-    REPO_ROOT / "agent.md",
+    REPO_ROOT / "AGENTS.md",
     REPO_ROOT / "Makefile",
     SCRIPTS_DIR / "README.md",
 ]

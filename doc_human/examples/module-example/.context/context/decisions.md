@@ -17,7 +17,7 @@
 ### ADR-002: 
 
 ****: 2025-11-07  
-****: agent.md + doc/6 + fixtures/  
+****: AGENTS.md + doc/6 + fixtures/  
 ****:   
 
 ### ADR-003: 

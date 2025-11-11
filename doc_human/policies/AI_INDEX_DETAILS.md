@@ -13,7 +13,7 @@
 
 #### Key Principles
 - **Parseable Docs**: YAML Front Matter + Markdown structure
-- **Clear Routes**: `context_routes` in agent.md for on-demand loading
+- **Clear Routes**: `context_routes` in AGENTS.md for on-demand loading
 - **Controlled Context**: Layer loading (Tier 0-3), avoid loading everything
 - **Schema Standards**: All key docs have schema definitions (schemas/)
 
@@ -48,9 +48,9 @@
 
 #### Key Principles
 - **Interchangeable**: Same type modules can replace each other (MODULE_TYPES.md)
-- **Independent**: Each module has its own agent.md and doc/
+- **Independent**: Each module has its own AGENTS.md and doc/
 - **Stable I/O**: CONTRACT.md defines input/output interfaces
-- **Dependencies Declared**: upstream/downstream in agent.md
+- **Dependencies Declared**: upstream/downstream in AGENTS.md
 
 #### Success Criteria
 - Same-type modules are interchangeable
@@ -76,7 +76,7 @@
 **Full process verifiable, scriptable, CI-ready**
 
 #### Key Principles
-- **Validation Scripts**: Cover agent.md, registry, doc routes, etc.
+- **Validation Scripts**: Cover AGENTS.md, registry, doc routes, etc.
 - **Generation Scripts**: Auto-generate registry.yaml drafts, MODULE_INSTANCES.md
 - **CI Gates**: `make dev_check` aggregates all validations (21 checks)
 - **Semi-Automated**: registry.yaml, DB ops require human review
@@ -98,7 +98,7 @@
 **Auto-discovery, routing, scheduling**
 
 #### Key Principles
-- **Auto-Discovery**: Modules register via agent.md
+- **Auto-Discovery**: Modules register via AGENTS.md
 - **Document Routing**: context_routes for intelligent loading
 - **Intelligent Triggers**: agent-triggers.yaml (16 rules, 100% accuracy)
 - **Task Scheduling**: Workflow patterns for standard procedures
@@ -237,7 +237,7 @@ pytest --cov=modules --cov-report=term --cov-fail-under=80
 
 #### 8 Standard Docs per Module
 1. **README.md** - Overview and usage (for humans)
-2. **agent.md** - Orchestration config (for AI)
+2. **AGENTS.md** - Orchestration config (for AI)
 3. **CONTRACT.md** - API interfaces
 4. **TEST_PLAN.md** - Test strategy
 5. **RUNBOOK.md** - Operations guide
@@ -344,7 +344,7 @@ make ai_begin MODULE=<name>
 #### Files Generated
 ```
 modules/<name>/
-├── agent.md
+├── AGENTS.md
 ├── README.md
 ├── doc/
 │   ├── CONTRACT.md
@@ -530,7 +530,7 @@ Only if explicitly requested:
 
 ### Module-Specific
 Load when working in module:
-- `modules/<name>/agent.md`
+- `modules/<name>/AGENTS.md`
 - `modules/<name>/README.md`
 - `modules/<name>/doc/CONTRACT.md`
 
@@ -601,7 +601,7 @@ Load when working in module:
 - [ ] Generate AI-SR (AI self-review)
 - [ ] Check diff one more time
 - [ ] Verify no secrets committed
-- [ ] Clean temp files: `make cleanup_tmp`
+- [ ] Clean temp files: `make cleanup_temp`
 
 #### 10. Commit
 - [ ] Write clear commit message
@@ -634,7 +634,7 @@ Load when working in module:
    - Registry consistency (4)
 
 4. **AI Friendliness** (20 points) ⭐
-   - agent.md lightweight (5)
+   - AGENTS.md lightweight (5)
    - Doc role clarity (5)
    - Module doc complete (4)
    - Workflow AI-friendly (3)

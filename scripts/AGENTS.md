@@ -7,7 +7,7 @@ policies:
   goals_ref: /doc_agent/policies/goals.md
   safety_ref: /doc_agent/policies/safety.md
 
-parent_agent: /agent.md
+parent_agent: /AGENTS.md
 merge_strategy: "child_overrides_parent"
 
 context_routes:
@@ -19,6 +19,11 @@ context_routes:
       when: "Need concrete make targets or command references."
       paths:
         - /doc_human/reference/commands.md
+    - topic: "Documentation Tools"
+      priority: medium
+      when: "Run documentation checks from a single entrypoint."
+      paths:
+        - /scripts/README.md
     - topic: "Context Usage Telemetry"
       priority: medium
       when: "Review high-traffic docs/topics or tune on_demand ordering."
@@ -58,7 +63,7 @@ context_routes:
 ## Commands
 ```bash
 make docgen                   # Refresh headers and AI index
-make agent_lint               # Validate every agent.md
+make agent_lint               # Validate every AGENTS.md
 make dev_check                # Full repo lint + tests
 python scripts/<name>.py --help
 ```
@@ -66,7 +71,7 @@ python scripts/<name>.py --help
 ## Safety
 - Scripts must be idempotent and avoid destructive defaults.
 - Never hard code absolute paths or secrets.
-- When a script generates artifacts, clean them with `make cleanup_tmp`.
+- When a script generates artifacts, clean them with `make cleanup_temp`.
 
 ## References
 - `/scripts/README.md`

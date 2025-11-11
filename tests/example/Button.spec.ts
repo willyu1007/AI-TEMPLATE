@@ -104,6 +104,6 @@ describe('Button.vue []', () => {
  * npm run test:unit -- Button.spec.ts
  * npm run test:unit -- --coverage
  * 
- * agent.md §6.2 Vue/TypeScript 
+ * AGENTS.md §6.2 Vue/TypeScript 
  */
 
